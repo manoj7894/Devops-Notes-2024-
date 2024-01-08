@@ -7,7 +7,3 @@ sudo usermod -aG docker $USER
 docker --version
 sudo service docker start
 sudo service docker status
-
-
-
-# sample
