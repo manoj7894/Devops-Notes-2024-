@@ -1,0 +1,164 @@
+# What is Jfrog Artifactory [It storage the all packages]
+-> Jfrog Artifactory is a tool used in devops methodology to store artifacts (read deployable code)
+-> Jfrog developed in java. It is run in Linux, windows, mac
+-> Jfrog Artifactory is repository manager that supports all avaliable softwares packages types
+
+# What is Artifact
+The files that contain both compiled code and resources that are used to compile them are known as artifact
+
+-> Artifact workflow
+ source code -> Build tools -> Compillation -> Binary code -> Dependencies -> resources -> Artifact
+
+-> In java an artifact would be jar, war, ear ..etc
+-> In .net an artifact would be .dll, files.
+
+# What are the difference between source code and Binary code
+       source Code                     Binary Code
+1) Text                            1) Blob (Raw data)
+2) we compare two source files     2) we cant compare two source files
+3) based on content we can see it  3) we version by it name
+4) stored by override              4) Not stored by override
+
+# What is Artifact Repository
+-> An artifact repository is a repository which can store mulitple different versions of artifacts.
+-> Each time war (or) tar.gz file is created
+-> It stored in a server dedicated for the artifacts
+
+# Why Artifact Repository
+source code -> Complication -> test -> Review -> Sucessfully -> Deploy
+In real time in the above process if you have ant error in test env. we will roll back to version control to fix it.
+Insted of that if you store artifacts in repo we can rollback to previous version
+
+# Repository management tool
+Repository management tool helps the development teams to create, maintain, and track their software packages.
+
+-> Options
+1) Jfrog Artifact 
+2) Nexus
+3) Apache Archiva
+4) Git hub
+5) Nuget
+6) Yum, Rpm, npm, playstore ..etc
+
+# Why only we use Jfrog 
+Jfrog supports wide range of formets and types. so that we will use Jfrog Artifact
+1) python repo
+2) chef repo
+3) Pupper repo
+4) Apt repo
+5) yum repo
+6) docker repo
+7) rpm repo
+8) maven repo
+
+# How to install Jfrog
+-> To create one instance with t2.medium
+-> Open port 8081 and 8082 in security group
+
+-> Install java
+sudo yum update
+sudo wget https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz
+sudo tar -xvf openjdk-13.0.1_linux-x64_bin.tar.gz
+sudo mv jdk-13.0.1 /opt/
+cd /etc/profile.d/
+cd ~      	
+ll
+sudo vim java.sh
+	JAVA_HOME='/opt/jdk-13.0.1'
+	PATH="$JAVA_HOME/bin:$PATH"
+	export PATH
+sh java.sh
+cd ~
+source /etc/profile
+java --version
+
+--> Get the link from https://jfrog.com/community/open-source/
+cd /opt
+sudo wget https://releases.jfrog.io/artifactory/bintray-artifactory/org/artifactory/oss/jfrog-artifactory-oss/7.71.3/jfrog-artifactory-oss-7.71.3-linux.tar.gz
+sudo tar -xvf jfrog-artifactory-oss-7.71.3-linux.tar.gz
+cd artifactory-oss-7.71.3/
+cd app
+cd bin
+sudo sh artifactory.sh
+-> After complete the abpve steps you will access the browser along with public ip and 8081 or 8082 
+-> Jfrog default username is admin and password is password
+-> After login the jfrog skip all options
+-> After open the jfrog go to administraton and go repositories and create one local repositorie with maven
+-> Go to application and go to artifactory and click artifacts and go to created repo and click set me up option in above 
+-> go to deploy and copy that code 
+
+# How deploy the files into Jfrog artifact using maven
+-> Install maven
+sudo yum update
+sudo wget https://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+sudo tar -xvf apache-maven-3.6.3-bin.tar.gz
+sudo mv apache-maven-3.6.3 /opt/
+cd /etc/profile.d/                                [we have six goals in maven
+ll                                                   1) mvn clean
+sudo vim maven.sh                                    2) mvn compile
+ 	M2_HOME='/opt/apache-maven-3.6.3'            3) mvn test
+	PATH="$M2_HOME/bin:$PATH"                    4) mvn package
+	export PATH                                  5) mvn install
+sh maven.sh                                          6) mvn deploy
+cd ~
+source /etc/profile
+mvn --version
+-> create one directory
+-> go to that directory
+-> mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-webapp -DarchetypeVersion=1.4
+-> go to maven pom.xml and remove partent and that code on partent place
+-> Give central to snapchats place
+-> If you want to enter into jfrog using maven you have to give jfrog username and passowrd in maven
+-> Go to apache maven
+-> cd /opt
+-> cd apache-maven-3.6.3/ 
+-> cd conf/
+-> sudo vi settings.xml
+-> You will follow the video to set up the Jfrog username and passwd in maven
+-> After complete the set up username and password
+-> mvn clean
+-> mvn deploy
+
+# How deploy the files into Jfrog artifact using jenkins
+-> Install Git
+sudo yum install git -y
+git --version
+
+-> Install jenkins
+cd /opt/
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade
+sudo amazon-linux-extras install java-openjdk11 -y
+sudo dnf install java-11-amazon-corretto -y               
+sudo yum install jenkins -y                            
+sudo systemctl enable jenkins                   
+sudo systemctl start jenkins                        
+sudo systemctl status jenkins                
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+-> After complete the jenkins installed 
+-> You will install below plugins 
+-> Eclipse Temurin installerVersion and jdk related plugins
+-> Artifactory plugin
+-> After instlled the plugins
+-> You will install java JDK-8 and JDK-11 and maven install  in configuration tools
+-> Go to configuration system and go Jfrog and give somename in id, give jfrog URL
+-> And give username and password and click test connection 
+-> Go to application and go to artifactory and click artifacts and go repo and click set me up option in above 
+-> go to deploy and copy that code 
+-> go to git and edit pom.xml file and remove partent and that code on partent place
+-> Go t jenkins create free systle project
+-> Go to build env and click Maven3-Artifactory Integration and click refersh repositories
+-> Build and click maven artifactory and give pom.xml in root
+-> save and apply
+
+
+
+
+
+
+
+
+
