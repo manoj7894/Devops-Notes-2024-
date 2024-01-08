@@ -1,4 +1,4 @@
-# Output variables for the EKS cluster
+# Output variables for the EKS clusters
 output "eks_cluster_name" {
   value = aws_eks_cluster.eks-cluster.name
 }
