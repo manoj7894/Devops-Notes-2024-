@@ -1,0 +1,234 @@
+# What is terraform
+-> Terraform is used to create the infrastructure as a code
+-> Terraform is a open source software created by hashicrop
+-> Go programming language is used to develop the terraform software
+-> HashiCorp Configuration Language (HCL) we use to write the terraform code
+-> Terrafrom supports the all cloud providers (AWS,Azure,GCP)
+
+# What are the difference between Terrafrom and Ansible
+Terraform
+-> Terrafrom developed by hashicrop
+-> Terrafrom is a infrastructure as a code. It means designed provision server themselves
+-> It creating machines
+
+Ansible
+-> Ansible developed by REDHAT
+-> Ansible is Configuration managnment tool. It means designed to install and manage the software on existing server
+-> It installing softwares
+
+# Components of terraform
+-> Providers
+-> Resources
+-> Variables
+-> Statefile
+-> Backends
+-> Modules
+-> Provisioners
+-> Data Source
+-> Service Principals
+
+
+# Providers [Providers is used to interact with cloud providers]
+-> Terraform relies on plugins called providers to interact with cloud providers, SaaS providers, and other APIs.
+Ex:-
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+
+# Resources [To create infrastructure in cloud or AWS we deploy the resource]
+-> Resource are the most important element in the Terraform language.
+-> Each resource block describes one or more infrastructure objects, such as virtual networks and compute instances.
+Ex:-
+resource "aws_vpc" "vpc" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "vpc01"
+  }
+}
+
+
+# Variables
+-> Using variables in terraform configuration makes our deployment more dynamic.
+-> A separate file with name variables.tf needs to be created in the working directory to store all variables for our used in main.tf configuration file.
+Ex:-
+variable "region" {
+  type    = string
+  default = "ap-south-1"
+}
+
+
+# Statefile [It compare the current state with desired state]
+-> After the deployment is finished terraform creates a state file to keep track of current state of the infrastructure.
+-> It will use this file to compare when you deploy/destroy resource in other words it compares current state with desired state using this is file.
+-> A file with a name of terraform.tfstate will be created in your working directory
+
+-> How to restore the terraform.tfstate file
+terraform import aws_vpc.vpc vpc-0108ace4a127ec01e
+terraform import aws_subnet.public_1 subnet-055a4f5f5a08dda26
+terraform import aws_subnet.public_2 subnet-04a6eb7ff81dbcd1b
+terraform import aws_internet_gateway.igw igw-0852cce365a97faba
+terraform import aws_route_table.rt1 rtb-0ac05e5322a112ec5
+terraform import aws_route_table.rt2 rtb-09f39b59877f0af5c
+terraform import aws_security_group.example_security_group sg-0d47b9681c32cfc33
+terraform import aws_instance.example_instance i-0a039441365591418
+
+
+
+# Backup and Restore the terraform.tfstate
+-> Multiple people work on same terraform code using terraform.tfstate but another persons wont work when one person working on code
+Ex:-
+terraform {
+  backend "s3" {
+    bucket         = "manoj-9143"
+    key            = "global/mystate/terraform.tfstate"
+    region         = "ap-south-1"
+    encrypt        = true
+    dynamodb_table = "state-lock"
+  }
+}
+
+
+# Modules [Using modules you can deploy the code into multiple environments]
+-> If you want to perform a template-based deployment you can follow modularized approach
+-> A module defines a set of parameters which will be passed as key value pairs to actual deployment
+-> With this approach you can create multiple environments in a very easy way
+Ex:-
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.30"
+    }
+  }
+}
+
+module "module_test" {
+  source = "./module"
+}
+
+
+
+# Data Source [you will use data source to get existing resource]
+-> If you deploy your resource out of terraform and use them in your terraform code the way you use them through "Data Source"
+-> Data source in terraform are used to get information about resource external to terraform and use them to setup your terrafrom resource
+Ex:-
+data "aws_vpc" "vpc" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "vpc01"
+  }
+}
+
+# Terraform locals
+-> when we have local type resources it will the reducer length of reference ids
+ex:-
+locals {
+  security = aws_security_group.example_security_group
+  vpc_id      = aws_vpc.vpc.id
+}
+
+vpc_security_group_ids      = [local.security.id]
+vpc_id = "${local.vpc_id.id}"
+subnets = [local.cidr_block_Public_1, local.cidr_block_Public_2]
+security = [local.security]
+
+# Terraform function
+-> It will combined and separate the words 
+
+output "vpc_name" {
+  value = join("",["${var.vpc_name}"],["RPM"])
+}
+
+output "vpc_name1" {
+  value = lower(join("",["${var.vpc_name}"],["RPM"]))
+}
+
+
+# what is the difference between variable and local
+-> we cant use expression in variable
+-> we can pass variables from command prompt
+-> we cant pass the input from command prompt
+
+# Terrafrom provisions
+-> We have three types of provisions
+  1) File  -> It will execute the script in file when we run the code
+     user_data                   = filebase64("./file123.sh")
+
+  2) Local-exec -> It will execute the commands when we run the code
+      provisioner "local-exec" {
+    command = "echo ${aws_subnet.public_1.id} >> Subnet-Ip"
+  }
+
+  3) Remote-exec -> It shows data in directory when we run the code
+      provisioner "remote-exec" {
+    inline = [ 
+      "ls -al /var",
+      "chmod 600 ./private-key.pem",
+      #"echo 'Starting script'",
+      #"/tmp/terraform_2011452084.sh",
+      #"echo 'Script completed'"
+    ]
+  
+    connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("./private-key.pem")
+    host        = aws_instance.example_instance.public_ip
+    }
+  }
+
+
+
+# Terraform workspace (or) multiple env
+-> when we use the workspace we can save our terraform.tfstate file in different env
+-> Suppose you have two env one is dev env and another one is prod env
+-> You should create dev workspaec before you deploy the dev env
+     terraform workspace list   -> To show workspaces
+     terraform workspace new dev  -> To create the dev workspace
+     terraform workspace select dev  -> To switch the dev env
+     terraform workspace show       -> To have the in which workspace you would being
+     terraform apply -var-file dev.tfvars   -> To deploy the dev env
+
+You can see below link to know properly
+https://youtu.be/_B7gtqwzKuc?si=sqI34qnTAZVnPnFy  
+  
+   
+
+# How to install the terraform
+sudo yum update -y
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+sudo yum -y install terraform
+terraform --version
+
+# Terrafrom Commands
+terraform init
+terraform fmt
+terraform validate   ->Check the syntax of terraform code
+terraform plan   -> It compare the code with current state and desired state
+terraform apply
+terraform apply -auto-apporve
+terraform destroy
+
+
+# How to install terraform in windows
+-> https://developer.hashicorp.com/terraform/install
+-> Extract the file
+-> you create one folder in you system and copy terraform in that folder and paste the file in created folder
+-> after copy the that address and go env and click path and add new and past that path there
+-> Later on open the cmd and check the wheather terraform install or not
+terraform -version
+
+# How to install AWS cli in windows
+-> https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+-> https://awscli.amazonaws.com/AWSCLIV2.msi
+aws --version
+
+
