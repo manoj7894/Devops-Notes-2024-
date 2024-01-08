@@ -1,0 +1,147 @@
+# Kubernetes network policy
+-> If you want to communicate connection between two pods then we will use network policy
+-> Pods become isolated by using network policy
+-> we have two types of network policy
+  1) Ingress network policy  ->  Inbound rules [which pod we want to give inbound permission] 
+  2) Egress network policy  -> Outbound rules  [Twhich pod we want to get the data]
+
+Ingress means: you can get the above pod data only by Ingress pod
+Egress means: you can expose only Egress pod data only by above pod 
+
+How to work with Network policy
+-> First you will create one pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod1
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+-> Another you will create another pod
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod2
+  labels:
+    app: my-tomcat
+spec:
+  containers:
+  - name: my-container
+    image: ashokit/javawebapp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service1
+spec:
+  selector:
+    app: my-tomact
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+-> You will deploy the file using ingress and Egress
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container1
+        image: nginx:latest
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+        - name: secret-volume
+          mountPath: /secret
+      volumes:
+      - name: config-volume
+        configMap:
+          name: my-config
+      - name: secret-volume
+        secret:
+          secretName: my-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-nginx-network-policy
+  namespace: other
+spec:
+  podSelector:
+    matchLabels:
+      app: my-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            team: operation
+      - podSelector:
+          matchLabels:
+            role: my-tomcat
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          role: my-nginx  # From above my-nginx pod only you can expose or send request my-tomcat pod data
+    ports:
+    - protocol: TCP
+      port: 80
+
+what commands we will use to network policy
+-> Kubectl apply -f <podname>
+-> kubectl get po --show-labels  -> To see the pod labels name
+-> kubectl get all --show-labels  -> To see all the labels name
+-> kubectl get netpol   --> To see the network policies
+-> kubectl create namespace <namespacename>  -> To create the namespace
+-> kubectl label namespace/<namespacename> team=operation  -> To create the label name to the namespace
+   [team=operation is the labelname to namespace]
+-> kubectl get ns --show-labels --> To see the namespace labels
+  Basically it cloudnt practice but i know concept how to work [all data in files]
+-> You will create one namespace and give the label name to the namespeace.
+-> You will work with networkpolicy using that namespaces

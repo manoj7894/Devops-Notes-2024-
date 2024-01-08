@@ -1,0 +1,448 @@
+# What is volumes in Kubernets
+Kubernets will store the data in directory that should be accessiable across container in pod
+
+# Type of kubernetes volume types
+-> Local nodes types -> emprtdir, hostpath, local node type
+-> Special types -> persistence volume, persistence volume claim 
+-> File sharing type -> nfs
+  we have lot of volume types presently we are using above types
+
+->  emptydir -> It is used to store the data temporialy in the container. Data will available upto you pod would be existing
+
+# First You will create the file using emptydir
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod1
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: manoj3003/nginx
+    volumeMounts:
+        - mountPath: /test
+          name: test
+  restartPolicy: Always
+  volumes:
+    - name: test
+      # Define the volume type and its configuration
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+
+-> After execute the above file you will check volume mount is created or not in our local terminal
+-> volume wont be create in local termianl because we are using emptydir 
+-> you will enter into pod and check the volume is created or not
+-> kubectl exec -it <podname> -c <containername> -- /bin/sh
+-> When we use the emptydir volume if pod goes down we wont get volume.
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod2
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: manoj3003/nginx
+    volumeMounts:
+        - mountPath: /tmp/raja1
+          name: raja
+  - name: my-container1
+    image: ashokit/javawebapp
+    volumeMounts:
+        - mountPath: /tmp/raja2
+          name: raja
+  restartPolicy: Always
+  volumes:
+    - name: raja
+      # Define the volume type and its configuration
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service1
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+ 
+-> After execute the above file you will check volume mount is created or not in our local terminal
+-> volume wont be create in local termianl because we are using emptydir 
+-> you will enter into pod and check the volume is created or not
+-> kubectl exec -it <podname> -- /bin/sh
+-> kubectl exec -it <podname> -c <containername> -- /bin/sh
+-> When we use the emptydir volume if pod goes down we wont get volume.
+-> But When add any files in container1 that files it will automatically add to container2
+
+
+
+
+# How to assign singel volume to specific container
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod2
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: manoj3003/nginx
+    volumeMounts:
+        - mountPath: "/var/raja"    # location in container
+          name: raja
+  volumes:
+    - name: raja
+      hostPath:
+        path: /mnt/raja           # location path
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service1
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+
+-> First you will execute the above file master node
+-> After execute the above file. you will go workernode whereever your pods is running
+-> After enter the workernode. you will follow the below commands
+-> kubectl get nodes
+-> After Execute the above command you will enter into the pod using below command
+-> kubectl exec -it <podname> -- /bin/sh
+-> After enter into the pod you will check the wheather volume is created or not
+-> After check the volume you will create one file on that volume
+-> After create the file you will exit from the container and check hostpath is created in your local terminal or not
+-> Then you will find your hostpath and file whichever file you have created in your pod
+-> Suppose if your pod goes die your data would be save in host path volumes
+
+
+# How to assign singel volume to multiple container
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod2
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container1
+    image: manoj3003/nginx
+    volumeMounts:
+        - mountPath: "/var/teja"    # location in container
+          name: sai
+  - name: my-container2
+    image: ashokit/javawebapp
+    volumeMounts:
+        - mountPath: "/var/mani"    # location in container
+          name: sai
+  volumes:
+    - name: sai
+      hostPath:
+        path: /opt/sai           # location path
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort  
+
+
+-> First you will execute the above file master node
+-> After execute the above file. you will go workernode whereever your pods is running
+-> After enter the workernode. you will follow the below commands
+-> kubectl get nodes
+-> After Execute the above command you will enter into the container1 using below command
+-> kubectl exec -it <podname> -c <containername> -- /bin/sh
+-> After enter into the container1 you will check the wheather volume is created or not
+-> After check the volume you will create one file on that volume
+-> After create the file you will enter into second container you will check the wheather volume is created or not as well as file would being there whichever file you have created in con1
+-> Later on you will create one file in con2. After create the file in container you will exit from container
+-> You will check the host path and check the files whichever you have created in both container 
+-> Suppose if your pod goes die your data would be save in host path volumes
+
+Note: If you create file in one container then file will automatically add in second container as well as it will add in hostpath volume.
+
+
+
+# How to assign a dedicated volumes to each container in a pod
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod2
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container1
+    image: manoj3003/nginx
+    volumeMounts:
+        - mountPath: "/var/nagu"    # location in container
+          name: nagu
+  - name: my-container2
+    image: ashokit/javawebapp
+    volumeMounts:
+        - mountPath: "/var/kittu"    # location in container
+          name: kittu
+  volumes:
+    - name: nagu
+      hostPath:
+        path: /tmp/nagu            # location path
+    - name: kittu
+      hostPath:
+        path: /tmp/kittu           # location path
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+ 
+
+Note: Each container having separete local path
+
+-> First you will execute the above file master node
+-> After execute the above file. you will go workernode whereever your pods is running
+-> After enter the workernode. you will follow the below commands
+-> kubectl get nodes
+-> After Execute the above command you will enter into the container1 using below command
+-> kubectl exec -it <podname> -c <containername> -- /bin/bash
+-> After enter into the container1 you will check the wheather volume is created or not
+-> After check the volume you will create one file on that volume
+-> After create the file you will enter into second container you will check the wheather volume is created or not as well as file would being there whichever file you have created in con1
+-> Later on you will create one file in con2. After create the file in container you will exit from container
+-> You will check the host path and check the files whichever you have created in both container 
+-> Suppose if your pod goes die your data would be save in host path volumes
+
+Note: If you create file in one container then file will automatically add in second container as well as it will add in hostpath volume.
+
+Note: When you using emptydir and Hostpath in volumes. you can't share the volume to another worknode because volume create locally in worknode
+
+-> If we want to share volume pods running on differnet nodes then we wil use NFS and persistence vloume 
+-> But NFS is not working in my system. If you want to understand how it is working you follow the below youtube link
+
+# How to assign a shared volume across all pods running on different nodes
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javawebappdeployment
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: javawebapp
+  template:
+    metadata:
+      name: javawebapppod
+      labels:
+        app: javawebapp
+    spec:
+      containers:
+      - name: my-container1
+        image: ashokit/javawebapp
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: "/var/sup"    # location in container
+          name: shanu
+      - name: my-container2
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: "/var/riya"    # location in container
+          name: shanu
+      volumes:
+       - name: shanu
+         hostPath:
+          path: /tmp/shanu        # location path
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: javawebapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+
+-> After execute the above file you will follow the below link
+https://youtu.be/AXi2oENUJHo?si=9VXRKkuL0aguov-j
+
+
+
+
+# What is presistence volumes
+->  In simple word persistent volume is a solution to store data of a container permanently 
+   even after the pods got deleted.
+-> Presistence volumes means to get storage from your storage devices or cloud providers
+-> It will allocated storage to presistence volumes claim by the request from presistence volumes claim
+
+# What is presistence volumes claim 
+-> presistence volumes claim is a request for storage by a user.
+-> Claims can request specific size and access modes
+
+-> In persistence volume claim we have different access modes
+ 1) RWO -> Read write once for single node
+ 2) ROX -> Read only access for multiple nodes
+ 3) RWX -> Read write access for mulitple nodes
+
+-> In persistence volume claim we have different policies
+ 1) Retain -> If we delete the pod volume will not delete
+ 2) Delete -> If we delete the pod volume will delete
+ 3) Recycle -> Recycle policy is deprecated no longer recommanded for use
+
+
+
+
+# How to work presistence volumes and presistence volumes claim
+
+# How to create a Persistent Volume (PV) 
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: my-storage-class
+  hostPath:
+    path: /mnt/my-pv      # mention the dir name in terminal
+
+-> You have to execute above presistence volumes file to get storage for k8s cluster
+-> kubectl get pv  --> To see the presistence volumes
+
+# How to create a Persistent Volume claim (PVc) 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: my-storage-class
+
+-> You have to execute above presistence volumes claims file to get storage from presistence volumes
+-> kubectl get pvc  --> To see the presistence volumes claims
+-> kubectl get pv  --> To see the presistence volumes
+
+# How to configue Persistent Volume claim in deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: javawebapp
+  template:
+    metadata:
+      labels:
+        app: javawebapp
+    spec:
+      containers:
+        - name: my-container
+          image: ashokit/javawebapp
+          volumeMounts:
+            - name: my-pvc-volume
+              mountPath: /path/in/container
+        - name: my-container1
+          image: nginx:latest
+      volumes:
+        - name: my-pvc-volume
+          persistentVolumeClaim:
+            claimName: my-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: javawebapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+
+-> you will execute above deployment file
+-> kubectl get pods
+-> kubectl get pods -o wide
+-> After execute the all files. you enter into your cantainer in which worknode your pod is running
+-> After enter into the container you will check the volume and create one file in that volume
+-> After create the file in that volume. you will delete the pod.
+-> After you delete the pod another pod will create because you mention the replica in file
+-> If pod will create in another workernode. you go to that worknode and enterinto container and check the file is there whichever file you have created with previous container in that worknode 
+-> If you understand more about persistence vloumes you will watch below link
+https://youtu.be/hAhoeg3RryY?si=Dwtz4jDpFAYzJYyO
+
+-> suppode if you create two pods when add the files in one pod in con then automatically files will add in another pod.
+-> kubectl edit pvc <pvc-name>  --> To change persistentVolumeReclaimPolicy
+
+Finally: when we use persistence volume will we do add volume in one worknode then it will automatically to another worknode
+         when we use host volume you get file whichever workernode our pod is running. we cant get from another worknode
+
+

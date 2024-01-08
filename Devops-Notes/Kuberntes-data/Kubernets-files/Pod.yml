@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest or manoj3003/my-tomact
+    ports:
+    - containerPort: 80

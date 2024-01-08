@@ -1,0 +1,24 @@
+# How to create ingress file to Permission to netwotk [Ex]
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod1
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxappsvc
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

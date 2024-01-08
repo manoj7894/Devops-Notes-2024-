@@ -1,0 +1,37 @@
+# What is kubernetes Statefulset
+-> Statefulset is assgin a unique and stable hostanames based on defind naming conversion
+-> When you delete the pod in statefulset then it will delete the whatever pod cretead latestly
+-> If you want to host the database in kubernetes then you will use statefulset
+-> We have to give clusterIP to statefulset because we cant expose our database to everyone
+
+what are the difference between stateful and deployment
+statefulset
+-> When we delete the pod in statefulset then another pod will create on same name
+-> we need persistance volume and persistance volumeclaim to create the statefulset
+Deployment
+-> When we delete the pod in statefulset then another pod will create with another name
+-> Persistance volume and persistance volumeclaim It doesnt mandatory to create the statefulset
+
+Statefulset-Data Replication
+Data Replication: Since each pod in the statefulset has its own pv and pvc, data replication can be handled
+ at the storage level
+How to work with statefulset
+-> You have to execute the service.yml
+-> You have to execute the configmap.yml
+-> You have to execute the secret.yml
+-> You have to execute the persistence,volume.yml
+-> After execute the all above file later you have to execute the statefulset
+
+
+# what is calico netwrok 
+-> Calico is an open-source networking and network security solution for containers and virtual machines.
+-> It provides a scalable and secure netwrok fabric for connecting workloads across different environments.
+-> Its commonly used in kubernetes clusters for managing network connectivity and policies.
+
+
+
+
+
+
+
+

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: my-the-replicaset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: javawebapp
+  template:
+    metadata:
+      labels:
+        app: javawebapp
+    spec:
+      containers:
+      - name: my-container
+        image: ashokit/javawebapp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service4
+spec:
+  selector:
+    app: javawebapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort

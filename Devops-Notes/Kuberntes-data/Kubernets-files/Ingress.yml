@@ -1,0 +1,16 @@
+# How to create Ingress file
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-nginx-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: my-nginx
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: my-tomcat   # From this my-tomcat pod you can access or get data only above my-nginxpod data

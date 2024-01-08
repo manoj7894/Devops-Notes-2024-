@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-resource-2
+spec:
+  ingressClassName: nginx      
+  rules:
+  - host: ashokit.org    # Route53 domain name
+    http:
+     paths:
+     - PathType: Prefix
+       path: "/tomcat-web-app"
+       backend:
+        service:
+         name: tomcatappsvc   # Tomcat Service name
+         port:
+          number: 80
+     - PathType: Prefix
+       path: "/nginx-web-app"
+       backend:
+        service:
+         name: nginxappsvc   # Nginx Service name
+         port:
+          number: 80

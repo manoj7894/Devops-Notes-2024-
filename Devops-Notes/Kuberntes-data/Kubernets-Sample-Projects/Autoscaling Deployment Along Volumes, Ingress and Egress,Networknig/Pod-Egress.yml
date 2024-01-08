@@ -1,0 +1,24 @@
+# How to create Egress file to Permission to netwotk [Ex]
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod2
+  labels:
+    app: my-tomcat
+spec:
+  containers:
+  - name: my-container
+    image: ashokit/javawebapp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service1
+spec:
+  selector:
+    app: my-tomact
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
