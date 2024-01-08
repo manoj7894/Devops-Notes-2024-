@@ -118,7 +118,7 @@ resource "aws_security_group" "example_security_group" {
   description = "Example security group"
   vpc_id      = aws_vpc.vpc.id
 
-  # Define your security group rules as needed
+  # Define your security group rules as needed to you
   # For example, allow SSH and HTTP traffic
   ingress {
     from_port   = 22
