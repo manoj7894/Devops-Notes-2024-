@@ -1,0 +1,290 @@
+# How to create EKS using terraform
+# provider details
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To Create VPC
+resource "aws_vpc" "vpc" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "vpc01"
+  }
+}
+
+# To Create Public Subnet
+resource "aws_subnet" "public" {
+  vpc_id                  = aws_vpc.vpc.id # Replace with your VPC ID
+  cidr_block              = "10.0.0.0/24"  # Replace with your desired CIDR block
+  availability_zone       = "ap-south-1a"  # Replace with your desired Availability Zone
+  map_public_ip_on_launch = true           # Enable auto-assign public IP
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Public Subnet"
+  }
+}
+
+# To Create Private Subnet
+resource "aws_subnet" "private" {
+  vpc_id                  = aws_vpc.vpc.id # Replace with your VPC ID
+  cidr_block              = "10.0.1.0/24"  # Replace with your desired CIDR block
+  availability_zone       = "ap-south-1b"  # Replace with your desired Availability Zone
+  map_public_ip_on_launch = true           # Enable auto-assign public IP
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Private Subnet"
+  }
+}
+
+# To create the Internet gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  # Optional: Assign tags to your Internet Gateway
+  tags = {
+    Name = "My Internet Gateway"
+  }
+}
+
+# To create Routetable-1
+resource "aws_route_table" "rt1" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable"
+  }
+}
+
+# To create Routetable-2
+resource "aws_route_table" "rt2" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable2"
+  }
+}
+
+# To attch Publicsubnet and routetable-1
+resource "aws_route_table_association" "subnet1_association" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.rt1.id
+}
+
+# To attch Privatesubnet and routetable-2
+resource "aws_route_table_association" "subnet2_association" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.rt2.id
+}
+
+# Create a security group
+resource "aws_security_group" "example_security_group" {
+  name_prefix = "example-security-group"
+  description = "Example security group"
+  vpc_id      = aws_vpc.vpc.id
+
+  # Define your security group rules as needed
+  # For example, allow SSH and HTTP traffic
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # outgoing traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# To create policy documenent1
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["eks.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+# To create the IAM role1
+resource "aws_iam_role" "example" {
+  name               = "eks-cluster-role1"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+# To attach the policy to IAM role1
+resource "aws_iam_role_policy_attachment" "example-AmazonEKSClusterPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.example.name
+}
+
+# To Create EKS cluster
+resource "aws_eks_cluster" "eks-cluster" {
+  name     = "EKS-01"
+  role_arn = aws_iam_role.example.arn
+
+  vpc_config {
+    subnet_ids = [aws_subnet.public.id, aws_subnet.private.id]
+  }
+}
+
+resource "aws_iam_role" "eks_node_role" {
+  name = "eks-node-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# To attach the policy1 to IAM role2
+resource "aws_iam_role_policy_attachment" "example-AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+# To attach the policy2 to IAM role2
+resource "aws_iam_role_policy_attachment" "example-AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+# To attach the policy3 to IAM role2
+resource "aws_iam_role_policy_attachment" "example-AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+# To create the Worknodes
+resource "aws_eks_node_group" "example" {
+  cluster_name                = aws_eks_cluster.eks-cluster.name
+  node_group_name             = "node-1"
+  node_role_arn               = aws_iam_role.eks_node_role.arn
+  subnet_ids                  = [aws_subnet.public.id]
+  instance_types              = [var.instance_type]
+
+  remote_access {
+    ec2_ssh_key               = var.key_name
+    source_security_group_ids = [aws_security_group.example_security_group.id]
+  }
+
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 5
+    min_size     = 2
+  }
+
+  labels = {
+    "Name" = "MyWorkerNode"
+  }
+
+  tags = {
+    "CustomTagKey" = "CustomTagValue"
+  }
+
+  capacity_type = "ON_DEMAND"
+}
+
+# Create an First EC2 instance
+resource "aws_instance" "example_instance" {
+  ami                         = var.ami     # Change to your desired AMI ID
+  instance_type               = "t2.medium" # Change to your desired instance type
+  subnet_id                   = aws_subnet.public.id
+  associate_public_ip_address = true         # Enable a public IP
+  key_name                    = var.key_name # Change to your key pair name
+  availability_zone           = var.availability_zone
+  user_data                   = file("/home/ec2-user/CLI.sh")
+  vpc_security_group_ids      = [aws_security_group.example_security_group.id]
+
+  tags = {
+    Name = "EKS-Masternode"
+  }
+}
+
+
+# You have to use below commands to execute the above code
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply or terraform apply -auto-approve
+terraform destroy  --> To delete the service
+
+
+
+# EKS cluster connect with terminal
+I have installed AWS CLI in CLI.sh
+aws --version
+aws configure
+aws sts get-caller-identity
+
+-> We need to install kubectl to communicate with cluster
+#How to install KUBECTL
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+-> We need to attach EKS-Cluster to the Kubectl
+aws eks --region ap-south-1 describe-cluster --name eks-1 --query cluster.status
+aws eks --region ap-south-1 update-kubeconfig --name eks-1
+aws eks list-clusters --> To see the cluster
+
+# Worker Nodes Connect with Cluster 
+#How to install KUBECTL
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+# We have to follow below steps in worknodes also to get pods even in work nodes
+1 mkdir ~/.kube         --> execute in worknode
+ Note: Take kube config file from master and it keep it here
+2 cat ~/.kube/config    --> executive in master node and copy the that data
+3 vi ~/.kube/config     --> past here that copy data in worknode
+4 kubectl get nodes     --> execute in both kubectl and master to get pods are connected or not
+
+
+

@@ -1,0 +1,312 @@
+# RDS create using VPC and Secret managaner and key managnment
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_vpc" "vpc" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "vpc01"
+  }
+}
+
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.vpc.id # Replace with your VPC ID
+  cidr_block        = "10.0.0.0/24"  # Replace with your desired CIDR block
+  availability_zone = "ap-south-1a"  # Replace with your desired Availability Zone
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Public Subnet"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.vpc.id # Replace with your VPC ID
+  cidr_block        = "10.0.1.0/24"  # Replace with your desired CIDR block
+  availability_zone = "ap-south-1b"  # Replace with your desired Availability Zone
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Private Subnet"
+  }
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  # Optional: Assign tags to your Internet Gateway
+  tags = {
+    Name = "My Internet Gateway"
+  }
+}
+
+resource "aws_eip" "eip" {
+  vpc = true
+
+  # Optional: Associate tags with the Elastic IP
+  tags = {
+    Name = "MyElasticIP"
+  }
+}
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.eip.id
+  subnet_id     = aws_subnet.public.id
+
+  # Optional: Associate tags with the Elastic IP
+  tags = {
+    Name = "net-gateway"
+  }
+}
+
+resource "aws_route_table" "rt1" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable"
+  }
+}
+
+resource "aws_route_table" "rt2" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.ngw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable2"
+  }
+}
+
+resource "aws_route_table_association" "subnet1_association" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.rt1.id
+}
+
+resource "aws_route_table_association" "subnet2_association" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.rt2.id
+}
+
+# Create a security group
+resource "aws_security_group" "example_security_group" {
+  name_prefix = "example-security-group"
+  description = "Example security group"
+  vpc_id      = aws_vpc.vpc.id
+
+  # Define your security group rules as needed
+  # For example, allow SSH and HTTP traffic
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 1433
+    to_port     = 1433
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # outgoing traffic
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Create an First EC2 instance
+resource "aws_instance" "example_instance" {
+  ami                         = var.ami           # Change to your desired AMI ID
+  instance_type               = var.instance_type # Change to your desired instance type
+  subnet_id                   = aws_subnet.public.id
+  associate_public_ip_address = true         # Enable a public IP
+  key_name                    = var.key_name # Change to your key pair name
+  availability_zone           = var.availability_zone
+  user_data                   = file("/home/ec2-user/file.sh")
+  vpc_security_group_ids      = [aws_security_group.example_security_group.id]
+
+  tags = {
+    Name = "Ec-1"
+  }
+}
+
+resource "aws_db_subnet_group" "mydb_subnet_group" {
+  name        = "mydb-subnet-group"
+  description = "My RDS Subnet Group"
+  subnet_ids  = [aws_subnet.public.id, aws_subnet.private.id] # Replace with your subnet IDs
+}
+
+resource "aws_db_instance" "mydb" {
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t2.medium"
+  identifier           = "varmadb" # Specify your RDS instance name
+  username             = "admin"
+  password             = "vamsi3003" # Replace with your actual password
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true # Set to true to skip creating a final snapshot
+
+  vpc_security_group_ids = [aws_security_group.example_security_group.id]
+  db_subnet_group_name   = aws_db_subnet_group.mydb_subnet_group.name
+
+  # Enable storage encryption and specify KMS key
+  storage_encrypted = true
+  kms_key_id        = aws_kms_key.example_kms_key.arn # Use the correct ARN for your KMS key
+  db_name           = "bulepalrds"                    # Set your desired database name
+}
+
+resource "aws_secretsmanager_secret" "example" {
+  name = "example-db-secret"
+}
+
+resource "aws_secretsmanager_secret_version" "example" {
+  secret_id = aws_secretsmanager_secret.example.id
+  secret_string = jsonencode({
+    username = aws_db_instance.mydb.username
+    password = aws_db_instance.mydb.password
+    endpoint = aws_db_instance.mydb.endpoint
+    port     = aws_db_instance.mydb.port
+  })
+}
+
+
+# Create the KMS key
+resource "aws_kms_key" "example_kms_key" {
+  description             = "Example KMS Key"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+}
+
+# How to install mariaDb in Ec2
+sudo dnf update
+sudo dnf install mariadb105-server -y
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo systemctl status mariadb
+
+-> How to install AWSCLI
+sudo yum update -y
+sudo yum install python3-pip -y
+sudo pip3 install awscli
+aws --version
+sudo -i
+aws configure
+aws sts get-caller-identity
+
+> After create the secret and click on secret and go to below and click on secret value
+-> connect to the above ec2 instance what you have created
+-> secret=$(aws secretsmanager get-secret-value --secret-id <secretname> | jq .SecretString | jq fromjson)  --> To connect secretmanager to Ec2 by using aws cli with env
+-> echo $secret --> To get all the secret details
+-> user=$(echo $secret | jq -r .username)  --> To extract the user name
+-> echo $user  --> To get the username
+-> password=$(echo $secret | jq -r .password)  --> To extract the password
+-> echo $password  --> To get the password
+-> endpoint=varmadb.c9soyo44a2jj.ap-south-1.rds.amazonaws.com
+-> echo $endpoint
+-> port=$(echo $secret | jq -r .port)
+-> echo $port
+-> mysql -h $endpoint -u $user -P $port -p$password
+-> mysql -h <endpoint> -u <dbusername> -P <portnumber> -p<dbpasswd>
+after enter into database you will execute the bottom two command to change the database and username and ip and password
+you will execute the below commands to configure the secret managner username and password
+-> GRANT ALL PRIVILEGES ON your_database.* TO 'dbname'@'172.31.7.37' IDENTIFIED BY 'your_password';
+-> FLUSH PRIVILEGES;
+-> exit
+-> mysql -h $endpoint -u $user -P $port -p$password
+
+# Add some data to database into side Ec2
+mysqladmin -u root password "${DBRootPassword}"
+mysql -u root --password="${DBRootPassword}" < /tmp/db.setup
+mysql -u root --password="${DBRootPassword}"
+status;
+SHOW Databases;
+USE <dbname>;
+SELECT * FROM <tablename>;  --> To show the table data
+SHOW TABLES;  --> To show the all tables
+DROP TABLE table_name;  --> To delete the table
+
+--> To Enter Into the Db
+After enter into the Db you will use below commadns
+USE <dbname>;  --> To change the db
+CREATE TABLE employees (
+    employee_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);   --> To create the tables in db
+
+INSERT INTO employees (employee_id, first_name, last_name, email)
+VALUES (1, 'John', 'Doe', 'john.doe@example.com');  --> To the data in tables
+
+
+
+# Extra
+resource "aws_db_instance" "my_db_instance" {
+  identifier             = "my-db-instance"
+  engine                 = "mysql"
+  engine_version         = "5.7"
+  instance_class         = "db.t2.micro"
+  allocated_storage      = 20
+  storage_type           = "gp2"
+  username               = "admin"
+  password               = "adminpassword"
+  publicly_accessible    = false
+  multi_az               = false
+  db_subnet_group_name   = "default"  # Adjust to your desired DB subnet group
+  vpc_security_group_ids = ["sg-yyyyyyyyyyyyyy"]  # Replace with your security group ID
+
+  tags = {
+    Name        = "MyDBInstance"
+    Environment = "Production"
+  }
+}

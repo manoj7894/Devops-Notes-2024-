@@ -1,0 +1,5 @@
+# How to install keybase
+ curl --remote-name https://prerelease.keybase.io/keybase_amd64.deb
+wget https://prerelease.keybase.io/keybase_amd64.rpm
+ sudo yum localinstall keybase_amd64.rpm
+run_keybase

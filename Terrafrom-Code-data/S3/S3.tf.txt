@@ -1,0 +1,49 @@
+# How to create S3 bucket
+# Providers
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To create S3 bucket
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "manoj-k3034"    # Your desired bucket name
+  acl    = "private"
+}
+
+# To upload the object to S3 bucket
+resource "aws_s3_bucket_object" "example_object" {
+  bucket       = aws_s3_bucket.example_bucket.id
+  key          = "file.txt"  # Object key
+  source       = "/home/ec2-user/file.txt"  # Path to the local file you want to upload
+  content_type = "text/plain"  # Set the appropriate content type
+}
+
+
+# How to create the Two s3 buckets
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# S3 First Bucket
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "manoj-k3034"    # Your desired bucket name
+  acl    = "private"
+}
+
+# S3 Second Bucket
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "manoj-k3035"    # Your desired bucket name
+  acl    = "private"
+}
+
+# You have to use below commands to execute the above code
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply or terraform apply -auto-approve
+terraform destroy  --> To delete the service

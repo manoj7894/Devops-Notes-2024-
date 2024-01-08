@@ -1,0 +1,292 @@
+# tasks in not running
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# Create an vpc
+resource "aws_vpc" "vpc" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "vpc01"
+  }
+}
+
+# Create Public-subnet
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.vpc.id # Replace with your VPC ID
+  cidr_block        = "10.0.0.0/24"  # Replace with your desired CIDR block
+  availability_zone = "ap-south-1a"  # Replace with your desired Availability Zone
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Public Subnet"
+  }
+}
+
+# Create Private-subnet
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.vpc.id # Replace with your VPC ID
+  cidr_block        = "10.0.1.0/24"  # Replace with your desired CIDR block
+  availability_zone = "ap-south-1b"  # Replace with your desired Availability Zone
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Private Subnet"
+  }
+}
+
+# Create Internet Gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  # Optional: Assign tags to your Internet Gateway
+  tags = {
+    Name = "My Internet Gateway"
+  }
+}
+
+# create RouteTable-1
+resource "aws_route_table" "rt1" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable"
+  }
+}
+
+# create RouteTable-2
+resource "aws_route_table" "rt2" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable2"
+  }
+}
+
+# Attach Public Subnet to routetable-1
+resource "aws_route_table_association" "subnet1_association" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.rt1.id
+}
+
+# Attach Private Subnet to routetable-2
+resource "aws_route_table_association" "subnet2_association" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.rt2.id
+}
+
+# Create a security group
+resource "aws_security_group" "example_security_group" {
+  name_prefix = "example-security-group"
+  description = "Example security group"
+  vpc_id      = aws_vpc.vpc.id
+
+  # Define your security group rules as needed
+  # For example, allow SSH and HTTP traffic
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # outgoing traffic
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# To create policy documenent1
+data "aws_iam_policy_document" "assume_role" {
+  version = "2012-10-17"
+  statement {
+    sid     = ""
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+# To create the IAM role1
+resource "aws_iam_role" "example" {
+  name               = var.ecs_task_execution_role
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+# ECS task execution role policy attachment
+resource "aws_iam_role_policy_attachment" "example-AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role       = aws_iam_role.example.name
+}
+
+# To create Load Balancer
+resource "aws_alb" "example" {
+  name            = "example-alb"
+  internal        = false # Set to true if you want an internal ALB
+  subnets         = [aws_subnet.public.id, aws_subnet.private.id]
+  security_groups = [aws_security_group.example_security_group.id]
+}
+
+# To create Target Group
+resource "aws_alb_target_group" "example" {
+  name        = "example-target-group"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.vpc.id # Replace with your VPC ID
+
+  # Set the health check configuration
+  health_check {
+    path                = var.health_check_path # Specify the path for the health check
+    interval            = 30                    # Health check interval in seconds
+    timeout             = 3                     # Health check timeout in seconds
+    healthy_threshold   = 2                     # Number of consecutive successful health checks
+    unhealthy_threshold = 2                     # Number of consecutive failed health checks
+    protocol            = "HTTP"
+    matcher             = "200"
+  }
+}
+
+# To create load balancer listener
+resource "aws_alb_listener" "example" {
+  load_balancer_arn = aws_alb.example.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.example.arn
+  }
+}
+
+# Create an ECS cluster
+resource "aws_ecs_cluster" "my_cluster" {
+  name = "my-Cluster1" # Specify your cluster name
+}
+
+# Define an ECS task definition
+resource "aws_ecs_task_definition" "my_task" {
+  family                   = "my-task-family"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.example.arn
+
+  cpu    = "256" # Specify the CPU units for the task (e.g., "256")
+  memory = "512" # Specify the memory for the task in MiB (e.g., "512")
+
+  container_definitions = jsonencode([
+    {
+      "name" : "my-container",
+      "image" : "nginx:latest",
+      "portMappings" : [
+        {
+          "containerPort" : 80,
+          "hostPort" : 80
+        }
+      ]
+    }
+  ])
+}
+
+# Define the ECS service
+resource "aws_ecs_service" "example" {
+  name            = "my-ecs-service"
+  cluster         = aws_ecs_cluster.my_cluster.id
+  task_definition = aws_ecs_task_definition.my_task.arn
+  launch_type     = "EC2"
+  desired_count   = 1 # Specify the desired number of tasks
+
+  network_configuration {
+    subnets         = [aws_subnet.public.id, aws_subnet.private.id]
+    security_groups = [aws_security_group.example_security_group.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_alb_target_group.example.arn
+    container_name   = "my-container"
+    container_port   = 80
+  }
+  depends_on = [aws_alb_listener.example, data.aws_iam_policy_document.assume_role]
+}
+
+
+resource "aws_launch_configuration" "example" {
+  name_prefix     = "example-launch-config-"
+  image_id        = "ami-06791f9213cbb608b" # Change to your desired AMI ID
+  instance_type   = var.instance_type       # Change to your desired instance type
+  key_name        = var.key_name            # Change to your key pair name
+  security_groups = [aws_security_group.example_security_group.id]
+}
+
+# create autoscaling
+resource "aws_autoscaling_group" "example" {
+  name                      = "my-ecs-auto-scaling-group"
+  launch_configuration      = aws_launch_configuration.example.name
+  min_size                  = 1
+  max_size                  = 10
+  desired_capacity          = 1
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  vpc_zone_identifier       = [aws_subnet.public.id, aws_subnet.private.id]
+}
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  max_capacity       = 4
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.my_cluster.name}/${aws_ecs_service.example.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy" {
+  name               = "ecs-policy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+    target_value = 60.0
+  }
+}

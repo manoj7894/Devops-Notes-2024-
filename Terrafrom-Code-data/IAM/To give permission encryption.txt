@@ -1,0 +1,103 @@
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# Create IAM User
+resource "aws_iam_user" "example_user" {
+  name = "example_user"
+}
+
+# Create IAM User Login Profile with Password
+resource "aws_iam_user_login_profile" "example_user_login_profile" {
+  user                    = aws_iam_user.example_user.name
+  password_reset_required = false
+  password_length         = 12 # Set your desired password length
+}
+
+# Attach IAM User Policy for Full S3 Access
+resource "aws_iam_user_policy" "s3_full_access_policy" {
+  name = "s3_full_access_policy"
+  user = aws_iam_user.example_user.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+# Create KMS Key
+resource "aws_kms_key" "my_kms_key" {
+  description             = "My KMS Key"
+  enable_key_rotation     = true
+  deletion_window_in_days = 30 # Optional: Specify the retention period for deleted keys
+
+  tags = {
+    Name        = "MyKMSKey"
+    Environment = "Production"
+  }
+}
+
+# Encrypt/Decrypt Data Symmetrically
+#resource "aws_kms_ciphertext" "encrypted_data" {
+#  key_id     = aws_kms_key.my_kms_key.id
+#  plaintext  = "SensitiveDataToEncrypt"
+#}
+
+#resource "aws_kms_decrypt" "decrypted_data" {
+#  ciphertext_blob = aws_kms_ciphertext.encrypted_data.ciphertext_blob
+#}
+
+# Attach IAM User Policy for KMS Permissions
+resource "aws_iam_user_policy" "kms_policy" {
+  name = "kms_access_policy"
+  user = aws_iam_user.example_user.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt"
+      ],
+      "Resource": "${aws_kms_key.my_kms_key.arn}"
+    }
+  ]
+}
+EOF
+}
+
+# Create KMS Key for SSE-KMS
+resource "aws_kms_key" "sse_kms_key" {
+  description = "SSE-KMS Key for S3 Bucket"
+}
+
+# Create S3 Bucket with SSE-KMS
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "manoj-3029"
+  acl    = "private"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = aws_kms_key.my_kms_key.id
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+}
+
+output "iam_user_console_login_link" {
+  value = "https://366778366413.signin.aws.amazon.com/console/"
+}
