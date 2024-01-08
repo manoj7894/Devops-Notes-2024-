@@ -1,0 +1,383 @@
+# What is Ansible
+-> Ansible is one of the famous devops configuration management tool
+-> It is an open source software developed by Michael DeHaan and its ownership is on RedHat
+-> Ansible was written in python
+-> Ansible use palybooks to automate deploy, manage, build, test and configure anything.
+
+# What is configuration management tool
+-> When we use configuration management tool from one system we can control the all the machines
+
+# What are the configuration management tool
+-> Chef
+-> Puppet
+-> Ansible
+
+Chef and Puppet tools works based on pull machanism
+Ansible tool works based on push machanism
+
+# what is Push based model
+-> Ansible will send the notification to the machines whenever configuration is required
+
+# What is Pull based model
+-> Machines oftenly it asking chef and puppet do you have any project configuration
+
+# What Ansible can do 
+-> Configuration Management
+-> App deployment
+-> Continous Delivery
+
+# Running Notes
+-> The Machine which contains Ansible server is called as contraol Node
+-> The Node which are managed or controlled by Ansible are called Host Node
+-> YAML:- Yet Another Markup Lanaguage
+
+
+# Ansible Features
+-> Ansible manages machines in an agent-less manner usign SSH
+-> Uses SSH for secure connections
+-> YAML based playbooks
+-> Follows push based architecture for sending configiration
+
+# What is Ansible Playbook
+-> Playbook is a file written on YAML format that defines set tasks to be executed on hosts
+-> Playbooks are used to automate our tasks
+-> Plays are ordered set of tasks to execute against host servers from inventory file
+
+# What is Inventory file
+-> Ansible inventory file contains host nodes details and groups
+-> Its default location is etc/ansible/hosts
+Note: In Inventory file we can mention IP address and hostnames
+
+
+# How to Install Ansible
+-> You will create two ec2 instance with Amazon-linux-5.61
+-> Follow the below steps in Control-Node
+-> sudo -i
+-> yum update -y
+-> sudo amazon-linux-extras install ansible2 -y     
+-> yum install git python python-pip python-level openssl -y
+-> vi /etc/ansible/hosts    -> To enter hots ips
+    # Ex 1: Ungrouped hosts, specify before any group headers. 
+          enter your hostIPs
+-> vi /etc/ansible/ansible.cfg
+   enable the inventory and sudo user
+-> useradd ansible   -> create user
+-> passwd ansible
+-> visudo
+    ansible ALL=(ALL)       NOPASSWD: ALL
+-> vi /etc/ssh/sshd_config
+   comment the passwordauthentication no
+  un-comment the passwordauthentication yes
+-> systemctl restart sshd
+
+-> Follow the below steps in Host-Node
+-> sudo -i
+-> useradd ansible   -> create ansible
+-> passwd ansible
+-> visudo
+    ansible ALL=(ALL)       NOPASSWD: ALL
+-> vi /etc/ssh/sshd_config
+   comment the passwordauthentication no
+  un-comment the passwordauthentication yes
+-> systemctl restart sshd
+-> systemctl status sshd
+
+-> Follow the below steps in Control-Node
+-> su - ansible
+-> ssh-keygen
+-> ssh-copy-id ansible@localhost
+-> ssh 'ansible@localhost'
+-> ssh-copy-id ansible@13.232.219.183
+-> ssh 'ansible@13.232.219.183'
+-> ansible all --list-hosts
+-> ansible all -m ping  
+   -> To Avoid the waring
+   interpreter_python = /usr/bin/python  -> to keep those interpreter in vi /etc/ansible/hosts 
+    To see how to that will come. To checkout below link 
+     https://youtu.be/py6NFVWOOPw?si=wtJF8OhIcwrbcNdx   in 14:14 min 
+
+
+-> To install ansible follow the below link
+  https://youtu.be/zw8eUSGNLq4?si=ojJ0_KxJHZ7JO4vy
+
+
+Note: why we create the ansible user because when we install jenkins. jenkins user will create automatically
+       But when we install the ansible. ansible user wont be create 
+
+
+# Ansible AD-HOC Commands
+-> sudo su ansible
+-> ansible <all/ groupname/ Ip> -m <modulename> -a <argumentname>
+  [Module means ping, shell, yum]  [Arguments means data, cat/etc/release and all linux commnds we keep in Agrement place]
+     ping means it will ping all the details
+     shell means it will execute the command in argument
+     yum menas it will install the packages
+-> If you want to see all the module you will use below commadns
+-> ansible-doc -l   -> To see the all modules
+-> ansible-doc ping  -> To see the particular module details
+-> ansible all -m ping  -> To see the all hostmancines details
+-> ansible all -m ping -o  -> It display output in single line
+-> ansible webserver -m ping  -> To see the particular webserver group details
+-> ansible 172.132.1.8 -m ping  -> To see the particular host machine details
+-> ansible all -m shell -a 'date'   -> To see the all machines dates
+-> ansible webserver -m shell -a 'date'   -> To see the webserver group date details
+-> ansible 172.132.1.8 -m shell -a 'date'  -> To see the particular hostname date details
+                                   'cat/etc/release'
+                                   'du -Th"
+                                   'git --version'
+-> ansible all -m shell -a 'sudo yum install git -y'    -> Install git in all machines 
+-> ansible all -b -m yum -a "name=httpd state=present"   -> Install httpd in all machines using yum module
+                                              latest
+                                              absent
+    b means elevated privileges (-b) to accomplish this task.
+  present: install
+  latest: Update to latest
+  absent: un-install
+-> ansible all -m shell -b -a "name=git state=present" -> Install git in all machines using shell module 
+-> ansible all -m apt -a "name=git state=present"   -> Install git in ubuntu os 
+
+Q) Irrespective of uderlying OS which module we can use to manage packages(softwares) using package manager in ansible
+A) Ansible introduce "package manager" to work with underlying package manager.
+
+
+# What is YAML (Yet Another Markup Language)
+-> We can make us of this language to store data and configuration in human-readble format
+-> YAML file will have .yml as an extension
+-> Official website: https://yaml.org/
+
+ # Key-Value Pair
+ Fruit: Apple
+ Vegetable: Carrot
+ Liquid: Water
+ Meet: Chicken
+
+ # Array/List
+ Fruits:
+  - Orange
+  - Apple
+  
+Note: We can use the VSCODE to write the YAML language
+
+# Playbook Contains the following sections:
+-> Every palybook starts with 3 hyphens '---'
+-> Host section -> It define the host names
+-> Variable section -> It defines the variable 
+-> Tasks section -> List of tasks should be execute
+
+# How to write playbook
+---
+- hosts: all
+  tasks: 
+   - name: Ping all the hosts
+     ping:
+     remote_user: ansible
+
+# Ansible playbook commands
+-> ansible-playbook play.yml --syntax-check  -> To check the syntax
+-> ansible-palybook play.yml   -> To execute the playbook
+-> ansible-palybook play.yml -v   -> It will display how playbook is working
+->                           -vv
+                             -vvv  -> v means verbol 
+-> ansible-palybook play.yml --check   -> it is dry run
+-> ansible-palybook play.yml --list-hosts   -> To see all hosts machine
+-> ansible-palybook play.yml --step  -> It execute one-by-one step to asking you permission
+
+# What is variables
+-> we will define variables in four approaches
+-> one is run time like below command. we will mention the variables while creating the variables
+-> ansible-playbook group.yml --extra-vars package_name=httpd
+  - hosts: all
+  become: true
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the HTTPD server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+
+-> Second approach is mention varibles within playbook like below
+- hosts: all
+  become: true
+  vars:
+    package_name: httpd
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the HTTPD server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+
+-> Third approach is group variables. we have to create directory in host inventory file below
+-> cd /etc/ansible
+-> sudo mkdir group_vars
+-> cd group_vars
+-> we will metion the groupvars files 
+   like all.yml, webserver.yml, dbserver.yml
+-> vi all.yml
+   package_name: httpd
+
+- hosts: all
+  become: true
+  tasks:
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+  - name:
+    debug:
+      msg: "{{package_name}}"
+
+-> Fourth approach is host variables
+-> cd /etc/ansible
+-> sudo mkdir hosts_vars
+-> 172.132.1.10.yml  -> To mention the particular host
+
+# How to work with groups_vars and host_vars
+Note: If you want to know more about variable you will watch 33 number video in ashokit class
+
+
+# What is ansible vault
+-> It is used to secure our data
+-> When we are dealing with sensitive data that we should secure that data
+-> Using ansible vault we can protect and secure our dara
+
+# Ansible vault commands
+-> ansible-vault encrypt <filename>.yml   -> To encrypt the file
+-> ansible-vault view <filename>.yml   -> To view the encrypt the file
+-> ansible-vault edit <filename>.yml   -> To edit the file
+-> ansible-vault decrypt <filename>.yml   -> To decrypt the file
+-> ansible-vault rekey <filename>.yml   -> To change the password
+-> ansible-playbook <filename>.yml --ask-vault-pass  -> while execute tha password we need vault password
+
+-> We can store the vault password in a file and you can give file as input to execute the playbook
+-> vi vaultpass
+-> ansible-playbook <filename>.yml --vault-password-file=~/vaultpass
+-> ansible-vault encrypt /etc/ansible/group_vars/all.yml   -> To encrypt the file
+                 edit
+                 descrypt
+                 view
+                 rekey
+
+
+
+# What is Handler 
+-> If you want to execute the task based on other task then we will use handler in playbooks
+- hosts: all
+  become: true
+  tasks:
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+      print the message
+  handlers:
+  - name: print the message
+    debug:
+      msg: "{{package_name}}"
+
+# what is tags 
+-> if we want to execute the particular task in playbook then we will use tags in playbooks file
+
+-> ansible-playbook tags.yml --list-tags    -> To see the all tags
+-> ansible-playbook tags.yml --tags "copy"    -> To execute the only copy tag task
+-> ansible-playbook tags.yml --tags "start,copy"   -> To execute the start,copy tasks
+
+
+# What is role in ansible 
+-> roles are used to make our playbook customisable, readle, maintainble
+-> It can be easily reuse the codes by anyone if the role is suitable to someone
+-> It can be easily modify and will reduce the syntax errors.
+
+# How to create ansible roles
+-> To create a ansible role use ansible galaxy command
+-> mkdir roles
+-> ansible-glaxy is the command to create the roles using the templates
+-> roles
+-> ansible-galaxy init <rolename>
+-> we need to install tree to see the folder structure
+-> sudo yum install tree
+-> tree <rolename>
+-> go to the tasks dir and keep the tasks data in main.yml
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+      print the message
+
+-> After that go to the files dir and create the index.yml
+  vi index.html
+-> After that go to the handler and keep the handler data in main.yml
+ - name: print the message
+    debug:
+      msg: "{{package_name}}"
+-> After complete the above all the data
+-> go to the main dir and create the role.yml file 
+- hosts: all
+  become: true
+  roles:
+   - rolename
+
+
+# If you wanto to install packages into different operating system you will use playbook like below
+-> we will use conditions to write the palybook
+- hosts: all
+  become: true
+  tasks:
+  - name: To install git using yum
+    yum:
+      name: git
+      state: present
+    when: os_family=='Red Hat'
+  - name: To install git using apt
+    apt:
+      name: git
+      state: present
+    when: os_family=='Debian'
+
+-> If you want to more playbooks then you wil checkout below git hub link
+https://github.com/ashokitschool/ansible_playbooks_samples 

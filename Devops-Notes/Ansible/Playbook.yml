@@ -1,0 +1,218 @@
+# How to ping all host machines using Ansible playbook
+- hosts: all
+  tasks: 
+   - name: Ping all the hosts
+     ping:
+     remote_user: ansible
+
+# How to create file in all host machines using Ansible playbook
+- hosts: all
+  tasks:
+  - name: To create the file
+    file: 
+      path: /home/ansible/hello.txt
+      state: touch
+
+# How to keep the content on file in all host machines using Ansible playbook
+- hosts: all
+  tasks: 
+  - name: To copy the content into file
+    copy: content="hello world" dest=/home/ansible/hello.txt
+
+# How to install httpd server in all host machines using Ansible playbook
+- hosts: all
+  become: true            # To give the sudo permission
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: httpd
+      state: latest
+
+# How to install httpd and start server in all host machines using Ansible playbook
+- hosts: all
+  become: true
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: httpd
+      state: present
+  - name: To start the HTTPD server
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+
+# How to install, start and create index.html in httpd server in all host machines using Ansible playbook
+- hosts: all
+  become: true
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: httpd
+      state: latest
+  - name: To start the HTTPD server
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+
+
+# How to install, start and create index.html in httpd server with variables in all host machines using Ansible playbook
+# variable with runtime  ansible-playbook group.yml --extra-vars package_name=httpd
+- hosts: all
+  become: true
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the HTTPD server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+
+
+# variable within playbook
+- hosts: all
+  become: true
+  vars:
+    package_name: httpd
+  tasks:
+  - name: To install HTTPD server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the HTTPD server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+
+# variable with group
+- hosts: all
+  become: true
+  tasks:
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+  - name:
+    debug:
+      msg: "{{package_name}}"
+
+# How to work with handlers
+- hosts: all
+  become: true
+  tasks:
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+      print the message
+  handlers:
+  - name: print the message
+    debug:
+      msg: "{{package_name}}"
+
+# How to work with tags
+- hosts: all
+  become: true
+  tasks:
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+    tags:
+      - install
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+    tags:
+      - start
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+    tags:
+      - copy
+    notify:
+      print the message
+  handlers:
+  - name: print the message
+    debug:
+      msg: "{{package_name}}"
+
+
+# How to create roles
+# keep tasks data in tasks dir
+  - name: To install server
+    yum:
+      name: "{{package_name}}"
+      state: latest
+  - name: To start the server
+    service:
+      name: "{{package_name}}"
+      state: started
+      enabled: yes
+  - name: To create the index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+      print the message
+
+# Keep handler data in handler dir
+- hosts: all
+  become: true
+  roles:
+   - rolename
+
+
+# To install packages into multiple os
+- hosts: all
+  become: true
+  tasks:
+  - name: To install git using yum
+    yum:
+      name: git
+      state: present
+    when: os_family=='Red Hat'
+  - name: To install git using apt
+    apt:
+      name: git
+      state: present
+    when: os_family=='Debian'
