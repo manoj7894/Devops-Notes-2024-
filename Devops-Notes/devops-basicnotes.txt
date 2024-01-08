@@ -1,0 +1,61 @@
+# What is devops
+-> devops is a culture
+-> Devops culture is used to collabirate the development and operation team in software project
+
+# What are the principal of devops
+-> Continuous intrigation
+-> Continuous deployment
+-> Infrastructure as a code
+-> Automation
+-> Monitoring
+
+# what development team wiil do 
+-> Take the requirments from client
+-> Based on requirment to develop the code
+-> Test the code
+-> Keep the source code in github repo
+
+# What operation will do
+-> Set the virtual machine
+-> Set the servers
+-> Set the data base
+-> Take the source code from github repo
+-> Build the source code
+-> Deployment in server
+-> Delivery
+
+
+# What is Software development Life Cycle[SDLC]
+-> The process of developing and deployment of the project is called SDLC
+-> Requirments from client
+-> Planning
+-> Develop the code based on client requirment
+-> Test the code
+-> Deployment
+-> Delivery
+-> Maintence
+
+# What are the advantages of devops
+-> Speed
+-> Rapid Delivery
+-> Security
+-> Quality and reliablity
+-> Improved colliboration
+
+# What is waterfall methodology
+-> We can't change the any modification in waterfall methodology
+-> It is step by step process
+-> It move only farward direction
+-> Client involument is very less
+-> Client will see the project end of the project
+-> Requirment is fixed
+-> budget is fixed
+
+# What is Agile methodology
+-> We can change the modification in agile methodology
+-> Requirment is not fixed
+-> Budget is not fixed
+-> It move forward and reverse direction
+-> Client involumet is ver high
+-> Using devops culture we can easily adept the agile methodology
+ 
