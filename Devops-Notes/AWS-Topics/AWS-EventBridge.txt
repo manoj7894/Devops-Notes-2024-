@@ -1,0 +1,52 @@
+# What is Event Bridge
+-> Amazon EventBridge is a serverless service that uses events to connect application components together, 
+-> making it easier for developers to build scalable event-driven applications.
+
+# We can create event-bridge in two ways
+-> Rule with an event pattern
+-> Schedule
+
+
+# How to create Event Bridge with Rule with an event pattern
+-> First you will create one SNS before create the event bridge
+-> Go to the Event Bridge and click eventbridge rule
+-> Give name
+-> Give some description
+-> Click Rule with an event pattern or schedule. I choose the rule with an event pattern
+   if you select the Rule with an event pattern. It will work every time
+   if you select schedule. It will work whenever do you want to run 
+-> Next
+-> Go Event pattern at below 
+-> Select Ec2 in AWS service
+-> Select Ec2 instance State-change Notification in event type 
+-> Select Specific state in Event Type Specification 1
+    Choose stopping and stopped
+-> Selcet ant any instance in Event Type Specification 2  [If you want specific instance you will choose specific and click instance ID.
+-> Next
+-> Select the AWS service in Target-1
+-> Select SNS and Click topics
+-> Next
+-> Next
+-> Create Rule
+-> After complete the above steps once you will stop and start the Ec2 instance then you will get notification
+
+
+# How to create Event Bridge with Schedule
+-> First you will create one SNS before create the event bridge
+-> Go to the Event Bridge and click eventbridge rule
+-> Give name
+-> Give some description
+-> Click Schedule
+-> Choose rate and cron type [rate means if you select 2 min it will run every very 2 min]
+                       [cron type means on which time it will run]
+-> Select AWS service in target-1
+-> Choose the EC2 stopinstance API call in select a target
+-> Select instance id
+-> Click the Add another target to get SNS notification
+-> Select the AWS service in Target-2
+-> Select SNS and Click topics
+-> Next
+-> Next
+-> Create role
+
+

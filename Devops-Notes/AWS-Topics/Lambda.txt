@@ -1,0 +1,90 @@
+# What is lambda
+-> It is a serverless computing service. serverless means AWS will take care the total infrastructure
+
+# What is the difference between EC2 and Lambda
+# Ec2
+-> It is a server computing service. servermeans user can take care the total infrastructure
+-> You have to pay money untill instance running
+-> You have to install what software you need
+-> user can host the complete application
+
+#Lambda
+-> It is a serverless computing service. serverless means AWS will take care the total infrastructure
+-> You need to pay money upto function run and memory consume
+-> Lambda will install the all softwares
+-> Only piece of code
+
+Note: [Benifits of lambda]
+-> Lambda maximum time limit = 15min [If you want you will increase]
+-> memory = 128MB to 10240MB
+-> Monthly 1 million requets free
+-> Monthly 400000GB we can use freely [If you want morethan this you have to pay]
+-> You can add only upto 50 MB data in lambda
+
+# Lambda Pricing
+-> You pay only for what you use. you are charged based on number of requests for your function and duration.
+
+# Lambda Concurrency
+-> Concurrency is the number of request that your function is serving at any given time
+-> When your function is invoked. Lambda allocated an instance of it to process that event.
+-> When the function code finishes running, it can handle another request.
+
+# How to create lambda
+-> Go to lambad and create the function
+-> select Author from scratch
+-> Give the function name
+-> Click python 3.8
+-> Click the default execution role
+-> Click new role with basic lambda permission
+-> VPC is optional 
+-> Create
+
+# What is layers
+-> Depedices in called layers in lambda
+-> We can add only 5 layers
+-> Allow the lambda inline editing upto 3MB
+-> All reference keep in layres. we can communicate anything by that reference
+
+
+# Running Notes
+-> You should create the event to run the lambda function
+-> Go to test and create event and click test
+-> If you want to add Any MB, go to configuration and click general configuration and click edit
+-> You can edit the code to laterst version in lambda but we cant edit lambda old version code
+-> ARN:- Amazon resource name
+
+# How to trigger the services to lambda
+-> we will trigger the services to run lambda backend code
+-> If you want to stop your code some time you will click 'Throttle'
+-> Click trigger, click API, create API, security is open, create
+-> Then you will create the endpoint by that endpoint we can invoke the application
+-> Copy the endpoint link and paste the link browser
+
+# How to trigger S3 bucket to lambda
+-> Create the one lambda function as like before
+-> After create the function. click function come to configuration and click general configuration
+-> Edit and click create role and add s3 bucket full access.
+ 
+
+# What is an API
+-> API stands application programming interface which helps us to establish communication between two diffenent applications
+
+# How to work with versions and Alias
+-> Create one lambda function 
+-> After create the lambda and go to API gateway and click rest API build, give API name and create API
+-> Create the resource and give name dev resource
+-> create the method click GET, click function ARN.
+-> Click deploy API, Click resource you will get Invoke URL
+-> You will check once lambda configuration wheather API is trigger or not
+
+# why we are using versions
+-> would you create lambda and trigger API gateway to lambda. After give API gateway endpoint to client. After few days if client will ask you
+-> I want some changes from that code without distribud existing code.
+-> Then what would you do. First you will create one version using with existing code
+-> Go to versions and create one publish new version with past code
+-> Go to the API gateway and create resource and create method and give version ARN in that method and create method
+-> After complete the above process. you will go to lambda and changes that code as you need
+-> You will follow below youtube link to get the full information
+  https://youtu.be/JO5B4tPutzI?si=gEZ0onfLij1qZhqU  
+
+

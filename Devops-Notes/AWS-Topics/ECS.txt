@@ -1,0 +1,35 @@
+# What is ECS
+-> ECS stands for Elastic Container Service. It is a fully managed container orchestration service provided by AWS.
+-> It is a highly secure, reliable and scalable way to run the containers
+# ECS can be operated in two ways
+	1) Ec2 launch Type (manage your own service)
+	2) Serverless (Fargage)
+
+# What is Task Definition 
+-> To prepare your application to run on amazon ECS. You must create the a task definition
+
+# what is ECS service
+-> Amazon ECS service allows you to run and maintain a specified number of instances of task definition
+-> If any of your tasks should fail or stop for any reason the amazon ECS service schedular launches the another instaces
+
+# How to create ECS
+-> You have to go ECS and click create the ECS
+-> give name
+-> click do you want server or serverless (if you want serverless click Fargate and if you dont want server click Ec2 instances)
+-> create cluster
+-> After complete above steps you will go task definition
+-> Click create new task definition
+-> Give some name in Task definition familyI
+-> Select AWS Fargate if you want serverless
+-> Click Task execution role
+-> Give Container details [give name , give dockerhubname and image ]
+-> Click create and other options are optional
+-> After complete the above steps you click Task definition and go to deploy and click create service
+-> Click Capacity provider strategy
+-> what is the difference between fargate and fargate_spot 
+   fargate: [If you want to ruuning in prod env then you will use fargate]
+   fargate_spot: It is extramelly cheap but there is chance amazon can terminate your task[if you running None-prod you will use spot]
+-> Select service
+-> You will select the VPC networking
+-> create the load balancer
+-> create autoscalling and create

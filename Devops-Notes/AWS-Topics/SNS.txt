@@ -1,0 +1,42 @@
+# what is SNS
+-> SNS stands for "Simple Notification Service" in AWS. 
+-> It is fully managed messaging service that enables you to send notification from the cloud to various endpoints such as email, SMS, moblie push notification and more.
+
+# How to create SNS
+-> Go to SNS and click create SNS
+-> We have two types 
+   -> FIFO:- First input First output [When we use FIFO It wont consider the Deplicate messages]
+   -> Standard:- Default   
+-> Click Standard
+-> Give the name
+-> Give Topica name
+-> Click the Create topic
+-> After create the topic. you go to subscription and click create subscription
+-> Click topic
+-> Click protocal [For what do you want to send message notification]
+-> Click create subscription
+-> If you want to know detail about SNS you will lookinto below link
+   https://youtu.be/FqGsv1rvy9A?si=a2SBxYGLX8EbwTKd
+
+# How to get SNS notification by email when the Ec2 will stop or start
+-> You will create one ec2 instance 
+-> You will create SNS notification using email protocal like above
+-> After complete the above steps you will create the rules in cloudwatch 
+-> Go to Cloud watch and click rules and create the rule
+-> Give name and click next
+-> Click AWS events or EventBridge partner events in event source
+-> Click AWS event in Sample event
+-> Click use pattern form in Creation method
+-> Click AWS service in Event source
+-> Click Ec2 in AWS service
+-> Click Ec2 Instance State-change Notification in Event Type
+-> Clik Any state in Event Type Specification 1
+-> Click Any instance in Event Typer Specification 2
+-> Click Next
+-> Click AWS service in Target types
+-> Click SNS in Select a target 
+-> Click topic in Topic
+-> Next
+-> Next
+-> Click create the role
+-> After complete the above steps once you will stop your instance and check you mail would you get mail when you stop the instance 

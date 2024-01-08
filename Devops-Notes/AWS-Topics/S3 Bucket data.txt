@@ -1,0 +1,87 @@
+1) S3-> [Simple Storage Service]
+  s3 is second aws service in aws. It was launched at 2006
+  why we are using s3 bucket
+  Avaliablity-> It will maintain 3 copies based on AZ
+  latency 
+  internet
+  scaliablity
+
+# How to create s3 bucket
+-> You have to click s3 bucket and give with unique name and click create leave the rest of the options
+-> If you want to upload the files and foldes in s3 bucket click on bucket name and as well as you create foldes and files in s3
+-> You can upload the files in that folder if you click on folder
+-> If you want to download that files, click file and go to actions and download
+-> If you want to get URL to that file and click on file then you will get URL in properties
+-> If you want to access your application in browser then go to click bucket and go to permission and off block public access
+-> lateron go to ACL and enable acl and make object as a public
+-> After that go to bucket properties and enable static website and paste that url in browser
+-> If you want to give permission to the particular file and click on that file and go to permission edit and give read permission
+-> lateron paste that object url in URL in browser
+Note: "ACL permission will work up to object level"
+
+# If you want to write public policy 
+-> click on bukcet and go permission and click on edit and click on policy generator
+-> Select type of policy means select s3 if you want s3
+-> Principal if you want to give access to everyone then you will give *
+-> Amazon service means select amazon s3
+-> Actions means select get object
+-> Copy your amazon arn here and add statement and generate policy
+-> Give /* after bucker name in resources
+-> If you create public policy then it will act as make as a public and you can access any without give ACL permission
+-> If you want to delete to public policy then go public policy delete all code
+-> If you want to give encryption then you to go bucket properties and then enable encryption
+   "Encryption means data will transfer into human readble to machine readable"
+
+# How to generate the presigned URL using AWS CLI
+-> Go to the google and search AWS S3 CLI then go to bottom and click presign and go bottom
+   https://docs.aws.amazon.com/cli/latest/reference/s3/presign.html
+-> aws s3 presign s3://manoj-3058/index.html --expires-in 60  --> To get URL to access file in browser
+
+# How to work with S3 versioning
+-> If enable the versioning option in s3 bucket. Even If you delete the files. files wouldn't delete
+-> If you click show versioning option Files will appear
+-> If you want to enable the versioning click on bucket and go properties and enable versioning
+-> Suppose if you overwrite the file in bucket. if you enable the versioing then you will see prior overwrite file
+
+# What MFA [mulitfactor authentication]
+-> It is a protector but we cant enable the MFA by console. you can enable by AWSCLI and AWS SDK
+-> It is additonal layer of security of your s3 bucket.
+
+# What is Suspended
+When you enable suspended files will not delete but when do you versioning next it couldnt apply versioning to
+the files but existing versioning will avaliable.
+
+# How to do S3 life cycle managnment
+-> If you want to know about proper details about s3 life cycle managnment. You will checkout below link
+https://youtu.be/6_VO84VKSZs?si=v94C-Cqv_zmIekMm
+-> Click on bucket and go to managnment and click create life cycle managenment
+-> When you upload the files in standard storge if you want to move your files to glacier after somedays from standard storage
+-> Give name standard to glacier
+choose option 
+first option means if you want to move particular object then you will choose first option
+second option means if you want to move all the buckets then you will choose second option
+ if you want to work on life cycle managnment then you will s3 bucket video from time 5.30
+
+# If you want to upload the files from terminal 
+-> First you need to install AWS CLI
+
+#How to install AWSCLI
+-> sudo yum update -y
+-> sudo yum install python3-pip -y
+-> sudo pip3 install awscli
+-> aws --version
+-> aws configure
+-> aws sts get-caller-identity
+
+# We will create access key and secreat key in IAM
+AWS-CLI Commands
+-> aws configure -> To configure IAM user with AWS-CLI
+-> aws sts get-caller-identity  -> To check weather is it connect or not
+-> aws s3 ls  -> To See the buckets
+-> aws s3 mb s3://buckname  -> To create bucket
+-> aws s3 cp filename s3://buckname  -> To copy files from terminal to bucket
+-> aws s3 ls s3://buckname -> To see files in bucket
+-> aws s3 cp s3://buckname/filename destination place  -> To copy the files from bucket to terminal
+-> aws s3 rm s3://buckname/filename  -> To delete the files in bucket
+-> aws s3 rb s3://bukcname  -> To delete the bucketname
+-> aws s3api put-object --bucket buckname --key foldername/  -> To copy the folder from terminal to bucket

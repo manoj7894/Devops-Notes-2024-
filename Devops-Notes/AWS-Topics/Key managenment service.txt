@@ -1,0 +1,101 @@
+# What is Encryption
+To convert file into plaintext to cipher text by using encryption  
+
+# What is Decryprion
+We will use key to convert cipher text to plain text   
+
+# Types of Encryption
+1) Server side encryption
+2) Client side encryption
+3) Encryption in Transit
+
+# Server side encryption
+Whereever you stored the file that endlocation should be encryption that is called server side encryption
+
+# Client side encryption
+Where you will encrypt the file from your laptop. you will upload the file after encrypt file in your system
+
+# Encryption in Transit
+By using Https protocal both source and destination persons will send and retrive the data securely
+
+# Types of Encryption key types
+1) Symmetric key
+2) A symmetric key
+
+# Symmetric key
+We will use same keys both encryption and decryption to the data
+
+# A Symmetric key
+We will use different keys both encryption and decryption 
+Public key use for encryption to the data
+Private key use for decryption to the data
+
+# we will use key usages in two places
+1) Encryption and Decryption
+2) Sign and Verify
+
+Note: Mostly we will use in Encryption and Decryption places
+
+# What is Envelop encryption 
+-> Envelop encryption is the another security layer to the encryption
+-> We will use envelop encryption for large files
+-> We will use Encryption DEK to Envelop encryption
+  detailed in book
+
+# What is Envelop decryption
+We will use normarl key to envelop decryption
+
+# What are the difference between Symmetric key and A Symmetric key
+Symmetric key
+-> Single key we use to encryption and decryption the data
+-> All Aws services we will use Symmetric key
+-> If more than large file (4MB) then we will use Envelop decryption
+A Symmetric key
+-> we will use different keys to encryption and decryption the data
+  Public key use for encryption to the data
+  Private key use for decryption to the data
+-> We will use this key Outside of AWS
+
+# AWS KMS key there are two types of services
+1) AWS managed keys   --> Every thing will managed by AWS
+2) Customer managed keys  --> Customer will manage the all key material
+   key material available
+  1) AWS given
+  2) Imported key material
+  3) cloud HSM
+  4) Ecternal key store
+
+Extract another data available in notebook theroy
+
+# AWSKMS Key Rotation
+-> KeyID will be same even when create the another key after some days [It will appear same value to outside but internally value will change]
+-> No impact on data keys
+
+# Single and multi region keys
+-> If you enable the single region when you creating the key then you can access that key only that particular region
+-> If you enable the Multi region when you creating the key then you can access that key all the regions
+running notes
+-> if you do key rotation then all the regions will change
+-> if you think i will create multi single region. if you create multi single region then it will get headache when you do key rotation. so that we will use multi region
+
+# How to S3 Access to various users
+-> If you want to see the pratical you will look into below link
+   https://youtu.be/bSbyDXHVOEc?si=68qsWdQb79eF86jp
+-> You will create one user along with Adminationaccess policy after create the user you will login that user
+-> After login you will create the 3 users along with s3 bucker policy
+-> After create the users you will create the key managnment and next and give name.
+    add 1st user as a admin and add 2nd user as key user and finishs
+-> After that you will create one s3 bucket along with KMS key
+-> go to S3 and give name and click Server-side encryption with AWS Key Management Service keys (SSE-KMS)
+-> Click Choose from your AWS KMS keys and select your KMS whichever you have above
+-> Create the bucket
+-> You go key managnment and click the key and click switch to policy view and edit
+-> you will follow the video to edit the encryption data and extra data
+
+
+# What is alias
+-> In the context of AWS Key Management Service (KMS), an alias refers to an alternative
+   name for a KMS key. Instead of using the key's unique key ID, you can create an alias,
+   which is a human-readable name that you can use to refer to the key. Aliases provide a 
+   more user-friendly way to identify and work with KMS keys. 
+

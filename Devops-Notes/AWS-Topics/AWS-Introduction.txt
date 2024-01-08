@@ -1,0 +1,89 @@
+# What is AWS
+-> AWS is a secure cloud computing platform
+-> It provides the computing power, database, Networking ..etc 
+-> They provide you with server and services that you can use on-demand and scale easily
+Amazon web services is designed to allow application providers, ISVS, 
+and vendors to quality and securely host your application
+
+# AWS Notes
+-> In AWS we have 30 regions in our world and 96 availablity zones and each availablity zone having 3 data centers
+-> In our india right now we have only one region "ap-south-1"
+-> In feature AWS is planning to keep one region in hyderabad region[ap-south-2]
+-> You will chosse mumbai region to reduce latency. if you select vargin region it increase the latency to get the data.
+-> In every region we have minimum three multiple avaliablity-zones
+    1. ap-south-1a, 2. ap-south-1b, 3. ap-south-1c
+-> Each avaliablity zones will maintained minimum 100kms distances due to floods, earthquakes, cyclone
+-> Suppose if one avaliablity zone went down then region wont stop. Region will work from another avaliablity zone 
+-> In Each availablity zones we have isolated data centers. Each data centers are connected to one to one
+-> We have some storage class in data centers
+-> when you create any file in aws s3 it will maintained file in three avaliablity zone according to storage classes
+
+# We have seven storage class
+It will spilt in four catagires
+1. Frequently accessed data storage [It means daily using and accesing files]
+   If you want to access the data daily then you will choose below class
+   If You choose Standard Class it will work like below
+ i) Standard storage Class 
+   -> It will maintain file copies based on availablity zones. 
+   -> Suppose if you have 3 avaliablity zones. It will mainatained three copies. 
+   -> Suppose if you have 4 AZ it will maintain 4 copies
+   -> If file will delete in AZ and we will retrive the file data from another AZ as well as it will clone the file from another AZ and keep the file in that AZ
+   -> If you upload the file with 100Mb it will storage the file with 100Mb
+
+If You choose Reduce Redundant storage Class it will work like below
+ ii) Reduce Redundant storage-> 
+    -> If you upload the file with 100Mb it will storage the file with 100Mb.
+    -> It won't maintain files all avaliablity zones. It will maintain files in some availablity zones
+    -> When you keep the files in Reduce Redundant storage after one year we will lose 15% data from that file. Every year we will loose our data
+    -> Because of that AWS is recommand don't use Reduce Redundant storage class because data will loose in this class. 
+
+2. InFrequently accessed data storage 
+   It means backup data If you want to take the data 6 monthes once then you will use InFrequently accessed data storage.
+   We have two types of Classes
+  i) Standard-IA
+    -> It will maintain file copies based on availablity zones. 
+    -> Suppose if you have 3 avaliablity zones. It will mainatained three copies. 
+    -> Suppose if you have 4 AZ it will maintain 4 copies
+    -> If file will delete in AZ and we will retrive the file data from another AZ as well as it will clone the file from another AZ and keep the file in that AZ
+
+ ii) Ozone-IA-> 
+    -> Data it will maintained only one copy in AZ
+    -> So that AWS is recommand don't use Ozone-IA class because data will maintain only one copy in this class
+
+3. Archival storage [It means work as a Zip files]
+   If You choose Glacier storage Class it will work like below
+  i) Glacier
+    -> It will maintain file copies based on availablity zones. 
+    -> Suppose if you have 3 avaliablity zones. It will mainatained three copies. 
+    -> Suppose if you have 4 AZ it will maintain 4 copies
+    -> If file will delete in AZ and we will retrive the file data from another AZ as well as it will clone the file from another AZ and keep the file in that AZ
+    -> If you upload the file with 100Mb it will storage the file with 50Mb
+    -> Cost difference It take less charge then standard class
+
+ ii) Glacier Deep Archival
+    -> It will maintain file copies based on availablity zones. 
+    -> Suppose if you have 3 avaliablity zones. It will mainatained three copies. 
+    -> Suppose if you have 4 AZ it will maintain 4 copies
+    -> If file will delete in AZ and we will retrive the file data from another AZ as well as it will clone the file from another AZ and keep the file in that AZ
+    -> If you upload the file with 100Mb it will storage the file with 20Mb [it work as heavy compriser]
+    -> Cost difference It take less charge then Glacier class
+
+4. Inteligent storage
+   -> When we keep data in inteligent storage then AWS will decide it will work as Frequently or Infrequently]
+   i) Inteligent-> Suppose you don't know when will you get data then you will use Inteligent storage class 
+
+Note: One availablity zone will collapose then It will get data from another avaliablity zones.
+
+# What is Ec2 instance
+-> Ec2 instance is a virtual server in aws. It provides the computing resources for running application
+   If we want to create one Ec2 instance to connect with linux we need three service
+    1) Ec2 -> For RAM
+    2) EBS -> For Hard disk
+    3) VPC -> For networking
+ 
+
+ 
+
+
+
+ 

@@ -1,0 +1,65 @@
+# What is Auto Scaling
+We have two types of auto scaling
+1) Horizontal Auto scaling  -> Horizontial Scalling increase the number of instances
+2) vertical Auto scaling  -> Vertical Scalling increase the capacity of system (like CPU capacity)
+
+Note: We need to ELB to create target groups.
+
+Horizontal scaling Divied into three types
+1) Dynamic scalling
+2) Scheduled scalling
+3) Predictive scalling
+
+# What is Dynamic scalling
+-> It will work based on CPU theshold
+-> If load overcome 80% on cpu then it will create another instance
+
+# What is Scheduled scalling
+-> It will the schedule the instance when instances will launch
+
+# What is Predictive scalling
+-> It will apprised wheather add the server or remove server
+
+# How to create Autoscaling
+-> After create ELB
+-> Fisrt you will create AMI image to which instance do you want to do autoscaling
+-> Click on instance, Go to actions, click image and template, click create image 
+-> give image name
+-> enable Noreboot
+-> Clikc Tag image and snapshots together
+-> create image 
+-> After create the AMI image. you will go auto scalling and click create auto scalling
+-> Give name
+-> create launch template
+-> give template name
+-> Click Auto Scaling guidance
+-> Click My AMIS and choose ami image
+-> choose instance type
+-> choose key pair
+-> choose security group whichever you have given in ELB
+-> launch the template
+-> Come to auto scaling and choose that templete 
+-> Next
+-> choose VPC Whichever VPC you have used in ELB
+-> Select all subnets
+-> Next
+-> click Attach to an existing load balancer
+-> Click Choose from your load balancer target groups
+-> Choose target group
+-> Click Turn on Elastic Load Balancing health checks
+-> Next
+-> choose you desired instances
+-> Click Target tracking scaling policy
+-> Next
+-> Next
+-> Next
+-> Create
+
+-> After create the auto scaling. you will go target group and check the health status
+-> After you will go Ec2 instances and click that new instance and copy the IP and paste IP in browser
+-> If you terminated the instance then you will get the new instance
+
+Note: Auto scaling wont apply the target group instances 
+
+
+

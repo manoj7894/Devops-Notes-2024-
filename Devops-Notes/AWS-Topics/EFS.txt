@@ -1,0 +1,47 @@
+# What is EFS 
+-> EFS standards for Elastic file system in AWS
+-> It is severless
+-> It is scalable and fully managed file storage service.
+
+
+# How to create EFS
+-> Go to EFS and create File system
+-> Click on Customize
+-> Give name
+-> select regional
+-> If you want backup you will enable but if you enable you have to pay. so the right now i am not enable
+-> Lifecycle management
+      suppose if you want to shift the last 30days data into Infrequentaccess -> Transition into Infrequent Access (IA)
+              if you want to shift the last 30days data into Archive -> Transition into Archive
+              Data will move Infrequent and frequent afte you see the -> Transition into Archive
+-> Encryption
+-> select the Enchanced -> It will work more thoughput like more speecd
+          Brusting -> we will use in heavy work load purpose
+-> Select Elastic(recommand)  -> You have no idea on workload then you will choose the select elastic 
+         provisioned -> if you know workload data the you will the choose the provisioned
+-> select the General Purpose (Recommended) -> Mount the little instances
+          max/io -> if you mount more instances then you will use
+-> Next
+-> Select the VPC and security groups
+      Security group having NFS permission
+-> Next
+-> Next
+-> create
+-> After complete the above steps
+-> you will create 2 ec2 instances with above security groups
+-> you will install below steps with two instances
+   sudo yum update
+	sudo yum install httpd -y
+	sudo service httpd start
+	sudo service httpd enable
+	sudo service httpd status
+	cd /var/www/html/
+-> After complte above steps you go to efs and click efs and click attach and copy the NFS client and give path of the file in place like below
+-> You will execute the below command in two instances
+   sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-00799e6700ca32121.efs.ap-south-1.amazonaws.com:/ /var/www/html/
+-> df -Th
+-> you will create index.html file in one instance then that file will save in another instances.
+-> You will access the both instances over wenbrowser
+
+-> To get more information about EFS. You will checkout the below link
+   https://youtu.be/XmL-sxPZXlU?si=3tlxN37cYJ8QW2DW 

@@ -1,0 +1,44 @@
+# What is Elastic Load Balancer[It overcome the loads on server to increase the server capacity]
+-> Elastic load Balancer automatically divert the incoming traffic into multiple targets.
+It automatically scales and balances the load to ensure high avaliablity and fault tolerance for application
+
+# Types of Load Balancer
+1) Classic Load Balancer
+2) Application Load Balancer
+3) Network Load Balancer
+4) Gateway Load Balancer
+
+Classic Load Balancer
+It is a Old version
+Aws is not recommand because it cost is very high
+
+Application Load Balancer
+It advance version of Classic load balancer
+It support the port mapping (related to http and https)
+
+Network Load Balancer
+It will work as transport layer
+It will work main on TCP and UDP protocols
+TCP [Transmission control protocol]
+UDP [User dataground protocol]
+
+Gateway Load Balancer
+It is used for security Purpose
+
+# How to create the Load Balancer
+-> First we will create two instances and connect two instances with mobaxstream
+-> you will install below commands in both instances
+	sudo yum update
+	sudo yum install httpd -y
+	sudo service httpd start
+	sudo service httpd enable
+	sudo service httpd status
+	cd /var/www/html/
+	sudo vi index.html
+-> We will write something differently in both instances
+-> After that you will browser your Ip and along with 80 port to both instances
+-> Before we create load balancer we will create target-group
+-> Go to target-group and create the target group and add your instances in target group
+-> After create target-group and go to load balancer and create load balancer with that target group
+-> After create load balancer then you will take load balancer DNS URL and paste the browser
+

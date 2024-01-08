@@ -1,0 +1,82 @@
+# What is SQS
+-> SQS stands Simple Queue service(SQS) is a reliable, scalable, fully-managed message queuing service.
+-> Amazon SQS automatically deletes messages that have been in a queue for more than maximun message retention period.
+-> The default message retention period is 4 days.
+-> You can set the message retention period to a value from 60 seconds to 1209600 seconds(14 days) using the setqueueattributes action.
+
+# We have two type of Queue
+1) Standard Queue
+2) FIFO Queue
+
+# What is Standard Queue
+-> It is a default Queue
+-> You can create standard queue in all AWS regions
+-> It supports unlimited number of transactions per second per action
+-> Supports at-least-once message delivery. Occasionally more than one copy of a message might be deliverd out of order
+-> Which ensure that messages are generally delivered in the same order as they sent. this is not guaranteed
+
+
+# What is FIFO Queue
+-> FIFO Queue have all the capabilities of the standard queue
+-> To create FIFO queue its queue name must be end .fifo
+-> FIFO queue can create some regions
+-> FIFO (First-in-first-out) messages are generally delivered in the same order as they sent. duplicates cant be tolerated
+-> FIFO queues also provide exactly-once processing but have a limited number of transactions per second(TPS)
+-> FIFO queues support upto 3000 messages per second with batching
+-> FIFO queues support upto 300 messages per second per action
+
+
+# Key points
+-> You cant change the queue type after you create it and you cant convert an existing standard queue into FIFO queue
+-> If you delete a queue, you must wait at least 60 seconds before creating a queue with same time
+
+# What is Dead-letter [When message is not working then you will move message to dead-letter and segregate and reslove that problem]
+-> Dead-letter queue is a queue that other queue can leverage to isolate or segregate messages that cannot be processed sucessfully by consumer
+-> When a source queue is created you can assgin a dead-letter queue for that source queue
+-> The dead-letter queue of a FIFO queue must also be a FIFO queue. Similarly the dead-letter queue of a standard queue must aslo be a standard queue
+-> Bothe source queue and dead letter queue must in the same AWS account and and region
+
+# Message retention and Dead-Letter Queues
+-> It is recommended that the message retention period of a dead-letter queue should be longer than the retention period of the original queue
+Eg:-
+-> If the retention period of the dead-letter queue is 5 days
+-> Message was in the source queue for 1 day retention period before being moved to the dead-letter queue
+-> Message will be deleted from the dead-letter queue after 4 days
+
+# Where is a message moved to a dead-letter Queue
+-> A message is moved to a dead-letter queue after the maxReceiveCount for a message exceeds.
+
+Note:- To configure the dead-letter queue, use Redrive Policy of the Source queue
+
+# How to create Queue
+-> You go SQS and click whichever you want wheather standard or FIFO
+Note: If you select the SQS it will tolrate the duplicate messages 
+      If you Select FIFO it wont tolrate the duplicate messages
+https://youtu.be/DJFJzLneQWM?si=bi2Ocoj-O2f-Rv5z
+-> Give name to queue
+-> Visibility timeout -> When would message will appear to other process
+-> Message retention period -> How many days message would be in queue
+-> Delivery delay -> No-one can access the message from qube upto 60 seconds after add the message in queue
+-> Maximum message size -> size of message Should be between 1 KB and 256 KB.
+-> Receive message wait time  -> when should receiver get message
+-> create the SQS
+
+# If you want to add dead-letter queue 
+https://youtu.be/eLh7RoCXb40?si=tC_vVez0bkxOv6ck
+
+# What is Purge Queue
+-> Deletes all messages in the queue
+-> After you purge a queue you cannot retrive any deleted messages
+-> It takes up to 60 seconds to purge a queue\
+-> Messages sent to the queue before you call purgequeue might be received but are deleted within the next time
+-> Messages sent to the queue after you call purgequeue might be deleted while the queue is being purged
+
+# What is delete queue
+-> Deletes the selected queue
+-> After you delete a queue you cannot retrive any messages that were present in queue
+-> It takes Up to 60 seconds to delete a queue
+-> Any requests received during the deletion process will succeed
+-> You must wait 60 sec to create a queue with the same name after it is deleted
+-> A queue can be deleted even when it is not empty. If you want to delete ONLY the message in the queue but not the queue, use purge queue
+
+

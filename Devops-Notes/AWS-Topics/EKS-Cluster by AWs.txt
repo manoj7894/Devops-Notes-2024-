@@ -1,0 +1,148 @@
+# What is EKS
+-> EKS stands for "Elastic Kubernetes Services"
+-> EKS is a fully managed by AWS
+-> EKS is the best place to run the K8S application because of its security, reliablity and scaliablity
+-> EKS can be integrated with other AWS services such as ELB, Cloud Watch, AutoScaling, IAM and VPC
+-> EKS maskes is easy to run k8s on AWS without needing to any cluster instalition procress
+
+# How to create the EKS-Cluster by AWS
+-> First you create VPC and Create subnets based on requirments
+-> Create Internet gateway and attch vpc to that gateway
+-> Attach subnets and gateway to the routetable
+-> After create the VPC and go to IAM And below role
+    Create the role and select AWS service
+    Enter EKS in Use case and Select EKS-Cluster
+    After you will get AmazonEKSClusterPolicy and create the role
+-> After create the role go to EKS-cluster and click create cluster
+-> select the Role here and Select VPC create Public and private and create [leave the rest of the options]
+-> After Create the EKS-Cluster you will create one Ec2 instance with t2.medium
+-> You need to install AWS-CLI to connet with Terminal
+
+#How to install AWSCLI
+sudo yum update -y
+sudo yum install python3-pip -y
+sudo pip3 install awscli
+aws --version
+aws configure
+aws sts get-caller-identity
+
+-> We need to install kubectl to communicate with cluster
+#How to install KUBECTL
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+-> We need to attach EKS-Cluster to the Kubectl
+aws eks --region ap-south-1 describe-cluster --name eks-1 --query cluster.status
+aws eks --region ap-south-1 update-kubeconfig --name eks-1
+aws eks list-clusters --> To see the cluster
+
+-> After complete the above steps we need to create the some roles to before creating the worknodes
+-> Go to IAM role and Click Ec2 and add below roles
+   AmazonEKS_CNI_Policy
+   AmazonEKSWorkerNodePolicy
+   AmazonEC2ContainerRegistryReadOnly
+
+-> After create the role you will go EKS-Cluster and go to computing
+-> You need to enable the this option Auto-assign public IPv4 address in both subnets 
+-> Click add Add Node group and select the role and give autoscalling instances
+-> Click the configure remote access to connect with SSH and click all and click create
+
+-> You will check below commands in terminal
+kubectl get nodes
+kubectl get pods --all-namespaces
+
+# How to delete the EKS Cluster
+-> First you have to delete the worknodes
+-> After you will delete EKS cluster
+
+Running Notes
+-> Suppose when we create pod using LoadBalancer type then we will get one DNS url to access but can you give that URL to
+any user to access we cant give because that is a Big URL
+-> We need to Mapping the URL using Route53. If we want to get any Route53 domain we have to purchase
+-> After purchage click host zone and click on purchased URL and create the record and select alias
+-> after that choose load Balancer and choose the region and select the load balancer and create record
+-> After create the record then we will access the by using route53 domain URL
+-> In real time project we can use mulitple application and multiple services
+-> when create the multiple service can we give multiple urls to the user to access no
+-> when we use Nodeport and LoadBalancer service then public will access our service directily
+-> can we give direct access our cluster services to user no so that we will use clusterIp type service to create the pods
+-> When we the clusterip then we cant access the pods from outside so that we will use Ingress
+
+# Ingress
+-> Ingress is used to map external URLs to k8s cluster service
+-> Ingress is used to route the traffic service which services we are running in our K8S cluster
+
+RunningNotes
+-> Suppose if we purchase the ashokit.org URL domain in Route53
+-> How user will access. if user will browser ashokit.org/java-web-app then Ingress will map that URL to that Services
+   if user will browser ashokit.org/maven-web-app then Ingress will map that URL to that Services
+-> Then user cant access our services 
+
+-> First you will create the two pods with clusterIP
+-> After that you will do Ingress to follow below steps
+
+If we want to use Ingress first we need to setup Ingress in our system
+#How to setup Ingress 
+-> sudo yum install git -y
+-> git clone https://github.com/ashokitschool/kubernetes_ingress.git  -> This is public git hub repo given by ashokit 
+  these data taken by offical website of kubernetes
+-> cd kubernetes_ingress
+
+-> kubectl apply -f common/ns-and-sa.yaml --> To create the namespace using this ns-and-sa.yml
+-> kubectl get ns
+-> kubectl apply -f common/  --> To create RBAC [RBAC is used to manage the rolls 
+-> we have two options to deploy the Ingress 
+   1) Daemon set 
+   2) deployment
+
+-> kubectl apply -f daemon-set/nginx-ingress.yaml  or kubectl apply -f deployment/nginx-ingress.yaml  --> To deploy the Ingress by using daemonset and deployment
+-> kubectl get all -n nginx-ingress -> To check the Ingree is deploy or not
+-> kubectl apply -f service/loadbalancer-aws-elb.yaml  -> To create load balancer to ingree
+-> kubectl get all --> To see the data 
+
+# What will you do after deployment
+-> After creating the Loadbalancer you have to go route53 and click domain name and create the record and select alias
+-> select the "Alias to application and classic load balancer" and select the region and select the load balancer and create the record
+-> After complete the above step. you need to create one ingress role file to set the paths to pods [In file]
+-> After deploy the paths you will go to browser then write domain name and pathname [ashokit.org/java-web-app]
+
+# How to delete the ingree deployment
+if we delete the namespace it will delete the all components
+kubectl delete namespace <namespacename> --> To delete the namespace
+
+
+
+
+
+# Ingress path file
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-resource-2
+spec:
+  ingressClassName: nginx      
+  rules:
+  - host: ashokit.org    # Route53 domain name
+    http:
+     paths:
+     - PathType: Prefix
+       path: "/java-web-app"
+       backend:
+        service:
+         name: tomcatappsvc   # Tomcat Service name
+         port:
+          number: 80
+     - PathType: Prefix
+       path: "/nginx-web-app"
+       backend:
+        service:
+         name: nginxappsvc   # Nginx Service name
+         port:
+          number: 80
+
+
+
+

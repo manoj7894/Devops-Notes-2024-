@@ -1,0 +1,58 @@
+# Encryption
+-> Ecryption option is available in S3 that is
+    S3-SSE  [SSE: Server Side Encryption]
+-> We have three types of encryption in S3
+   -> SSE-S3  [AWS will provide and generate the Encryption Key] [We doesnt have permission to manage the key because key provided by AWS]
+                  [To whom have s3 bucket access platform they can only encrypted the data]
+   -> SSE-KMS  [KMS will provide the key]
+                 KMS have three keys 
+                  -> Default key  [when we give default key It will work like SSE-S3] [we cant delete the keys] [we cant manage the keys]
+                                   [To whom have s3 bucket platform access then they can only encrypted the data]
+                  -> Customer managed key [when we choose the customer managed key you can give permission to whom want access] [we can manage and delete the keys] [No free tier eligibilty]
+                  -> Customer Provided key [Customer generates and upload the key material to KMS. [No free tier eligibilty]
+                                      [customer having all permissions to delete and modify the key]
+   -> CSE (Client Side Encryption]
+            
+
+Running Notes
+-> Encryption will happen after we upload the file in S3
+-> when we upload the file in S3. Encryption will happen before data store in data centers. After encryption data store in data centers.
+
+-> Customer Side Encryption
+   -> Customer will Encrypt the file before upload the file in S3 bucket
+ 
+
+
+# Access permissions
+-> We have three types of access permissions in s3
+   -> Bucket Policy
+   -> ACL
+   -> Presigned URL
+
+-> Bucket policy it work up to bucket level
+-> ALC it work up to bucket level and object level
+-> Presigned means it work file will access upto particular time
+
+
+
+
+-> Policy description
+
+assume_role_policy = jsonencode({
+    Version = "2012-10-17",     -> This version was defined at 2012
+    Statement = [
+      {
+        Effect = "Allow/deny",          -> if you want to allow the user or deny the users whoever you are providing access
+        Action = "s3:GetObject",       -> Actions means create, delete, data insert, data delete, encryption [If you want to download the file you will use GetObject action]
+        Principal = "arn:aws:iam::${data.aws_caller_identity.current.account_id}   -> To whom account or user would you giving access
+       Resource = manoj-3058/*     -> [If you want all the in that bucket manoj-3058/*] [If you want to see all the buckets "*"]
+      }                               [If you want to choose specific resource you have to that service arn]
+    ]
+  })
+
+
+
+-> If you want to know more details about encryption you checkout the below link
+   https://youtu.be/SmrvRYg-ETQ?si=Hogem9O8yYvCmF3-
+
+

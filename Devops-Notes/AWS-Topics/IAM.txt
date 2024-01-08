@@ -1,0 +1,202 @@
+# What is IAM 
+Identity Access Managnment
+I -> Identity -> Identity means Authentication -> Authentication means -> To give login permission
+A -> Access -> Access means Authorization -> Authorization means -> To access the service 
+M -> Managnment
+
+# We have two types of Identity
+1) IAM User  -> When we create the IAM user It will provide the permenent access key and secreat key and passwrod
+2) IAM Role  -> When we create the IAM Role It will provide the tempory credentials it will expair within one hour 
+                  (Hacker cant access your service when we will use IAM Role)
+
+-> If you want to access the particualr service you have to attach the IAM Policies
+-> We have two types of Policices
+1) AWS Managed Policies
+2) Customer Managed Policies
+
+# AWS Managed
+-> AWS defaulty provided two permisssions
+1) Full permission
+2) Read only
+-> If you want to give any permission to any service by AWS you can provide only full permission and read only permission
+-> If you want to give another extra permissions then you will use customer managerd Policies
+
+# Running Notes
+-> First you will create user after that you will attach whichever policy do you want to give permission
+-> Suppose If you want to create 20 user then you should create 20 identities
+-> But If you want to give IAM Polices to each one to difficult so that you will create one group to all the member then you will give policy that group
+
+# We have to learn below topics in IAM
+1) Users   -> Identity part
+2) Roles   -> Identity part
+3) Policies -> Access part
+4) Groups -> Groups will use to simply the access managnment
+
+# How to create the IAM user without giving any permissions and policies
+-> Go to IAM and click user and give username and click Provide user access to the AWS Management Console and give automated passwd
+-> Click I want to create an IAM user
+-> click Provide user access to the AWS Management Console [means it ask user to reset password after login so that it will be automated passwd]
+-> Next
+-> Create user
+-> After create the user you have to go AWS Console and login with IAM user by download URL [It will not ask any number you will go download and enter that number]
+-> After Login you cant use any data in any service because you couldnt attach the any policies when we created the user.
+-> Again comeback to root user and attach s3 bucket policy and you will check once again go to the IAM user would access s3 bucket or not
+
+# How to attach the AWS Polices to user
+-> To attch the policy You will click one user and go below click the add permission and click the attach the polices and give s3 full access
+-> Go IAM and check the would get full access or not and it will give only s3 access it wont give other service access
+-> Like that you will give whichever service do you want to give permission to the users
+
+# How to create the Secrete key and access key to the particular user
+-> Click the user name and go below and click security credentials and create the access key 
+-> You can create only two access keys if you want to create the third access key i have to delete one access key
+-> Click access key and click CLI and give some description and create access key
+-> Create the access key you will try to access that keys by CLI wheather It is connect and or not
+-> aws configure --> To configure the account
+-> aws sts get-caller-identity  --> To check which account you have login
+
+# How to attach the Customer Managed Policies
+-> You cilck on user and go below and click the add permission and click the inline policy
+-> you will select whichever you want wheather visual or JSON but you create by visual
+-> If we want to give S3 bucket permission by using customer manages
+-> Select the S3 and if you want to give full access permisson click All S3 actions (s3:*)
+-> If you want to see some thing. you will click list and select whichever you want
+-> If you want to read the inside. you will click read and select whichever you want
+-> json Policy would be like that below
+
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "VisualEditor0",
+			"Effect": "Allow",
+			"Action": "s3:ListAllMyBuckets",
+			"Resource": "*"
+		}
+	]
+}
+
+-> Next
+-> Give policy name
+-> create policy
+-> After create the policy you go to the user and check the s3 buckets is visiable or not
+
+Note: When you add custom policy it wont add the polices in IAM. It only add to the that particular IAM user.
+      inline policy wont save in polices
+
+# How to give permission to one bucket and that inside the data of the bucket by user
+-> You cilck on user and go below and click the add permission and click the inline policy
+-> Click List bucket and It will ask add arn in resources and click add arn and give the particular bucket name whichever do you want give
+-> json Policy would be like that below
+
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "VisualEditor0",
+			"Effect": "Allow",
+			"Action": "s3:ListBucket",
+			"Resource": "arn:aws:s3:::manoj-3058"
+		}
+	]
+}
+
+-> Next
+-> Give policy name
+-> create policy
+-> After create the policy you go to the user and check the s3 particular bucket inside objects is visiable or not
+-> If you want to give permission to another bucket then you click on user and go below and click the policy and go JSON and add another arn like below
+
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "VisualEditor0",
+			"Effect": "Allow",
+			"Action": "s3:ListBucket",
+			"Resource": ["arn:aws:s3:::manoj-3058", "arn:aws:s3:::kubernets-3003"]
+		}
+	]
+}
+-> Next
+-> save changes
+-> After create the policy you go to the user and check the s3 buckets is visiable or not
+
+
+# What is IAM Roles
+-> IAM role is very secure than IAM user because when we create the IAM user it will username and password
+-> As well as if you create the IAM Role it will give the roles so that its to difficult to hack the roles than username and password
+-> we have two types of IAM Roles
+1) service Based Role
+2) Account Based Role
+
+# How to create the role 
+-> Click on role and click AWS account
+-> Choose Whichever accountid you want [present i have no account so that i am choosing my account]
+-> next
+-> Give whatever access do you want give i am taking S3 access
+-> Click s3 full access and Next
+-> give role name
+-> json Policy would be like that below
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::366778366413:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {}
+        }
+    ]
+} 
+
+-> We have given this permission to root user. we cant switch the role in root account
+-> so that you will log in with one IAM user then you will switch the root
+-> If you want to use switch role you have to attach STS policy by custom to that IAM user
+-> Click the user and go below and click permission and click inlince and click STS and search assume role in search bar and click that role
+   and click all resources
+-> json Policy would be like that below
+
+
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "VisualEditor0",
+			"Effect": "Allow",
+			"Action": "sts:AssumeRole",
+			"Resource": "*"
+		}
+	]
+} 
+
+-> Next
+-> Give policy name
+-> create policy
+-> You go that IAM and click on account and click the switch role
+-> give the id
+-> give role name
+-> Check access Whichever Policy we have attached to that role
+
+
+# How to create the Groups in IAM
+-> Go to user groups and create the group and give name attach the policy whichever policy do you want to give i am giving S3
+-> create one user without giving any permissions
+-> After create the user you will login with that user and you cant access no services because you cant give any policy
+-> Again back the root user go to group and click on add users and add the user to the group
+-> After add the user to the group again you will login withthat user and check it is access whichever we have given to group.
+
+Note: If you want to give full permission to any user you have to attach AdministratorAccess policy
+
+# IAM Permission Boundaries
+Boundary permission means you can allow the set of resources to the user
+-> You will create one user along with AdministratorAccess policy
+-> After create you will login with above create user
+-> Go to main account and  you click that user go below and click Permissions boundary and give whichever policy do you want to access
+  i am giving s3 policy
+-> After you will loging that user then you can access whichever policy you have attach eventhough you have  given AdministratorAccess policy
+-> You can access only s3 because you have mention s3 policy in Permissions boundary so that you can access only that policy.
+
+
+

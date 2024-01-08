@@ -1,0 +1,296 @@
+# What is database
+-> A database is an organized collection of data, so that it can be easily accessed and managed.
+
+# What is RDS
+-> RDS stands for Relation Database Service. Its managed database service provided by AWS
+-> A Relational database is a collection of data items with pre-defined relationships between them.
+-> These items are organized as a set of tables with columns and rows
+-> Tables are used to hold informantion about the objects to be represented in the database
+
+# RDS will support Different types engines 
+1) MySQL  --> It is opensource. It is popular and mostly used
+2) SQL Server  --> It is not open source. It is provided by microsoft
+3) PostgreSQL  --> It is open source. It is object relation database engine. It works based on IOPS
+4) Oracle  --> It is supports all other database engine. It is mostly used for online banking transactions
+5) MariaDB  --> If you want high performance database engine you will use mariaDB
+6) Amazon Aurora  --> It is homeground database engine AWS provided for themslevels. It is easily Intigrated with anyone.
+7) Amazon RDS Custom
+
+# What is DB instance
+A DB instance is an isolated database environment in the AWS Cloud. The basic building block of Amazon RDS is the DB instance
+
+# What is DB engine
+A DB engine is the Specific relation database software that runs on your DB instance. Amazon RDS currently supports the following engins
+1) MySQL
+2) MariaDB
+3) Postgrs SQL
+4) Oracle
+5) Microsoft SQL Server
+
+# What is DB instance Class
+-> A DB instance class determing the computation and memory capacity of DB instance. 
+-> A DB instance class consists of both the DB instance Type and Size.
+-> Each instance type offers different compute,memory and storage capabilities
+
+# What is DB instance Storage
+-> Amazon EBS provides durable, block-level storage volumes that you can attach to running instance. DB instance storage comes following stpes
+  General purpose (SSD)
+  Provisioned IOPS (PIOPS)
+  Magnetic
+
+# Points To Remember
+-> Multi-AZ feature is not free tier, extra infracture for standby. Generally, twice the price
+-> The standby replica cannot be accessed directly unless a failure occurs.
+-> failover is highly avaliable not fault tolerant
+-> Same region
+-> Backups taken from standby
+
+# RDS Backup and Restore
+-> RPO - Recovery Point Objective
+  
+
+# How to install mariaDb in Ec2
+sudo -i
+sudo dnf update
+sudo dnf install mariadb105-server -y
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo systemctl status mariadb
+
+# Data base create manually
+
+# Set the Environment Variables to DB
+DBName=ecdb
+DBPassword=admin
+DBRootPassword=admin      
+DBUser=ec2dbuser 
+        Note: Give whichever you want
+
+# Database setup to the ec2 instances
+echo "CREATE DATABASE ${DBName};" >> /tmp/db.setup
+echo "CREATE USER '${DBUser}' IDENTIFIED BY '${DBPassword}';" >> /tmp/db.setup
+echo "GRANT ALL PRIVILEGES ON *.* TO '${DBUser}'@'%';" >> /tmp/db.setup
+echo "FLUSH PRIVILEGES;" >> /tmp/db.setup
+
+# Add some data to database into side Ec2
+mysqladmin -u root password "${DBRootPassword}"
+mysql -u root --password="${DBRootPassword}" < /tmp/db.setup
+mysql -u root --password="${DBRootPassword}"
+status;
+SHOW Databases;
+USE <dbname>;
+SELECT * FROM <tablename>;  --> To show the table data
+SHOW TABLES;  --> To show the all tables
+DROP TABLE table_name;  --> To delete the table
+
+--> To Enter Into the Db
+After enter into the Db you will use below commadns
+USE <dbname>;  --> To change the db
+CREATE TABLE employees (
+    employee_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);   --> To create the tables in db
+
+INSERT INTO employees (employee_id, first_name, last_name, email)
+VALUES (1, 'John', 'Doe', 'john.doe@example.com');  --> To the data in tables
+
+
+
+# How to create RDS in AWS
+-> You have to go RDS
+-> If yo want to create RDS in particular subnet then first You will create subnetgroup in RDS
+   Name
+   select VPC  [whatever vpc you want]
+   select 3 avaliablity zones
+   select 3 subnets
+   create
+-> You will create Database
+   standard create  --> To set the all configuration
+   Easy Create  --> create the database easily
+-> You will select standard create
+-> Select MariaDB or mysql
+-> Select free tier
+-> Give databasename
+-> give one username
+-> givepasswd
+-> Conform passwd
+-> DB instance class  [t2.micro]
+-> select whichever storage you want 
+-> Disable the autoscaling because this is parctice you can enable autoscaling it get extract cost
+   [If enable the auto scaling when your storage has full then it will add 10% storage to existing storgae of existing storage
+    https://youtu.be/Gf8iaBWii5I?si=DspCqfHzOgK_rlHP  -> To get the more detail
+-> connectivity as you wish
+-> netwrok type IPV4
+-> vpc
+-> select the above create subnetgroup
+-> public acces as you wish
+-> select security group
+-> if you want to give particular port number go additonal configurition
+-> select passwd authentication
+-> Monitoring [if you enable monitoring you will see cloud watch]
+-> go additionel configuration and give some dbname  
+-> enable backup [If you enable the backup it will create the snapchart]
+                  [Backup retention period, maximun retention period is 35 days]
+                  [Choose window or No preference, (if you enable the window you can choose the particular time)
+                       (if you select the No preference AWS will pickup automatically)]          
+                  [If you want to replica backup to another region, you will select Enable replica in another AWS region
+                      (select the region, select the retention days, click the KMS encryption, click the logs)]
+-> Maintaince [if you enable the Enable auto minor version upgrade]  [suppose any update will comes it will update automatically]
+-> Maintaince window As your wish if you want maintaince you will select
+-> Delecto protection  -> if you enable you cant delete the database
+-> Create the database 
+
+-> If you want to know about RDS more details you will checkout the below links
+  https://youtu.be/Gf8iaBWii5I?si=DspCqfHzOgK_rlHP
+  https://youtu.be/lSC_bhCHRU0?si=-6N2C95aaKVkH8Z9
+  https://youtu.be/Vg2o5WdGyqc?si=z9WotKRQnQM7ahxP
+  https://youtu.be/vEV8S63u1bc?si=qQowCw2elPp5hUFR
+
+
+# Migrating DB from Ec2 to RDS
+--> Get the dump of your existing DB on Ec2
+--> Connect to your RDS DB instace
+--> Migrate the DB dump that you have taken step 1 To RDS
+--> Verify if the data is avaliable
+
+mysqldump -u root -p ec2db > ec2db.sql --> To get data from database to outside
+mysql -h <rds endpoint> -P <rds portnumber> -u <masterusername> -p <dbname> < ec2db.sql
+mysql -h database-1.cqtwecfi3hdq.ap-south-1.rds.amazonaws.com -P 3306 -u admin -p rds < ec2db.sql  --> Dump the data into RDS
+mysql -h database-1.cqtwecfi3hdq.ap-south-1.rds.amazonaws.com -P 3306 -u admin -p  --> To enter into the AWS RDS or To connect your RDS to ec2 instance
+
+
+# How to create the RDS with secret manager
+Create RDS
+-> You have to go RDS
+-> You will create subnetgroup in RDS
+   Name
+   select VPC  [whatever vpc you want]
+   select 3 avaliablity zones
+   select 3 subnets
+   create
+-> You will create Database
+   standard create  --> To set the all configuration
+   Easy Create  --> create the database easily
+-> You will select standard create
+-> Select MariaDB
+-> Select free tier
+-> Give databasename
+-> give one username
+-> givepasswd
+-> Conform passwd
+-> select whichever storage you want
+-> Disable the autoscaling because this is parctice you can enable autoscaling it get extract cost
+-> connectivity as you wish
+-> netwrok type IPV4
+-> vpc
+-> select the subnetgroup
+-> public acces as you wish
+-> select security group
+-> if you want to give particular port number go additonal configurition
+-> select passwd authentication
+-> go additionel configuration and give some dbname  
+-> enable backup whatever you want
+-> Maintaince As your wish if you want maintaince you will select
+-> Delecto protection  -> if you enable you cant delete the database
+-> Create the database 
+ 
+Create secret manager
+-> You will create iam user and go user and create and give name and click i want to create user,
+-> Next
+-> click copy 
+-> Next
+-> create user
+-> you will creat one one secreat manager policy
+-> Go to IAM and create policy and click JSON and paste there below data
+     https://youtu.be/9XMqAwuHLsY?si=BXzPhq5LqbTV1qLb
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcs",
+                "kms:DescribeKey",
+                "kms:ListAliases",
+                "kms:ListKeys",
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBInstances",
+                "tag:GetResources"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+-> Next
+-> Give policy name
+-> Creat the policy
+-> Lateron Search the policy in Policy search bar and click and attach the policy to the above create user
+-> After complete above steps go to secret manager and click RDS and give username and password
+-> If you want you will key manager otherwise you will give default
+-> next
+-> Give name 
+-> Next
+-> Next
+-> Store
+
+Install AWS CLI
+-> Install AWS CLI in your instance
+-> How to install AWSCLI
+sudo yum update -y
+sudo yum install python3-pip -y
+sudo pip3 install awscli
+aws --version
+-> Create Secret key In IAM
+aws configure
+aws sts get-caller-identity
+
+AKIATWS3YIZYHECM4F5U
+7qg8QhawIlYZhSv9hNK4eBCEGrHDM7JRHOksj0IY
+
+-> After create the secret and click on secret and go to below and click on secret value
+-> connect to the above ec2 instance what you have created
+-> secret=$(aws secretsmanager get-secret-value --secret-id <secretname> | jq .SecretString | jq fromjson)  --> To connect secretmanager to Ec2 by using aws cli with env
+-> echo $secret --> To get all the secret details
+-> user=$(echo $secret | jq -r .username)  --> To extract the user name
+-> echo $user  --> To get the username
+-> password=$(echo $secret | jq -r .password)  --> To extract the password
+-> echo $password  --> To get the password
+-> endpoint=$(echo $secret | jq -r .host)  -> To extract endpoint          [endpoint=<endpointURL>
+-> echo $endpoint  --> To get the endpoint                                  echo $endpoint
+-> port=$(echo $secret | jq -r .port)  --> To extract port
+-> echo $port  --> To get the port
+-> mysql -h $endpoint -u $user -P $port -p$password --> To connect [paste the command without any changes]
+
+Note: If above commands is not working you will use below command. after enter into database you will execute the bottom two command to change
+the database and username and ip and password
+
+-> mysql -h <endpoint> -u <dbusername> -P <portnumber> -p<dbpasswd>
+
+after enter into database you will execute the bottom two command to change the database and username and ip and password
+you will execute the below commands to configure the secret managner username and password
+
+GRANT ALL PRIVILEGES ON your_database.* TO 'dbname'@'172.31.7.37' IDENTIFIED BY 'your_password';
+FLUSH PRIVILEGES;
+
+
+# How to take the RDS snap chat backup
+-> After create the RDS you will click that database and go to actions and create snapchat  [before delete the database you will remember database username and passwd]
+-> After delete the database and go to snapchat and retrive snapchat and restore
+-> After restore the RDS log in below command and check the data
+-> mysql -h <endpoint> -u <dbusername> -P <portnumber> -p<dbpasswd>
+
+
+# How to retrive data from RDS to S3
+-> Click on RDS and go to actions and click retrive s3 and give bucket name and create one iam role there and click one KMS key and create
+
+
+# Sample project link for RDS and Secretmanager
+  https://youtu.be/1wjrZpM7YDE?si=8_UwMI4WCGIvtdG3
+
+
+

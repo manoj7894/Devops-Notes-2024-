@@ -1,0 +1,83 @@
+# What is DynamoDB(NOSQL)
+-> It is serverless and NOSQL database
+-> Store Unstructured, Semi-Structured, or Structured Data.
+-> Handle Large volumes of data at high speed
+-> Very fast while retrieving the data
+-> Provides vert fast throughput with low latency
+-> Pay only what you used
+-> Fault Tolerant
+   It automatically replicates the data to multiple avaliablity zones(AZs).
+   In case any failure happen at one AZ, automatically the data will be fetched from anothe AZ
+-> It is highly secured
+-> Developer-Friendly
+-> Take full Advantage of the cloud to deliver Zero Downtime.
+
+# NoSQL Supports database
+-> DynamoDB
+-> MongoDB
+-> cassandra
+-> Azure CosmosDB
+-> CouchDb
+-> Apache HBASE
+
+# NoSQL Database Modles
+-> Document-Based Database
+-> Grapg-Based Database
+-> wide column Based Database
+-> Key-value Database
+
+
+# Differnece between RDS and DynamoDB
+# RDS
+-> Data save in Table format in RDS
+-> Schema and relational structure in RDS
+-> Limitions to add the data in RDS
+-> RDS is not a replacement to NOSQL
+
+# DynamoDB(NOSQL)
+-> Data save in JSON format in dynamodb
+-> NoSql databases concept was emerged to overcome the limitations of traditional relational databases.
+-> When compared to relational databases like SQL Server, MYSQL, Oracel etc.., NoSQL databases are highly scalable flexible and faster
+-> Schemaless and non relational structure in NoSQL
+-> No adding limitons to NoSQl
+-> NoSQL is not a replacement to RDS
+
+# Core Components of amazon DynamoDB
+-> In DynamoDB, tables, items and attributes are the core components 
+
+# What is Primary Key
+-> when you create a table, in addition to the table name, you must specificy the primary key of the table.
+-> The primary key uniquely identifies each item in the table, so that no two item can have the same key
+
+DynamoDB supports two different kinds of primary keys:
+-> Partition key  -> if you want to maintain one column combination under primary key then you will use partition key
+                        [To maintain the without duplicate]
+-> Partition key and sort key  -> if you want to maintain two column combination under primary key then you will use partition key and sort key
+
+
+-> If you wanto to get more information you will checkout below link
+
+  https://youtu.be/NeFGJOT23k8?si=DWb5IiT714H_IofE
+  https://youtu.be/w3Vi3QHpOvo?si=yMLfd1BCNzCM2a7R
+
+
+
+# What is Index
+-> We have two types of indexs in DynamoDB
+  -> Local Secondary Index
+  -> Global Secondary Index
+
+# Local Secondary Index
+-> Can be created only at the time of table creation
+-> No Add or modify or removal option
+-> Same Partition key as the Table
+-> Differnet Sort key
+
+# Global Secondary key
+-> Can be created at table creation later
+-> Different Partition and sort key
+
+# you follow below to create the dynamoDB table 
+  https://youtu.be/g3b_sY-z6AY?si=IG4qhglRKRFAUfEw
+
+

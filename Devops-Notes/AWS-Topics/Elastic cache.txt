@@ -1,0 +1,43 @@
+# What is Elastic Cache [Port number is 6379]
+-> Elastic cache is used to to reduce the load on data base.
+
+# What is the difference between RDS and Elastic cache
+-> RDS will save the data in volume types [It save in Hard disk]
+-> Elastic cache save the data in RAM 
+
+# Elastic cache are two types
+1) Redis 
+2) Memcached
+
+# Redis Elastic cache
+-> Redis is used for game purpose. Mostly all peoples are used redis
+-> we will place redis in multiple Avaliablility Zones
+-> Backup feature is avaliable in redis
+-> We can create read replicas in redis
+
+# Memcached
+-> Backup feature is not avaliable in Memcache
+-> No multiple Avaliablility Zones avaliable in Memcache
+-> We cant create read replicas in Memcache
+
+# How to create Elastic cache
+-> Go to elastic cache and create cluster
+-> Create Redis cluster
+-> Click Configure and create a new cluster
+-> Cluster mode 
+  if click Enable the cluster mode you will get replicas across multi sharing
+  if click Disable doesnt apply
+-> Give name
+-> Click AWS cloud [It is location]
+-> If you want Mulit_AZ if will enable
+-> Auto-failover [It will provide the high avaliablity through Auto-failover to read the replica in case primary node failover.
+-> chose instance type t2.micro
+-> if you want custom VPC then you will create otherwise you will choose default VPC
+-> If You want encryption you will click othewise leave it
+-> Next
+-> Crate
+
+# After create the Elastic cache 
+If you want to connect Elastic cache with Ec2
+-> yum install telnet -y
+-> telnet <give elastic cache configuration endpoint>   [give without portnumber]

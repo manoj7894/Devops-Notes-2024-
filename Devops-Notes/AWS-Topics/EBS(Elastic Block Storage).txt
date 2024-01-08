@@ -1,0 +1,125 @@
+# What is EBS (Elastic block storage)
+-> Elastic block storage is a scalable block storage server provided by AWS for Ec2.
+-> It allows you to create and attach persistance the storage volume to your instances
+-> All Ec2 instance data stored in EBS
+
+Note: We cannt use EBS directly. we will use EBS using below servers
+	EC2, RDS, ECS, Redis
+
+# Type of Storages in AWS
+	1) Block level storage  -> EBS Service
+	2) File level storage   -> EFS Service
+	3) object level storage -> S3 service 
+	4) Server type storage  -> RDS Service
+
+# Types of Block storage
+	1) EBS  -> It persistance the data
+	2) Instance Type -> It doesnot persistance data
+
+# What are the difference between EBS and Instance store
+
+-> Elastic block storage
+	1) It persistance data
+	2) It has distance between instance and storage
+	3) Data transffer speed is low
+	4) It will matained the another copy
+	5) When you do the reboot data will persistance
+	6) When you stop the instance data will save
+
+-> Instance store
+	1) It doesnt persistance data
+	2) It has no distance between instance and storage
+	3) Data transffer speed is high	
+	4) It will not matained the another copy
+	5) When you do the reboot data will persistance
+	6) When you stop the instance data will not save 
+
+# Description Of EBS
+-> We can attach the 16 EBS to one Ec2 instance
+-> We will use 16TB to 64TB sizes attach to the EBS
+-> One EBS can attach different Ec2 by using EBS multi attach
+-> We have two types of Hypervisiors in AWS
+	1) Xen hypervisior -> It will not work to attach mulit EBS attach
+	2) Nitro hypervisior -> It will work to attach mulit EBS attach
+
+# Types of Elastic Block storage
+	1) SSD -> It provide fast performance than HDD [Solid State Disk]
+	2) HDD -> It is slower storage performance than SDD [Hard Disk Drive]
+
+-> SSD it will work based on IOPS -> Input Output Per second
+-> HDD it will work based on throughput
+
+# Tyeps of SSD [It will work based on IOPS]
+	1) General purpose -> It will support min 100 max 16000 IOPS (volume size 1Gb To 16TB)
+	2) Provision IOPS -> It will support maximum 64000 IOPS (volume size 4Gb To 16TB)
+
+In Genearal purpose
+gp2 -> default 100 IOPS
+gp3 -> 3000 IOPS        
+
+-> When we create the Ec2 instance defaulty it will take gp2 storage
+-> 1Gb = 3 iops 
+-> But when we create the Ec2 instance it will provide 8Gb with gp2
+-> Why it will 8Gb because to difficult to work with 24 IOPS so that defaulty it will provide 8Gb with 100 IOPS
+-> Suppose if you want to increase your IOPS to 300 IOPS then you will get 100Gb
+
+Provision IOPS
+1) Io1 -> It will support min 100 max 64000 IOPS (volume size 4Gb To 16TB)
+2) Io2 -> It will support min 100 max 64000 IOPS (volume size 4Gb To 16TB)
+3) Io2 block express -> It will support > 64000 IOPS
+
+-> I01 and I02 IOPS will support only nitro based hypervision instances
+-> I02 block express will support only R5B instance
+
+# Tyeps of HDD [It will work based on throughput]
+1) st1 -> It will support 500 Mbps (volume size 125Gb To 16TB)
+2) sc -> It will support 250 Mbps (volume size 125Gb To 16TB)
+
+# What is throughput
+-> The amount of data moved successfully from one place to another place in the given time period and 
+    typically measure in bits per second (bps) as in megabits per second (Mbps) or gigabits per second (Gbps)
+
+-> We will use if we want to work on less operation on more data then we will use HDD
+-> It could not support to create the Ec2 instance only SSD disk will support
+
+# What is Snapshot [It will take the volume backup]
+1) EBS snapshots are point-in-time copies of your EBS volume
+2) We can create up to 5000 EBS volumes in single account
+3) We can create up to 10000 EBS snapshots in single account
+4) We can migrate EBS volume from region to another region by usign Snapshort
+
+# How to get Backup and restrore data using EBS volume
+-> You will create one instance and connect the instance and go root and create the some files there
+-> Go to volumes and click on volume and go to actions and create snapchat
+-> Go to Ec2 instance and terminate that instance
+-> lateron go snapchat and click that snapchat and go actions and click create volume from snapchart
+-> lateron you will create aonther instance with same volume avaliablity zone
+-> After complete create Ec2. you will stop that instance
+-> After stop the instance you will go to volumes and detach and delete stop instance volume 
+-> Click the avaliable use vloume in volumes and go to actions and attach the volume to stop instance and give which root volume you instance contain /dev/xvda
+   you have to give that root volume name there
+-> After attach the volume to instance you will start that instance and you will login and check the files would there or not
+
+Note: Snapchat will store in S3 bucket but you wont manage. AWS will manage this things
+
+# How to copy the snapchat from one region to another region
+-> click on snapchart and go to actions and copy the snap and select region whichever region you want to keep
+
+# What is AMI
+AMI stands for Amazon machine image. Its a template that contains a software configuration for virtual machine on amazon web service
+# How to Create the AMI image
+-> First you will create one instance and connect instance and create some file in that instance
+-> later on go to snap chart and create the snap chart and click instance
+-> After create the snap chart you will terminate the instance and go to snap chart and click the snapchart and go to actions and click create image from snap
+-> Give only the name and create image and go ami and click that ami and lanunch instance
+-> After create the instance check the files wheather it would there are not whichever files you have created in past instance
+
+
+ 
+
+
+
+
+
+
+

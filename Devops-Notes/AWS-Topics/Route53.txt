@@ -1,0 +1,65 @@
+# What is Route53
+-> Route53 is a scalable and highly available domain name system (DNS) service provided by AWS.
+-> It helps route traffic to appropriate resources , such as website or application, based on domain named enter by user.
+-> It also supports the advanced DNS features like healthe checks and routing policies.
+
+# Features of Route53
+-> Domain registration -> [when we do the domain registration it will provide the 4 naming servers]
+-> DNS operation -> [If you want mapping the Ip address to Domain registration then you will use DNS operation]
+
+# How to create Route53
+-> First you need to purchase the one domain name from godaddy websites
+-> After purchased the domain you will create the host zone in route53
+-> click Hoste zone
+-> give the name
+-> click public host zone or private [if you click the private only with VPC you can access]
+    i choose public
+-> create host zone
+-> After create the host zone it will give the 4 names then you will update that 4 name in godaddy website under your domainname
+-> After update the name in godaddy website you will create the record
+-> click record
+-> Click alias
+-> select the application load balancer
+-> select the load balancer region
+-> click the load balancer DNS
+-> create the record
+-> after complete the record the you will access the browser using that domain name
+
+
+
+
+# How to create certificate manager
+-> If you want to host your application with https protocal then you have attached the SSL and TLS certificate
+
+# How to create the certificate
+-> Go to certificate manager
+-> Click request certificate
+-> Click request public certificate
+-> next
+-> Give your Route53 domain name
+-> Click DNS validation
+-> Click RSA 2048
+-> click request
+-> After create the cerficate if you want to attach that certificate to Route 53
+-> click the cetificate
+-> go to domains and click create record in route53
+-> Click route53 domain name and click the create record
+-> Afetr attach the certifiate to route you will go route 53 and check the certificate it attached or not
+-> You will go to the load balancer and click load balancer
+-> go to the listeners rule and click the add listener
+-> Give the HTTPS and 443 protocal
+-> Click the forward target group
+-> select the target group
+-> Go to certificate (from ACM) and click the your SSL/TLS certificate
+-> click ADD
+-> After complete the above step and click HTTP and click default and go to actions and click the edit rule
+-> Click the RedirectURL in default actions
+-> give the HTTPS port number
+-> click save the changes
+-> After complete the above you can on web browser using route53 domain securaly
+
+# If you want to get more details about how to assgin SSL/TLS certificates to route53 and load balancer you will checkout the below link
+https://youtu.be/_bEPuvrjB5Y?si=4qnMojKDAiJ-3OjI
+
+
+

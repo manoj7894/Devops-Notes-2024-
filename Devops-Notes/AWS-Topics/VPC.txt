@@ -1,0 +1,85 @@
+# What is VPC
+-> VPC stands for Virtual Private Cloud. Its a virtual network in aws that allows you to control your virtual network environment.
+
+# How to create sample VPC based on one public sub-net having internet connection and another private subnet doesnt have internet
+connection
+
+-> First we have to create one vpc with CIDR block
+-> CIDR means classless inter Domain range[Give 10.0.0.0/16]
+-> After You have will two create subnets one is public and private do you requir [10.0.0.0/24][10.0.1.0/24]
+-> You will give different avaliablity zones to both subnets
+-> When you create the two subnets automatically one route table will create
+-> We have two subnets each having one route table but we doesnt have internet connection to the Private sub-net
+-> So that we have to create another route table and that route table will attach to private subnet and existing route you will attach to the publi-subnet [existing route table means when we create subnets automatically one route table create]
+-> Lateron we will create one internet gateway and that gateway you will attach to your vpc
+-> Lateron you will attach internet gataway to public sub-net route table
+
+-> After did above process we will check wheather is it working or not
+-> We will create two ec2 instances using public and private subnets
+-> Enable the public option below vpc credentionls in Ec2
+-> After launch both instaces
+-> Public subnet instance will connect to the mobaxstream
+-> Private subnet instance will not connect to the mobaxstream
+-> lateron you will try to login private instance in public instance using SSH
+
+# If you want to connect one manchine to another machine by using SSH [To connect the default to default]
+-> First you have to create one file with pemfile name and paste the data in that file
+-> chmod 400 fielname
+-> ssh -i "filename" ec2-user@172.31.1.150 --> give PrivateIp
+
+-> After log in we will check wheather internet is working or not using ping www.google.com
+-> Public instanace will work because it having internet connection
+-> Private instance will not work it does not having internet coonection
+ 
+-> If you want to give internet connection to the private Ip
+-> We have to create nat-gateway because nat-gateway it will work as outbound rule means outgoing traffic or oneway traffic
+as well as it work as a proxy if any erros comes in public it will let us know so that you will keep nat-gateway in public subnet
+internet gateway it will work as inbound and outbound means as two way traffic
+ so that region we will provie nat-gateway to private sub-net to protect our data
+how will create nategateway
+you have to go nate-gateway then you will create nate-gateway using public sub-net and you need ip so that you create one
+elastic create and create nat-gateway
+[Elastice means when restart ec2 instance ip wont change, if we do restart the ec2 instance then public ip will change
+ that is the difference between Elastic ip and Public Ip]
+after create nat-gateway you will attach that nat-gateway to private sub-net
+after attach nat-gateway to private sub-net you have to go instance and try wheather internet connection is coming to private
+instances or not. if internet will come to private sub-net then it working fine
+
+# How to delete the VPC
+-> First you will terminate the Ec2 on VPC
+-> You will disassign subnets to routetables
+-> Delete the NAT gateway
+-> Detch the internet gateway from VPC and delete the internet gateway
+-> delete the subnets
+-> Release the elastic IP
+-> Delete the VPC
+
+
+# What are the difference between NACL and SG
+NACL (Network access control list)
+-> It will work in subnetlevel
+-> we can give permission to inbound rule and outbound rule
+-> We can attach only 1 NACL to subnet
+-> we can create both allow and denied rules
+
+SG(Security Rules)
+-> It will work in resource level
+-> we can give permission to inbound rules then automatically it will take to the outbound
+-> we can allow 5 security rules
+-> we can create only allow rules
+
+
+# what is VPC endpoint service
+-> If we want to access our service in other AWS account with same VPC then we will use VPC Endpoint service
+-> To get more detail about VPC endpoint service you will checkout the below link
+    https://youtu.be/MeIhu3eseyA?si=cdGWXwbB3yQZRWZw
+
+# We have three types of endpoints
+-> Interface Endpoint  -> It will support 86 services
+-> Gateway Endpoint  -> It will support only two service s3 and dynamoDB
+-> Gateway load balancer endpoint
+
+# VPC endpoint sample project link
+  https://youtu.be/8AjcPQHjahU?si=-9-o_q7wN8tdc5gF
+ 
+

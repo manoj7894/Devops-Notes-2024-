@@ -1,0 +1,42 @@
+# What is ECR 
+-> ECR stands Elastic Container Registry full managed by AWS. 
+-> It is a fully managed container registry that makes it easy to store, manage, share, and deploy your container images and artifacts anywhere
+
+# How to create ECR
+-> You go to ECR and click ECR 
+-> In ECR We have Public Repository and Private Repository
+-> If you want public you will select public and If you want private you will select private
+-> But Now i am taking public 
+-> Give the repository name
+-> Leave the all the optional options
+-> Click create repository
+-> later on you will create one Ec2 instance
+-> After complete the above steps. you will create one role
+-> Go to IAM and click the role and click Ec2 service and Attach the AmazonEc2ContainerRegistryFullAccess 
+-> Give the role name and create
+-> After that you will attach that policy to ec2 instance
+-> Click ec2 and go to actions and select security and click modify role and attach the role and apply
+-> You will login the terminal using ec2 service. After login you have to  install AWS CLI using below commands
+-> sudo yum update -y
+-> sudo yum install python3-pip -y
+-> sudo pip3 install awscli
+-> aws --version
+-> aws configure
+-> aws sts get-caller-identity
+-> You will install Docker using below process
+# How to install Docker
+1.sudo yum update -y
+2.sudo yum install docker -y
+3.sudo service docker start
+4.sudo chkconfig docker on
+5.sudo usermod -aG docker $USER
+6.docker --version
+7.sudo service docker start
+8.sudo service docker status
+9.docker info
+If it is not work once you will exit from instance and again you will login
+-> After complete the above instilization you will login ECR in Ec2 terminal using ECR commands
+-> You will create the one docker file
+-> You will tag the image using ECR command
+-> You will push image to ECR using ECR command 
+ 

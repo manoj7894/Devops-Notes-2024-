@@ -1,0 +1,60 @@
+# What is Clould Front
+-> Cloud front is a content delivery netwrok(CDN) provided by AWS. It helps deliver content such as images and videos, to users with low latency
+and high data transfer speeds.
+-> CDN will manages the both DNS query and Data copy
+DNS query means To find the nearst data centers and regions
+Data Copy means To copy the data in all data centers.
+
+# What is the difference between region and Edge locations
+-> Region
+   -> All aws services will avaliable in regions like s3,Ec2,VPC
+   -> In aws we have 30 regions and 96 availablity zones , Ecach availablity zones having 3 data centers
+-> Edge locations
+   -> Only cashing releated services will available in edge location
+   -> All aws services will not available in edge locations
+   -> We have 410 edge locations in our world
+   -> We have 6 edge locations in india that is Delhi, Mumbai, Benguluru, Hyderabad, chennai, kolkata
+   -> Each locations having 3 data centers
+   -> suppose when you raise the request from Delhi. It will come from Delhi edge location when we using cloud front
+
+# Running Notes
+-> It means our cloud front will work like above. we have to create distribution.
+-> When we create the distribution we have one input that input we call origin
+-> cloudfront will support those origins S3, EC2, ELB, Mediacore package service
+-> you can use cloudfront not only in AWS you can use outside of the AWS
+-> You need to provide IP and DNS to use outside servers in cloudfront
+ 
+# How to connect static templates website to cloudfront
+-> You will create one s3 bucket and upload one free html template
+-> Go to properties and enable the static website
+-> Go to permission and unable the block public access
+-> go the permission enable ACl and make all objects as public.
+-> Another way to make as public go to edit bucket policy and click add statement and edit the file like below file
+   {
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Principal": "*",
+			"Effect": "Allow",
+			"Action": "s3:*",
+			"Resource": "arn:aws:s3:::manoj-3058/*"
+		}
+	]
+}
+
+-> After complete the above steps you will go cloud front 
+-> Click create cloud front and select the s3 bucket name
+-> go to origin access 
+-> click s3 bucket
+-> give path name index.html
+-> Click Origin access control settings [if you select this option only you can access over cloud front URL you cant access othet URLS)
+-> Click create control setting and give some name and create
+-> Click Do not enable security protections
+-> Go settings and see
+-> Create distribution 
+-> After create copy the Policy. later go s3 bucket and go to bucket policy and delete the all previous policy and give this cloud front policy there
+-> Go cloud front and copy the Distribution domain name and paste in browser along with path
+
+-> If you want to see the partical vidoe you checkout below link
+    https://youtu.be/hM1KOq5hD30?si=XnXaxw_WUC9tiBRX

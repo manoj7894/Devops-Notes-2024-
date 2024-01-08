@@ -1,0 +1,71 @@
+# What is Cloudtrial
+-> We will check the details who is running our instance or who was terminated our service by using cloud trail
+-> Cloudtrail is regional service it is not a global service
+
+# What is the difference between Cloudtrail and Cloudwatch
+-> Cloudtrail
+   -> It will work to check the account level logging  [Account logging means Ec2 instance and S3 bucket create or stop] 
+-> Cloud watch
+   -> It will work to check the application related source data
+
+# We have two components in Cloud trail
+-> Event Histroy
+-> Trails
+
+# Event History
+-> It is defaulty enable option
+-> Aws is provided free
+-> Only 90 days data is available in event history
+-> In event history we can see only who is running or stop our instance and who is created and deleted the s3 buckets
+-> We cant do any modification in event history
+-> We cant do any integration [Integration menas you cant keep the log files in S3 bucket]
+
+# Trails
+-> we need to enable custom
+-> We need to pay the money based on destination storage
+-> We can do integration below those services in trails
+   1) S3 2) CWL(cloud watch logs) 3) Event Bridge
+   -> We can check the trails logs in above services
+-> If we want to do any integration with any third party service then we will use Event bridge.
+
+# We have two types of Trails
+-> Region Based Trail  [If you select region it will work upto to particular region]
+-> Multi Region Based Trail   [If you select Multi region it will work in all regions. If any region add in feature it will work in that region aslo]
+
+# We have three types events in Trail
+-> Management Event  [If you want to do any resource creation or update it will comes under management event. It will support all the services in AWS] 
+-> Data event   [It supports the To see the data level modification to particular service]
+-> Insights   [We will use Insight to find the unuseual activites]
+
+# We have two events in Management Event
+-> Write Management Event  [It indicates the Ec2 create, Ec2 stop or run, Volume attached to Ec2. It will work like that]
+-> Read Management Event   [It indicates the List of buckets, List of objects and List of instances. It will work like that]
+
+-> If you enable the log file validation option. It will let you know if anyone do any modification in log files in trails
+
+
+# How to create the Cloud Trail
+-> Go to Cloud trail and click trails
+-> Give trail name
+-> Enable for all accounts in my organization  [If you enable this option all users can see the trail logs in this account] 
+-> Click s3 bucket [ Choose new s3 bucket, Existing S3 bucket]
+-> If you want use KMS encryption you will enable the KMS encryption option
+-> Enable the log file validation [If you enable the log file validation option. It will let you know if anyone do any modification in log files in trails]
+-> If you want to see trail logs in cloud watch you will enable
+-> Next
+-> Click management [you can select whichever you want like management, Data, Insights
+-> Next
+-> Create
+
+-> After create the cloud trail. You will go to s3 and check bucket is created or not to trail logs
+-> If you enable the Cloud watch. you will go cloud watch and check the logs after doing some other works in AWS
+
+-> If you want to get more detaile about cloud trail please checkout the below link
+   https://youtu.be/AoebPHxtcIY?si=bqMbgNJxC3z9qxam
+
+
+
+# Cloud Config [It will continuously record the all the resources and their configuration]
+-> AWS Config provides a detailed view of the resources associated with your AWS account, 
+-> including how they are configured, how they are related to one another, and how the configurations and their relationships have changed over time.
+
