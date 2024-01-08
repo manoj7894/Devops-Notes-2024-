@@ -1,0 +1,68 @@
+# How to create Docker file 
+We will install tomcat on centos
+what steps we want to run the tomcat server
+1) Pull the centos from docker hub            FROM
+2) change the dir cd /opt                     WORKDIR
+3) Install java                               RUN
+4) Download the tomcat from website           RUN or ADD
+5) extract the file                           RUN
+6) Tell docker that it runs on port 8080      EXPOSE
+7) start the tomcat service                   CMD [it will run in runtime]
+
+FROM amazonlinux:latest
+WORKDIR cd /opt
+RUN yum install java-11-amazon-corretto -y
+ADD https://downloads.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.tar.gz.asc . [Suppose if you use run wget Url]
+RUN tar -xvf apache-tomcat-9.0.80.tar.gz.asc
+EXPOSE 8080
+CMD ["/opt/apache-tomcat-9.0.80/bin/catalina.sh", "run"]    [catalina.sh is available in bin folder]
+
+If you want to write dockerfile manually you will write like above
+
+# how to create some normal dockerfiles
+FROM amazonlinux:latest
+RUN mkdir dockerdata
+RUN echo "hello what are you doing" > /dockerdata/file1
+ENV name manoj > /dockerdata
+RUN touch file2
+
+FROM amazonlinux:latest
+VOLUME ["/name1"]
+WORKDIR name1
+RUN manoj1
+
+
+# How to create nginx in docker file
+
+# Use an official Nginx image as the base image
+FROM nginx:latest
+
+# Expose the HTTP port (default is 80)
+EXPOSE 80
+
+# Define the command to start Nginx when the container starts
+CMD ["nginx", "-g", "daemon off;"]
+
+# How to create tomcat in docker file
+
+# Use an official Tomcat image as the base image
+FROM tomcat:latest
+
+# (Optional) Set environment variables for Tomcat manager access
+ENV CATALINA_OPTS="-Duser.username=admin -Duser.password=admin -Duser.roles=manager-gui,manager-script"
+ENV CATALINA_HOME=/usr/local/tomcat
+
+# (Optional) Copy a custom context.xml for manager access
+# COPY context.xml $CATALINA_HOME/webapps/manager/META-INF/
+
+# (Optional) Copy a custom server.xml for additional configuration
+# COPY server.xml $CATALINA_HOME/conf/
+
+# Expose the default Tomcat port
+EXPOSE 8080
+
+# Start Tomcat when the container starts
+CMD ["catalina.sh", "run"]
+
+
+How to create the httpd image in docker file

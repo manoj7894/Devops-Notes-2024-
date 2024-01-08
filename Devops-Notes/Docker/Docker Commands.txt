@@ -1,0 +1,63 @@
+# Docker Image Commadns
+1) docker images  --> To see the docker images
+2) docker pull imagename --> To pull the image from docker
+3) docker login  --> Docker hub login in our terminal
+4) docker tag imagename tagname  --> before push you have to tag our image
+   or if you no repository in dockerhub then you will use below command
+    docker tag imagename image:v1
+5) docker push image:v1   --> Push the image to dockerhub
+6) docker build -t imagename .  --> To build the image
+7) docker build -f dockerfilename -t imagename .  --> To build the image. file would be in other loaction[pending]
+8) docker rmi imagename  --> To delete the docker image 
+9) docker rmi $(docker images -q)  --> To delete all the images
+   docker search imagename  -> To search the imagename
+   docker inspect image imagename
+
+# Docker Container Commands
+10) docker run -d --name nameofcontainer -p 8081:80 imagename --> port mapping  [8081 place is hostip and 80 place is container ip]
+11) docker run containername  --> To run when we execute ctrl+c it will exit
+12) docker create imagename  --> To create tha container
+13) docker start containername --> To start the container
+14) docker stop containername  --> To stop the container
+15) docker ps --> To see the running containers
+16) docker ps -a --> To see the overall containers 
+17) docker exec -it containername /bin/bash --> To enter into the container
+you will enter into containter even below below
+18) docker run -it --name con2 img1 /bin/bash --> directly you will enter into the container and container will aslo created
+19) docker start containername
+20) docker attach containername
+21) docker rm containername  --> To delete the container
+22) docker kill containername  --> To delete forcefully
+23) docker rm -f $(docker ps -aq) --> To remove all container at a time
+
+# Docker Volume Commands
+24) docker run -it --name containername -v /volumename imagename /bin/bash  --> To create the docker volume manually 
+25) docker volume ls  --> To get the volumes
+26) docker inspect volume volumename --> you will get volume storage path and full details about volume
+27) cd /var/lib/docker/volumes/   --> we will get volume data in this path suppose if container will delete and stop
+28) docker volume create volumename --> To create volume name
+     docker run -it --name=containername --mount source=volumename,destination=/data imagename  -> To attach the volume to container  
+29) docker volume rm volumename  --> To delete the volumes
+30) docker volume prune -->  It will delete all unused volumes
+31) docker run -it --name newcontainername --privileged=true --volumes-from existingcontainername imagename /bin/bash --> To transfer volume from Container to Container
+32) docker run -it --name containername -v pathname:newvolumename imagename /bin/bash  --> To transfwe volume from host to volume
+
+# Docker Network commands
+33) docker network ls --> To network drives
+34) docker inspect containername  --> To see what network driver has attached to that container
+35) docker inspect network containername --> same
+36) docker network create --driver <drivername> <networkname>  
+[Drivername means what do want brige or host or none or overlay or macvlain]
+37) docker run -d --name containername --network <drivername> -p 8080:80 imagename --> To add network drivers
+38) docker run -d --name containername --network host -p 8080:80 imagename --> To add the host network driver
+39) docker run -d --name containername --network none -p 8080:80 imagename --> To add the none network drivers
+40) docker run -d --name containername --network <newnetworkname> -p 8080:80 imagename --> To add different network name
+
+# Docker Compose Commadns
+41) Docker-compose commands
+42) docker-compose up --> To create and start the container
+43) docker-compose ps --> To see the docker container
+44) docker-compose down --> To stop and down the container
+45) docker-compose images --> To see the images
+46) docker-compose -f <filename> up --> To run the specify file
+47) docker-compose -f <filename> down --> To down the specify file

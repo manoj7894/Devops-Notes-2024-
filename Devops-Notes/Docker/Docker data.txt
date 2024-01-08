@@ -1,0 +1,248 @@
+# What is Docker
+Docker is a set of platform as a service product that use os-level virtualization to deliver software in packages is called container
+Docker is a platform that allow the application you to package and distribute software application in container
+Docker is used to manage the container based application
+Deployment into multiple environment easy if we use docker
+It is a containerisation software
+
+# How docker will work 
+Docker will abstruct and package developer written code. After that it will create on image. later we will run our machines using that images 
+
+# What is Container
+-> container is a way to package application with all the necessary dependencies and configuration
+-> Containers having lite weight operating system
+we can run containers in multiple machines easily
+container will take every thing which is we required
+
+# What is Virtualization
+It is a old technique to run the application
+we need to install hydervisior software to use
+
+# What are the difference between Docker and  virtualization
+   Docker                  virtualization           
+1) Size is small         1) Size is big
+2) Startup is very fast  2) Startup is slow
+3) Integration is good   3) Integration is bad
+
+# What is Docker Hub
+Docker is a cloud based repository where we can share and store images. its like a market place for conatainer
+
+
+# How to install Docker
+1.sudo yum update -y
+2.sudo yum install docker -y
+3.sudo service docker start
+4.sudo chkconfig docker on
+5.sudo usermod -aG docker $USER
+6.docker --version
+7.sudo service docker start
+8.sudo service docker status
+9.docker info
+If it is not work once you will exit from instance and again you will login
+
+# Docker Terminolory
+1) Docker file 
+2) Docker images
+3) Docker container
+4) Docker Registry
+5) Doker engine or Docker demon
+
+# what docker file
+Docker file contains instruction to create an images
+It contains Domain specific language keywords to build the image
+
+# How to create Docker file [Default file name is Dockerfile]
+
+FROM: To pull the base image
+
+RUN: To execute commands [If you want to execute the linux and bash commands then we will use run]
+                          [Run command will excute while creating the image]
+CMD: To provide defaults for execute container [CMD instructions will execute while creating the container]
+ 
+ENTRYPOINT: Entrypoint and CMD both are equal We can over write CMD but we cant the Enrtypoint
+
+WORKDIR: To set the working directory
+
+COPY: It copy files from one place to another place
+
+ADD: ADD it is also copy files from one place to another place
+But when we use ADD we will copy github data and website URL and It extract the Zip and tar files automatically
+
+EXPOSE: It will Expose your listener Port number
+
+ENV: To set the Env variables
+
+# What is Docker image or container image
+-> executable package that includes everything needed to run a piece of software, including the code, runtime, libraries, environment variables, and system tools
+Docker image is package that contains everything needed to run a software including the code, runtime, libraries
+ and system tools. Its like a snapshot of a Docker containter.
+
+Docker images commands
+docker images  --> To see the docker images
+docker pull imagename --> To pull the image from docker
+docker login  --> Docker hub login in our terminal
+docker tag imagename manoj3003/imagename  --> before push you have to tag our image
+docker push manoj3003/imagename   --> Push the image to dockerhub
+docket build -t imagename .  --> To build the image
+docker build -f dockerfilename -t imagename .  --> To build the image file would be in other loaction[pending]
+docker rmi imagename  --> To delete the docker image 
+docker rmi $(docker images -q)  --> To delete all the images
+
+# What is Docker container
+Docker conatainer is runnable instance of docker image
+
+Docker container commands
+docker run -d --name nameofcontainer -p 8081:80 imagename --> port mapping  [8081 place is hostip and 80 place is container ip]
+docker run containername  --> To run when we execute ctrl+c it will exit
+docker create imagename  --> To run the container without exit 
+docker start containername --> To start the container
+docker stop containername  --> To stop the container
+docker ps --> To see the running containers
+docker ps -a --> To see the overall containers 
+docker exec -it containername /bin/bash --> To enter into the container
+you will enter into containter even below below
+docker run -it --name con2 img1 /bin/bash --> directly you will enter into the container and container will aslo created
+docker start containername
+docker attach containername
+docker rm containername  --> To delete the container
+docker kill containername  --> To delete forcefully
+docker rm -f $(docker ps -aq) --> To remove all container at a time
+
+# what is Docker registry
+Docker registry is a place where we can store our docker images
+
+# what is Docker engine or Docker daemon
+Docker engine is a software using which we will create docker image and docker container
+
+# What is Docker volume
+Docker volume are used to presist the data generated by docker container
+
+Advantages of container
+1) share volume amoung different container
+2) On deleting container volume will not deleted.
+
+we will create volume in two ways
+1) Automation
+2) manual
+
+Automation way means we will mention volume in docker file
+FROM amazonlinux:latest
+VOLUME ["/name1"]
+WORKDIR name1
+RUN manoj1
+
+docker build -t imagename .
+docker run -it --name conatainername imagename /bin/bash
+after enter into the container we will check volume is created or not
+
+manual way means we will create the volume by using command
+docker run -it --name containername -v /volumename imagename /bin/bash
+
+After creating the volumes to see that volumes you will use below commands
+docker volume ls  --> To get the volumes
+docker inspect volume volumename --> you will get volume storage path and full details about volume
+cd /var/lib/docker/volumes/   --> we will get volume data in this path suppose if container will delete and stop
+docker volume create volumename --> To create volume name
+docker run -it --name=containername --mount source=volumename,destination=/data imagename  -> To attach the volume to container
+docker volume rm volumename  --> To delete the volumes
+docker volume prune -->  It will delete all unused volumes
+
+we will transfer volumes in two ways
+1) Container to Container
+2) Host to Container
+
+How to transfer volume from Container to Container
+docker run -it --name newcontainername --privileged=true --volumes-from existingcontainername imagename /bin/bash
+After executed above command when add the any files in newcontainer automatically it will add to the another container also
+
+How to transfer volume from Host to Container
+docker run -it --name containername -v pathname:newvolumename imagename /bin/bash
+
+# Docker network
+Docker netwrok is a virtual network that allows containers to communicate with each other.
+It provides the isolation and allows container to connect to each other using network interface
+
+Note: One container we will attach the muliple netwrok when we attached container to mulitple network then those container
+can communicate 
+
+when we installed the docker software by defaultly three networks drivers will avaliable[docker network ls]
+1) Bridge driver [It is default network driver, you can communicate by using portnumber]
+2) Host driver [It is default network driver, you can communicate without portnumber]
+3) None driver [No network access to the container]
+above three are defaultly
+4) overlay driver [we will use overlay driver when we have docker swaram]
+5) Macvlan Driver [When we the macvlan driver we will use get mac address]
+
+whenever we create the container defaultly it conncet to the bridge driver
+
+How to create the network
+docker network ls --> To network drives
+docker inspect containername  --> To see what network driver has attached to that container
+docker inspect network containername --> same
+docker network create --driver <drivername> <networkname>  
+[Drivername means what do want brige or host or none or overlay or macvlain]
+docker run -d --name containername --network <drivername> -p 8080:80 imagename --> To add network drivers
+docker run -d --name containername --network host -p 8080:80 imagename --> To add the host network driver
+docker run -d --name containername --network none -p 8080:80 imagename --> To add the none network drivers
+docker run -d --name containername --network <newnetworkname> -p 8080:80 imagename --> To add different network name
+
+Sample project
+docker run -d --name con1 --network <newnetworkname> -p 8080:80 imagename
+docker run -d --name con2 --network <newnetworkname> -p 9080:80 imagename
+After run the above containers and execute the below commands
+docker start con1
+docker attach con1
+apt-get update
+apt-get install iputils-ping
+ping con2 ip  [Ip avaliable in docker inspect containername]
+
+docker start con2
+docker attach con2
+apt-get update
+apt-get install iputils-ping
+ping con1 ip  [Ip avaliable in docker inspect containername]
+
+# What is Docker Compose
+Docker-compose which is used to managed the multiple container based application
+Using docker compose we can define and deploy multi container based application
+Docker compose having yaml file. default file name is docker-compose.yml
+
+# How to install docker-compose
+sudo yum update -y
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+Docker-compose commands
+docker-compose up --> To create and start the container
+docker-compose ps --> To see the docker container
+docker-compose down --> To stop and down the container
+docker-compose images --> To see the images
+docker-compose -f <filename> up --> To run the specify file
+docker-compose -f <filename> down --> To down the specify file
+
+docker log containername
+
+# Restart policies
+we have four types of restart policies in container
+-> no
+-> always
+-> unless-stopped
+-> on-failure
+
+docker run -d --name containername --restart always imagename sleep 10  -> it will restart the container eveny 10 sece because you have montion always in policy
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
