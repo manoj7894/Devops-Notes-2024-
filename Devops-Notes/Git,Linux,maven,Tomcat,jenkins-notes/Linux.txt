@@ -1,0 +1,101 @@
+# What is Linux
+Linux is a open source operating system. It is reliable and secure than other operating systems. It was developed by
+Linus torvolad. It was developed at 17 sep 1991.
+
+# Linux Basic comamdns
+date  --> To show the date
+date +%T  --> It give only time
+date +%D  --> It give only date
+date +%B  --> It give only month
+date +%Y  --> It give only year
+date --help
+timedatectl  --> To see details of time
+sudo date -s "2023-09-30 10:18:20"   --> To set the particular time
+ll  --> It show the all files
+touch manoj --> Cretae the file
+touch -d "2023-09-29 10:10:10" manoj  --> To change date and time of file
+ls
+cd ~
+ls -al  --> To show the hidden files
+ls -ail
+ls -al [Fm]*   --> It will open the all the files forth having f m
+ls -al [!Fm]*  --> It will not give forth f and m files
+ls -l f*  --> It open all forth f files
+ls -al ?? --> It give one only two letters files
+ln -s    -->  To create soft link [ln -s existingfile newfile]
+ln       -->  To create hard link [ln existingfile newfile]
+touch filename  --> To create the file
+touch .filename  --> To create the hidden file
+echo "writesomething" > filename --> To create the file
+echo "writesomthing" >> filename  --> To add something to existing file
+cat filename  --> To see the data in file
+cat > filename   [ctrl d] --> To create the file
+cat >> filename  --> To add something to existing file
+cp filename destinationname  --> To copy the files from one place to another place
+cp -R dirname destinationname  --> To copy the dir from one place to another place
+mv oldname newname  --> To change the file name (or) To move the files from one place to another place
+mkdir dirname  --> To create the dir
+find / -name filename    --> To search files
+find / -inum enterinode number  --> To search files based on inode number
+find / -type l   --> To search file based on type ex link(l) block(b) character(c) normal(-)
+find / -user username    --> Seach the files based on user
+find / -size 10k   --> search the files based on size
+find / -size -10k  --> search the files based on below 10k size files
+find / -size +10k  --> search the files based on above 10k size files
+# You will another command to find the files
+sudo yum install mlocate
+after install you have to update your data base so that you have to execute below command to update database
+sudo updatedb  --> To update database
+locate filename  --> To find files
+which echo  -->  It give the path of the command
+# we have to use below command before use whatis
+sudo mandb  --> To update database
+whatis ls --> To see that command properties
+sudo useradd username   --> To create username
+sudo passwd username    --> To create passwd to username
+sudo userdel username   --> To delete the username
+sudo passwd -d username --> To delete the passwd to user
+sudo passwd -S username --> To see passwd status to user
+sudo usermod -l newuser olduser  --> To change the username
+sudo usermod -u idnumber username  --> To change the userid number
+sudo usermod -L username --> To lock the user
+sudo usermod -U username --> To unlock the user
+cat /etc/passwd  --> To see the user
+sudo cat /etc/shadow  -->  To see passwds to the users
+sudo chage -l username  --> It give the all data of passwd about user
+sudo chage username   --> To change the existing passwd details.
+sudo groupadd groupname --> To create the group
+sudo gpasswd groupname  --> To create passwd to the group
+sudo groupdel groupname  --> To delete group
+sudo gpasswd -r groupname --> To delete passwd to group
+sudo groupmod -n newname oldname --> To change the group name
+sudo groupmod -g groudidnum groupname  --> To change the groupid
+sudo useradd -G groupname username    --> To add new user to the group
+sudo usermod -G groupname username   --> To add user to the group
+sudo gpasswd -d username groupname    -->  To delete user from group
+cat /etc/group  --> To see the groups
+sudo cat /etc/gshadow  --> To see the group passwd
+sudo chmod 775 filename  --> To give permission to the files
+read permission=4
+write permission=2
+execute permission=1
+no permission=0
+sudo chown username filename  --> To add user to the file
+sudo chgrp groupname filename  --> To add group to the file
+sudo chmod u+s filename  --> To set the setuid permission to the file
+sudo chmod u-s filename  --> To remove setuid permission to the file
+sudo chmod g+s filename  --> To set the setgid permission to the file[only peoples who woule be in group they can only see]
+sudo chmod g-s filename  --> To remove the setgid permission to the file
+sudo chmod o+t filename  --> To set the sticky bit permission to the file[only file user can see]
+sudo chmof o-t filename  --> To remove the stcky bit permission to the file
+
+cat /etc/release  -> To see the version of the Linux
+sudo yum remove httpd  -> to remove the packages
+sudo yum list installed | grep httpd   -> To search the packages
+
+
+
+
+
+
+

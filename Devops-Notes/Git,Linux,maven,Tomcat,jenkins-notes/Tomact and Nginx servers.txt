@@ -1,0 +1,64 @@
+# What is Tomcat Server
+Apache tomcat is a webserver
+Apache tomcat is used to run the java application
+Apache tomact is free and open source
+Apache tomact run on port no 8080 by default
+
+Apache tomact folder structure 
+bin -> This is folder is use for start the tomcat application [sudo sh startup.sh, sudo sh shutdown.sh]
+conf -> In this folder we have two important files one is server.xml to see the port number
+        and second file is tomact-user.xml to configure the user names and passwords
+lib -> It contains libraies (jars)
+logs -> It contains server logs
+tmp -> It contains temporary files
+webapps -> It contains deployment files and war files
+
+# How to install tomact server
+First we have to install java
+sudo yum update
+sudo amazon-linux-extras install java-openjdk11 -y
+sudo dnf install java-11-amazon-corretto -y
+java --version
+which java
+whereis java
+yum list installed | grep java
+ls -al /usr/bin/java
+ls -al /etc/alternatives/java  --> To see the java path
+
+you will get link by apache tomcat
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+sudo tar -xvf apache-tomcat-9.0.82.tar.gz
+cd apache-tomcat-9.0.80
+cd /bin
+sudo sh startup.sh
+sudo vi webapps/manager/META_INFA/contex.xml      
+	allow ".*"                          
+cd /conf                                            
+sudo vi tomcat-user.xml
+  <role rolename="manager-gui"/>
+  <role rolename="admin-gui"/>
+  <role rolename="manager-script"/>
+  <user username="tomcat" password="tomact" roles="manager-gui"/>
+  <user username="admin" password="admin" roles="manager-gui,admin-gui,manager-script"/>
+
+After instilation you will login your tomcat using your public Ip and port Number
+After login upload your war file manually and deploy
+
+
+# What is Nginx
+ It is a web server that accept request via HTTP/s and respond to display website content through storing,
+processing and delivering web pages to users
+
+How to install Nginx
+sudo yum update
+sudo yum install nginx
+sudo service nginx start
+sudo chkconfig nginx on
+sudo service nginx status
+
+sudo vi /etc/nginx/nginx.conf  --> To see the nginx port number
+sudo vi /usr/share/nginx/html/index.html  --> To see index.html regarding nginx
+
+After instiling the nginx you will paste your public Ip along with portnumber 80 
+
+

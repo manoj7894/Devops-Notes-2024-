@@ -1,0 +1,441 @@
+# How to deploy the files into kubernetes using jenkins via docker
+-> First you will create one instance and install java,maven,git,jenkins and docker in that instance.
+# To install java
+sudo yum update
+sudo wget https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz
+sudo tar -xvf openjdk-13.0.1_linux-x64_bin.tar.gz
+sudo mv jdk-13.0.1 /opt/
+cd ~
+cd /etc/profile.d/
+ll
+sudo vim java.sh
+	JAVA_HOME='/opt/jdk-13.0.1'
+	PATH="$JAVA_HOME/bin:$PATH"
+	export PATH
+sh java.sh
+cd ~
+source /etc/profile
+java --version
+
+
+# To install maven
+sudo yum update
+sudo wget https://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+sudo tar -xvf apache-maven-3.6.3-bin.tar.gz
+sudo mv apache-maven-3.6.3 /opt/
+cd /etc/profile.d/                                
+ll                                                  
+sudo vim maven.sh                                   
+ 	M2_HOME='/opt/apache-maven-3.6.3'            
+	PATH="$M2_HOME/bin:$PATH"                    
+	export PATH                                  
+sh maven.sh                                          
+cd ~
+source /etc/profile
+mvn --version
+
+-> Install Git
+sudo yum install git -y
+git --version
+
+-> Install jenkins
+cd /opt/
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade
+sudo amazon-linux-extras install java-openjdk11 -y
+sudo dnf install java-11-amazon-corretto -y               
+sudo yum install jenkins -y                            
+sudo systemctl enable jenkins                   
+sudo systemctl start jenkins                        
+sudo systemctl status jenkins                
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+-> Install docker
+sudo yum update -y
+sudo yum install docker -y
+sudo service docker start
+sudo chkconfig docker on
+sudo usermod -aG docker $USER
+docker --version
+sudo service docker start
+sudo service docker status
+docker info
+If it is not work once you will exit from instance and again you will login
+
+#How to install Kubernetes
+Take 3 Ubuntu Instances (20.00)
+ 1-Master Node (t2.medium instance)
+ 2-Work Nodes  ((t2.micro instance)
+
+Install below step-1 and step-2 commands in 3 instances
+Step-1:- Installing Docker
+sudo apt-get update
+sudo apt-get install docker.io -y
+docker --version
+sudo usermod -aG docker $USER
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo systemctl status docker
+
+Step-2:- Installing Kubernetes
+sudo apt install curl -y
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add  --> Add GPG Kubernets key
+sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"    --> Add the repository
+sudo apt-get install kubeadm kubelet kubectl kubernetes-cni -y
+sudo apt-mark hold kubeadm kubelet kubectl kubernetes-cni
+kubeadm version
+sudo swapoff -a       --> disabel the swap
+sudo systemctl daemon-reload
+sudo systemctl start kubelet
+sudo systemctl enable kubelet.service
+sudo systemctl status kubelet.service
+
+we will give All traffic security rules in above three instances
+
+Below Step-3 commands execute in only master node
+Step-3:- Running and Deploying Kubernetes
+sudo kubeadm init
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl get nodes
+kubeadm token create --print-join-command
+Copy that token and past that token in worknodes using sudo  --> worknodes connect to masternode
+kubectl get nodes
+
+When you get status is Notready then we will below command
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+Create the one ubuntu instance to install kubectl (20.00)
+Step-4:- Install kubectl in below instance 
+sudo apt-get update
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+How to connect Kubectl to the master node
+mkdir ~/.kube         --> execute in kubectl
+ Note: Take kube config file from master and it keep it here
+cat ~/.kube/config    --> executive in master node and copy the that data
+vi ~/.kube/config     --> past here that copy data
+kubectl cluster-info  --> execute this command in kubectl  --> it showing wheather kubectl is connected to the master node or not
+kubectl get nodes     --> execute in both kubectl and master to get pods are connected or not
+sudo systemctl restart kubelet.service   --> if pods are not showing then you will execute this command in master
+
+We have to follow below steps in worknodes also to get pods even in work nodes
+mkdir ~/.kube         --> execute in worknode
+ Note: Take kube config file from master and it keep it here
+cat ~/.kube/config    --> executive in master node and copy the that data
+vi ~/.kube/config     --> past here that copy data in worknode
+kubectl get nodes     --> execute in both kubectl and master to get pods are connected or not
+
+
+-> lateron you will access jenkins over browser and you download below plugins in jenkins
+   1) Eclipse Temurin installerVersion and jdk related plugins
+   2) SonarQube Scanner  [If it need]
+   3) Dcoker Pipeline and docker
+   4) kubernets all plugins
+-> You have to install jdk8,jdk11,maven and docker [click install automatically in docker] in jenkins manage configure tools
+-> later on You have to go credentials and give docker credentials details 
+  go to docker and click docker username [manoj3003] and go to account settings and click securiry and create the token
+  After create the token give docker username [manoj3003] and token password in jenkins credentials
+-> After setup the docker credentials you create the job with pipeline script
+-> You apply the below command when your deployment is not working due to docker socket permission
+    sudo chmod 666 /var/run/docker.sock
+-> If you want to connect jenkins with kubernetes you will create one serviceaccount in kubernets using below command
+    kubectl create serviceaccount jenkins
+    kubectl get serviceaccount
+-> After create the service account in K8S you have to go nodes in jenkins and click cloud and add new cloud and click kubernets and click kubernetes cloud details
+   and give the kubernets URL in URL place. we have to use below command to get K8S url
+   kubectl config view
+-> After setup the URL you have to go credentials and click secret file and upload the .kube/config file information
+-> You have to go K8S terminal and user below command to get .kube/config file data
+   cat .kube/config -> Copy that data and create one file on desktop and paste whichever data you have copy in K8S terminal in created file
+   After create and paste data and you will upload that file in credentials and give some ID name and some description.
+   you will click the test connection to check wheather K8S is connect or not 
+-> you will leave the all rest of the options and you will use only url and credentials options in kubernetes cloud details
+
+
+# How to deploy the image into docker using jenkins pipeline script
+pipeline{
+    agent any
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.6.3/bin"
+        DOCKERHUB_CREDENTIALS=credentials('Docker_id')    # Give samename Whichever name you have given to ID in docker  credentials
+    }
+    stages{
+        stage('GetCode') {
+            steps{
+                git 'https://github.com/manoj7894/sonar.git'   
+            }                                                  
+        }
+        stage('Build') {
+            steps{
+                sh 'mvn clean package'
+                sh 'docker build -t manoj3003/nginx_test11:latest .'
+            }
+        }
+        stage('Login') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('Push') {
+            steps{
+               sh 'docker push manoj3003/nginx_test11:latest'
+          }
+        }
+        stage('Build Docker run') {
+            steps{                                 
+                sh 'docker run -d --name docker03 -p 8031:80 manoj3003/nginx_test11'
+            }
+        }
+    }
+}
+
+
+# How to deploy the files into K8S using jenkins pipeline script
+pipeline{
+    agent any
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.6.3/bin"
+        DOCKERHUB_CREDENTIALS=credentials('Docker_id')     # Docker id means give same id here whatever you given credentiols
+        KUBECONFIG = credentials('k8scred_id')             # K8S id means give same id here whatever you given credentiols
+    }
+    stages{
+        stage('GetCode') {
+            steps{
+                git 'https://github.com/manoj7894/sonar.git' 
+            }                                                  
+        }
+        stage('Build') {
+            steps{
+                sh 'mvn clean package'
+                sh 'docker build -t manoj3003/nginx_test04:latest .'
+            }
+        }
+        stage('Login') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('Push') {
+            steps{
+               sh 'docker push manoj3003/nginx_test04:latest'
+          }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    def k8sPath = './deployment.yml'
+                    sh "kubectl apply -f ${k8sPath}"
+                }
+            }
+        }
+    }
+}
+
+
+# How to deploy jar and war files into tomcat and nginx server along with sonar-qube by using jenkins pipeline script
+-> You have to install java, maven and jenkins like above instaliation process as well as you have to install tomcat using below steps
+-> To install Tomact
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+sudo tar -xvf apache-tomcat-9.0.82.tar.gz
+cd apache-tomcat-9.0.80
+sudo vi webapps/manager/META_INFA/contex.xml      
+	allow ".*"                          
+cd /conf
+sudo vi server.xml  --> To change the port number                                            
+sudo vi tomcat-user.xml
+-->
+  <role rolename="manager-gui"/>
+  <role rolename="admin-gui"/>
+  <role rolename="manager-script"/>
+  <user username="tomcat" password="tomact" roles="manager-gui"/>
+  <user username="admin" password="admin" roles="manager-gui,admin-gui,manager-script"/>
+</tomcat-users>
+
+cd /bin
+sudo sh startup.sh
+
+-> After complete instilation you will login your tomcat using your public Ip and port Number
+-> If you want to deploy the file by using jenkins you have install Deploy conatainer plugin in jenkins
+
+
+-> After complete the tomact instalition you have to install sonar-qube in new instance
+
+# How to install Sonar Qube [you need 4gb RAM t2.medium)
+First you need install java before you install sonarqube (you will above java steps to install java)
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.2.46101.zip
+sudo unzip sonarqube-8.9.2.46101.zip
+sudo mv sonarqube-8.9.2.46101 /opt/
+Note:- Sonar Qube server will not run with root user so that you have to create another user
+sudo useradd sonar
+sudo passwd sonar
+sudo vim /etc/sudoers (or) sudo visudo
+  sonar   ALL=(ALL)       ALL
+cd /opt
+sudo chown -R sonar:sonar sonarqube-8.9.2.46101
+su sonar
+cd /sonarqube-8.9.2.46101/bin/linux-x86-64            (cd /conf/sonar.properties to sonarqube port number)
+sh sonar.sh start
+
+-> Do you want to configure sonar-qube in jenkins you have to follow below steps
+   you create one token in sonar-qube
+   you need to install sonarqube-scanner plugin
+   you have to create credentials to sonaqube in global
+   click on global and it will open credentials then you will choose screct text and paste token password in credentials [because you have token in sonar]
+   you have to configure sonarqube-server in jenkins system configure
+   you have to install sonar-scanner in Global Tool Configuration  [If you want to more details photos in phone]
+
+-> After complete all the above process you will create jenkins pipeline script job and execute the below code
+
+pipeline{
+    agent any
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.6.3/bin"
+    }
+    stages{
+        stage('GetCode') {
+            steps{
+                git 'https://github.com/manoj7894/sonar.git'   # if you want to take data from partical branch use below command
+            }                                                  # git  branch: 'main', url: 'https://github.com/manoj7894/sonar.git'
+        }
+        stage('Build') {
+            steps{
+                sh 'mvn clean package'
+            }
+        }
+        stage('SonarQube analysis') {
+            steps{
+            withSonarQubeEnv('sonarqube-8.9.2') {         # Whichevr name you have given to sonar-qube in system configuration you will that name here 
+                sh 'mvn sonar:sonar'
+            }
+                
+            }
+        }
+        stage('Deploy to tomcat server') {
+            steps{                                 
+                deploy adapters: [tomcat9(credentialsId: '9a831b44-c240-4d99-be23-21564f3b0696', path: '', url: 'http://3.108.227.134:9090/')], contextPath: 'jobwar5o', war: '**/*.war'
+            }
+        }
+    }
+}
+
+
+# If you want to get E-mail notification when you build the job
+-> First you have to install Email-extention plugin in jenkins
+-> go to system configure and configure Email-extention and Email
+To configure email in jenkins you will follow below youtube links
+https://youtu.be/jIh66SjCUp4?si=ZfGQ_GwPjuBzAHeF
+https://youtu.be/uMue7lNk3ew?si=nzaJE3635h5lfvMB
+
+pipeline{
+    agent any
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.6.3/bin"
+    }
+    stages{
+        stage('GetCode') {
+            steps{
+                git 'https://github.com/manoj7894/sonar.git'   # if you want to take data from partical branch use below command
+            }                                                  # git  branch: 'main', url: 'https://github.com/manoj7894/sonar.git'
+        }
+        stage('Build') {
+            steps{
+                sh 'mvn clean package'
+            }
+        }
+        stage('SonarQube analysis') {
+            steps{
+            withSonarQubeEnv('sonarqube-8.9.2') {     # Whichevr name you have given to sonar-qube in system configuration you will that name here 
+                sh 'mvn sonar:sonar'
+            }
+                
+            }
+        }
+        stage('Deploy to tomcat server') {
+            steps{                                 
+                deploy adapters: [tomcat9(credentialsId: '9a831b44-c240-4d99-be23-21564f3b0696', path: '', url: 'http://3.108.227.134:9090/')], contextPath: 'jobwar5o', war: '**/*.war'
+            }
+        }
+    }
+    post {
+            always{
+                mail to: "varmapotthuri4@gmail.com",
+                subject: "Test Email",
+                body: "Test"
+            }
+        }
+}
+
+# Another way using pipeline syntax
+post {
+            always{
+                mail bcc: '', body: '', cc: 'manojvarmapotthuri3003@gmail.com', from: '', replyTo: '', subject: 'jenkins file', to: 'varmapotthuri4@gmail.com'
+            }
+}
+
+
+# How to deploy terraform code by using jenkins
+-> You have to install java, jenkins and docker like above instaliation process and as well as you have install terraform using below steps in that instance
+# How to install the terraform
+sudo yum update -y
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+sudo yum -y install terraform
+terraform --version
+
+-> After complete instilation you will login your jenkins using your public Ip and port Number
+-> You need to install below plugins in jenkins
+1) Eclipse Temurin installerVersion and jdk related plugins
+2) terraform plugin
+-> You have to install jdk8,jdk11,and terraform [give name and dont click automatic install and give terraform path using below command in jenkins manage configure tools
+    which terraform   [if you not undrestand you will this youtube link https://youtu.be/jkR9S6sOR1I?si=dLJFLQE50WcDqend]  [/usr/bin]
+-> you create one role with Ec2 along Administation full access policy and after create the policy you will attach that role to that instance
+-> You will create the job with below pipeline script
+
+
+pipeline{
+    agent any
+    tools {
+        terraform 'terraform-01'   # Give whichever name you have given when install terraform in jenkins
+    }
+    stages{
+        stage('GetCode') {
+            steps{
+                git 'https://github.com/manoj7894/terraform.git'   
+            }                                                  
+        }
+        stage('terraform init') {
+            steps{
+                sh 'terraform init'
+            }
+        }
+        stage('terraform fmt') {
+            steps{
+                sh 'terraform fmt'
+            }
+        }
+        stage('terraform validate') {
+            steps{
+                sh 'terraform validate'
+            }
+        }
+        stage('terraform plan') {
+            steps{
+                sh 'terraform plan'
+            }
+        }
+        stage('terraform apply') {
+            steps{
+                sh 'terraform apply -auto-approve'
+            }
+        }
+    }
+}
+
+
