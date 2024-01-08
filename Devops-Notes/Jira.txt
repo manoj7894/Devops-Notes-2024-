@@ -1,0 +1,8 @@
+# What is jira
+-> Jira is a project management tool
+-> Software development tool used by agile teams
+-> Jira developed by atlassion
+-> we use jire to create and assign the issue and tickets to particular persion
+
+
+jira link https://sample-jira-aproject.atlassian.net/jira/your-work
