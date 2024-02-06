@@ -7,11 +7,10 @@ and vendors to quality and securely host your application
 
 # AWS Notes
 -> In AWS we have 30 regions in our world and 96 availablity zones and each availablity zone having 3 data centers
--> In our india right now we have only one region "ap-south-1"
--> In feature AWS is planning to keep one region in hyderabad region[ap-south-2]
+-> In our india right now we have only two region "ap-south-1" and "ap-south-2"
 -> You will chosse mumbai region to reduce latency. if you select vargin region it increase the latency to get the data.
--> In every region we have minimum three multiple avaliablity-zones
-    1. ap-south-1a, 2. ap-south-1b, 3. ap-south-1c
+-> In every region we have minimum three avaliablity-zones
+    1. ap-south-1, 2. ap-south-2, 3. ap-south-3
 -> Each avaliablity zones will maintained minimum 100kms distances due to floods, earthquakes, cyclone
 -> Suppose if one avaliablity zone went down then region wont stop. Region will work from another avaliablity zone 
 -> In Each availablity zones we have isolated data centers. Each data centers are connected to one to one
@@ -28,12 +27,12 @@ It will spilt in four catagires
    -> Suppose if you have 3 avaliablity zones. It will mainatained three copies. 
    -> Suppose if you have 4 AZ it will maintain 4 copies
    -> If file will delete in AZ and we will retrive the file data from another AZ as well as it will clone the file from another AZ and keep the file in that AZ
-   -> If you upload the file with 100Mb it will storage the file with 100Mb
+   -> If you upload the file with 100Mb it will storage the file same with 100Mb
 
 If You choose Reduce Redundant storage Class it will work like below
  ii) Reduce Redundant storage-> 
-    -> If you upload the file with 100Mb it will storage the file with 100Mb.
-    -> It won't maintain files all avaliablity zones. It will maintain files in some availablity zones
+    -> If you upload the file with 100Mb it will storage the file same with 100Mb.
+    -> It won't maintain files in all avaliablity zones. It will maintain files in some availablity zones
     -> When you keep the files in Reduce Redundant storage after one year we will lose 15% data from that file. Every year we will loose our data
     -> Because of that AWS is recommand don't use Reduce Redundant storage class because data will loose in this class. 
 
@@ -47,7 +46,7 @@ If You choose Reduce Redundant storage Class it will work like below
     -> If file will delete in AZ and we will retrive the file data from another AZ as well as it will clone the file from another AZ and keep the file in that AZ
 
  ii) Ozone-IA-> 
-    -> Data it will maintained only one copy in AZ
+    -> Data it will maintained only one copy in one AZ
     -> So that AWS is recommand don't use Ozone-IA class because data will maintain only one copy in this class
 
 3. Archival storage [It means work as a Zip files]
