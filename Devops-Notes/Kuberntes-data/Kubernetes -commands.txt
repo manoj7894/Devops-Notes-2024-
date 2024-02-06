@@ -65,3 +65,4 @@
 53) kubectl logs <pod-name> -c <containername>  --> To check the logs of pod
 54) kubectl get events  --> To check the events
 54) export = 
+55) kubectl get rc   -> To get the replicas data
