@@ -1,5 +1,6 @@
 # What is Elastic Cache [Port number is 6379]
 -> Elastic cache is used to to reduce the load on data base.
+-> We can use elastic cache to store the mostly frequently accessed data.
 
 # What is the difference between RDS and Elastic cache
 -> RDS will save the data in volume types [It save in Hard disk]
@@ -41,3 +42,6 @@
 If you want to connect Elastic cache with Ec2
 -> yum install telnet -y
 -> telnet <give elastic cache configuration endpoint>   [give without portnumber]
+
+
+https://youtu.be/wp1QnBW2kIM?si=vN7tk6q_DQb8bXem
