@@ -62,7 +62,7 @@ mvn clean
 mvn test
 mvn compile
 mvn package
-mvn install   -> To convey info to loacll repo
+mvn install   -> To convey info to local repo
 mvn deploy
 mvn sonar:sonar
 
