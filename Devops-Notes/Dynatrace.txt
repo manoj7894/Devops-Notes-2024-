@@ -1,0 +1,152 @@
+# What is Dynatrace
+-> It is a observability platform
+-> Observability will collect the MELT  [MELT we called as a four telemetry essential four types]
+  M- Metrics  -> Infrastructure monitoring like linux, windows, apache, tomcat
+  E- Event    
+  L- Log
+  T- Trace(APM+Syn+Rum)  -> APM will help you to get the code level tracing
+                         -> Syn will help you to network level tracing
+                         -> Rum will help you to trace the peoples who work on website
+
+# How to achive Observability
+-> Traces  [Relationships between events]   Ex:- Application components involved during request with as error
+-> Metrics [Measurement of an event]  Ex:- Throughput error rate, request rate, request duration
+-> Logs    [Human-readable events]  Ex:- System startup output, Process output
+
+# Note: Obeservability = Logging + Monitoring + Tracing + Visualization
+
+# You will checkout image on desktop
+
+# Note:
+-> Monitoring tells you whether a system is working
+-> observability lets you ask why it isn't working
+
+# What is the difference differnet monitoring and observability
+# Monitorig
+-> Alerting
+-> Overview
+
+# Observability
+-> Alerting
+-> Overview
+-> Debugging
+-> Profiling
+-> dependency analysis
+-> Anticipating the future
+
+# Monitoring focus on
+-> Availablity
+-> Performance
+-> Capacity
+
+# Observability
+-> Metrics
+-> Tracing
+-> Logs
+
+
+
+# what is monitoring
+-> Monitoring refers to the process of observing and tracking something, such as systems, networks, or data.
+-> It helps ensure everything is running smoothly and alerts you to any issues or changes.
+-> It's like keeping an eye on things to make sure they're working as expected.
+
+# Why is monitoring
+-> Avaliablity
+-> Performance
+-> Data validation
+-> Security monitoring
+-> Integration monitoring
+-> Alerting
+
+# What are the primary uses of monitoring/observabiity data?
+-> To Alert on issues
+-> System diagnostics
+-> Track SLA/SLOs
+-> To identify areas of optimization
+-> To ensure reliable releases
+
+# Typers of monitoring
+-> White Box Monitoring
+-> Black Box Monitoring
+
+# What is White box monitoring
+-> White box monitoring is the monitoring of application on a server.
+-> Monitoring based on metrics exposed by the internal of the system, including logs.
+
+# Whats is Black box monitoring
+-> Black box monitoring refers to the monitoring of server with focus on areas such as disk space, CPU usage, memory usage, load averages etc.
+
+# List of white box monitoring
+-> Prometheus
+-> Zabbix
+-> NewRelic
+-> AppDynamics
+-> Dynatrace
+
+# List of Black Box Monitoring
+-> Nagios
+-> Datadog
+-> Sysdig
+-> Dynatrace
+
+
+# Note
+Your monitoring system should address two questions;
+ -> The "what's broken" indicates the symptom
+ -> The "why" indicates a possible intermediate cause.
+
+
+-> First we will create one dynatrace free account
+-> After that you will click launch dynatarce you will get dynatrace dashboard
+-> If you want to go old version. you will click on profile at leftside
+-> Click lastest dynatrace
+
+# If you want to install one agent. you will click on deploy dynatrace
+-> click Start installation
+-> If you want to install in windows
+-> You will click windows
+-> Click on Download one agent installer
+-> I have followed udmey video to download
+
+# If you want to install one agent in linux
+-> You will click on deploy dynatrace
+-> click Start installation
+-> Click linux
+-> Click create tocken
+-> Create one ubuntu instance
+-> Execute the below commands in your linux ubuntu terminal
+-> you will follow the below video to download
+ https://youtu.be/F2PvOaM5Iws?si=HufOJpB5fO1Yq18x
+https://www.devopsschool.com/blog/dynatrace-tutorial-how-to-install-one-agent-in-linux-windows/
+
+
+# Tomcat connect with dynatrace
+-> You will install java above created instance using below commands
+https://www.devopsschool.com/blog/complete-guide-of-java-installation-in-linux/
+sudo apt-get update
+sudo apt-get install openjdk-11-jdk -y
+apt install openjdk-11-jdk-headless -y
+-> After complete the java installation you will install Tomcat using below commands
+https://tomcat.apache.org/download-90.cgi
+-> Click on tar.gz in core and copy the link address
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+sudo tar -xvf apache-tomcat-9.0.82.tar.gz
+cd apache-tomcat-9.0.80
+cd /bin
+sudo sh startup.sh
+-> After you will access your tomcat on webbrower
+-> you will configure something to enter into the tomcat
+-> cd /webapps/examples/META-INF
+-> ls
+-> vi context.xml
+   -> To configure the you will below video at 17.10
+    https://youtu.be/fZvlNV1iEgw?si=m8K6N1josAfzwKqy
+-> After configure stop and start your tomcat again
+-> Access tomcat and enter into tomcat
+-> After you will check in dynatrace tomcat is monitoring or not
+-> After completed the tomcat you will install docker in above ubuntu instance
+-> You will create some containers
+-> Later you wil check those containers are monitoring in dynatrace or not
+-> You will watch below video link regarding above matter
+  https://youtu.be/fZvlNV1iEgw?si=ixiHzNd3kFfbPAKK 
