@@ -11,8 +11,7 @@ related to building,testing,deploying and delivering the software
 sudo yum update
 sudo wget https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz
 sudo tar -xvf openjdk-13.0.1_linux-x64_bin.tar.gz
-mv jdk-13.0.1 /opt/
-cd ~
+sudo mv jdk-13.0.1 /opt/
 cd /etc/profile.d/
 ll
 sudo vim java.sh
@@ -23,6 +22,18 @@ sh java.sh
 cd ~
 source /etc/profile
 java --version
+
+or
+
+sudo yum update
+sudo amazon-linux-extras install java-openjdk11 -y
+sudo dnf install java-11-amazon-corretto -y
+java --version
+which java
+whereis java
+yum list installed | grep java
+ls -al /usr/bin/java
+ls -al /etc/alternatives/java  --> To see the java path
 
 -> Install Git
 sudo yum install git -y
