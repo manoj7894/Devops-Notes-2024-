@@ -151,12 +151,17 @@ kubectl get nodes     --> execute in both kubectl and master to get pods are con
 -> After create the service account in K8S you have to go nodes in jenkins and click cloud and add new cloud and click kubernets and click kubernetes cloud details
    and give the kubernets URL in URL place. we have to use below command to get K8S url
    kubectl config view
--> After setup the URL you have to go credentials and click secret file and upload the .kube/config file information
+-> After setup the URL go to credentials and click secret file and upload the .kube/config file information
 -> You have to go K8S terminal and user below command to get .kube/config file data
    cat .kube/config -> Copy that data and create one file on desktop and paste whichever data you have copy in K8S terminal in created file
    After create and paste data and you will upload that file in credentials and give some ID name and some description.
    you will click the test connection to check wheather K8S is connect or not 
 -> you will leave the all rest of the options and you will use only url and credentials options in kubernetes cloud details
+-> You have to install kubectl in where the jenkins is running
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  chmod +x kubectl
+  sudo mv kubectl /usr/local/bin/
+  kubectl version --client
 
 
 # How to deploy the image into docker using jenkins pipeline script
@@ -436,6 +441,112 @@ pipeline{
             }
         }
     }
+}
+
+
+
+
+
+
+
+
+
+
+# terraform sample file
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+  config_path = "~/.kube/config"  # Path to your kubeconfig file
+}
+
+resource "null_resource" "build_and_push" {
+  provisioner "local-exec" {
+    command = "./build_and_push.sh"
+  }
+}
+
+resource "kubernetes_deployment" "example" {
+  metadata {
+    name = "example-deployment"
+  }
+
+  spec {
+    replicas = 3
+
+    strategy{
+      type = "Recreate" 
+    }
+
+    selector {
+      match_labels = {
+        app = "example"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "example"
+        }
+      }
+
+      spec {
+        container {
+          image = "manoj3003/image05"  # Docker image to deploy
+          name  = "example-container"
+        }
+        ports {
+          containerPort = 8080  
+        }
+        resources {
+            requests {
+               cpu = "100m"
+               memory = "64Mi"
+            }
+            limits {
+               cpu = "100m"
+               memory = "256Mi" 
+            }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "example" {
+  metadata {
+    name = "example-service"
+  }
+
+  spec {
+    selector = {
+      app = "example"
+    }
+    ports {
+      protocol = "TCP"
+      port     = 80
+      target_port = 80
+    }
+    type = NodePort
+  }
+}
+
+resource "kubernetes_horizontal_pod_autoscaler" "example" {
+  metadata {
+    name = "terraform-example"
+  }
+
+  spec {
+    max_replicas = 10
+    min_replicas = 8
+    targetCPUUtilizationPercentage = 50
+
+    scale_target_ref {
+      kind = "Deployment"
+      name = "MyApp"
+    }
+  }
 }
 
 
