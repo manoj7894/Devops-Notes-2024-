@@ -132,7 +132,7 @@ VALUES (1, 'John', 'Doe', 'john.doe@example.com');  --> To the data in tables
 -> Monitoring [if you enable monitoring you will see cloud watch]
 -> go additionel configuration and give some dbname  
 -> enable backup [If you enable the backup it will create the snapchart]
-                  [Backup retention period, maximun retention period is 35 days]
+                  [Backup retention period, maximun retention period is 35 days] [retention period means it save the data untill 35]
                   [Choose window or No preference, (if you enable the window you can choose the particular time)
                        (if you select the No preference AWS will pickup automatically)]          
                   [If you want to replica backup to another region, you will select Enable replica in another AWS region
@@ -293,4 +293,15 @@ FLUSH PRIVILEGES;
   https://youtu.be/1wjrZpM7YDE?si=8_UwMI4WCGIvtdG3
 
 
+
+
+aws rds start-export-task \
+    --export-task-identifier oracel-snap \
+    --source-arn arn:aws:rds:ap-south-1:254669244016:db:database-1 \
+    --s3-bucket-name manoj-rds \
+    --iam-role-arn arn:aws:iam::254669244016:role/Oracel-Role \
+    --kms-key-id arn:aws:kms:ap-south-1:254669244016:key/00d6fbe1-275b-4f6d-b345-3f8823b57a16
+
+
+ https://localhost.docker.internal:5500/em
 
