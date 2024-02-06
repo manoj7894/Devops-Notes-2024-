@@ -39,4 +39,8 @@ If it is not work once you will exit from instance and again you will login
 -> You will create the one docker file
 -> You will tag the image using ECR command
 -> You will push image to ECR using ECR command 
+
+
+https://youtu.be/Brm21SWac-I?si=kAv25LRefbuh3iO9
+https://youtu.be/O6wPavc-xuc?si=8jM-kJG9eaMfJ56T
  
