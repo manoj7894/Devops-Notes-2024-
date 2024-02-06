@@ -1,0 +1,135 @@
+# How to push file into oracle database from s3 bucket
+-> First you will create one oracle database
+-> You will create s3 bucket with public access permission
+-> you will create one role with RDS trust policy and S3 full access policy
+-> After create the role you will go to database and click on database and go to manage IAM role and click the before created role and s3 integration here
+-> After go to parameter group and click "oracle-ee-19" and give somegroupname and description and create
+-> Click on parameter group and click edit and search job_queue_processes and give 100 in allowed values
+-> Go to the option group and click create the group and give some name and give oracle engine "oracle-ee" "19" and create 
+-> click on option group and go to options and click add option and select SQLT and click applt immediately and add option
+-> After again you will click add option and select s3_integration and click apply immediately and add option
+-> After complete create both parameter and option group and go modify option and keep before created two options in existing place.
+-> After complete the above intergration you enter into the database using sql developer by hostname,username,password and portnumber
+  -> You will follow the below github link 
+  https://github.com/RekhuGopal/PythonHacks/blob/main/AWS_Oracle_RDS_Connect_Cloud9/s3_integration.txt
+
+-> wheather you will use below command login local
+  sqlplus admin/varma3003@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=database-1.cfwoswqw4561.ap-south-1.rds.amazonaws.com)(PORT=1521)))(CONNECT_DATA=(SID=ORACL)))
+
+  sqlplus admin/varma3003@database-1.cfwoswqw4561.ap-south-1.rds.amazonaws.com:1521/ORACL
+
+  CONNECT admin/varma3003@database-oracel.c9soyo44a2jj.ap-south-1.rds.amazonaws.com:1521/ORCL;
+
+  SHOW USER;   --> To see the present user
+
+  SELECT username FROM all_users;   --> To see the all users
+
+  SELECT * FROM GLOBAL_NAME;    --> To show the database name
+
+  SELECT table_name
+  FROM all_tables
+  WHERE owner = 'HR';   --> To see the tables on particular owner
+  
+  SELECT table_name FROM all_tables;   --> To see the all tables
+  
+  SELECT Employee FROM all_tables;    --> To search the particular table
+
+  select * from "table_name";   --> To see the table data
+
+
+-> If you want to see the video regarding above data
+  https://youtu.be/X77k3r5xCfo?si=vtgxdOxpszguJE2c
+   
+
+
+# How to push the file into MYSQL
+-> First you will create one mysql database
+-> After create mysql you will login mysql using hostaname, username, password
+-> status;
+-> SHOW Databases;
+-> CREATE DATABASE <database_name;   --> To create the database
+-> USE <dbname>;   --> To enter into db
+-> After enter into db you will execute the below commands
+
+CREATE TABLE IF NOT EXISTS books (
+	book_id INT,
+	title VARCHAR(255) NOT NULL,
+	publish_date DATE,
+	description TEXT,
+	PRIMARY KEY (book_id)
+)  ENGINE=INNODB;
+
+INSERT INTO books(book_id,title,publish_date, description)VALUES (1,'Learn MySQL', CURTIME(),'this is a book on mysql');
+
+INSERT INTO books(book_id,title,publish_date, description)VALUES (2,'Learn Oracle', CURTIME(),'this is a book on oracle');
+
+INSERT INTO books(book_id,title,publish_date, description)VALUES (3,'Learn SQL Server', CURTIME(),'this is a book on SQL Server');
+
+INSERT INTO books(book_id,title,publish_date, description)VALUES (4,'Learn DB2', CURTIME(),'this is a book on DB2');
+
+INSERT INTO books(book_id,title,publish_date, description)VALUES (5,'Learn Aurora', CURTIME(),'this is a book on amazon Aurora');
+
+
+-> After create the table
+-> You will execute the below commands to check the table details
+-> SHOW TABLES;  --> To show the all tables
+-> SELECT * FROM <tablename>;  --> To show the table data
+-> DROP TABLE table_name;  --> To delete the table
+
+-> If you want to push your table into s3 bucket you will follow below type
+
+-> First you will create the one role with DMS trust policy and s3 and RDS full access policy
+-> After create the role you will go to DMS and create replication instance
+-> Give name
+-> give instance class
+-> Click single avaliablity zone
+-> Choose storage 
+-> Choose VPC
+-> Choose Subnet group
+-> Choose avaliablity Zone [in whichever zone your databse be]
+-> Choose security group
+-> Create the replication instance
+-> After complete the replication instance
+-> You will create the endpoints
+-> Go to endpoints and create endpoint
+-> Click sourece endpoint
+-> Select RDS Db instance [If you select the RDS DB instance it will take all the details about database]
+-> If you not select
+-> You will give somaname in identifier
+-> Clik ORCAL in source engine
+-> Give hostname, portnumber, username, password, and dbname
+-> Create the endpoint
+-> After that you will click create endpoint and click target
+-> Give somename in identifier
+-> Click amazon s3 in target engine
+-> give before created role arn
+-> give bucket name
+-> Click create endpoint
+-> After complete create two endpoint
+-> Click on source endpoint and go to actions and click test connection and give replicainstance name and click test run
+-> After that Click on target endpoint and go to actions and click test connection and give replicainstance name and click test run
+-> After complete the test connection
+-> Go to database migration task and click create task
+-> Give somename in task identifier
+-> click replicainstance
+-> click source database
+-> click target database
+-> click migrate existing data
+-> leave the rest options and go to table mapping and click the add new selection rule
+-> click enter schema, give sechema name, if you want you will give table name
+-> finally create the task
+
+-> If you want to see the video about above information
+  https://youtu.be/ncBG_fVCOQc?si=GHTGeD-v83QCBuQW
+
+# If you want to push file from s3 bucket to mysql. you will follow the below video
+https://youtu.be/_wb-IupX9JU?si=FGu6cB0bOoY4W-uV
+
+
+
+
+
+ow to push the file into mysql database from s3 bucket.
+
+
+
