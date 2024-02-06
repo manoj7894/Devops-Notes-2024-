@@ -106,6 +106,7 @@ Note: Snapchat will store in S3 bucket but you wont manage. AWS will manage this
 -> click on snapchart and go to actions and copy the snap and select region whichever region you want to keep
 
 # What is AMI
+An image with the needed information to start a virtual machines(ec2)
 AMI stands for Amazon machine image. Its a template that contains a software configuration for virtual machine on amazon web service
 # How to Create the AMI image
 -> First you will create one instance and connect instance and create some file in that instance
