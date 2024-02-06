@@ -1,0 +1,2450 @@
+# How to Create the Lambda using local data [F]
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To Create Lambda
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "myLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
+  name       = "attach-lambda-policy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  roles      = [aws_iam_role.lambda_execution_role.name]
+}
+
+
+
+
+# Create the lambda using local data with cloud CloudWatch
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+
+
+
+
+# How to create lamba using local data with layers using local data [F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package1" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index1.js"
+  output_path = "${path.module}/index1.zip"
+}
+
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name  = "layer-1"
+  description = "My Lambda layer"
+
+  filename = data.archive_file.lambda_package1.output_path
+  source_code_hash = data.archive_file.lambda_package1.output_base64sha256
+
+  compatible_runtimes = ["nodejs14.x"] # Adjust to the runtime you are using
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+
+
+
+# How to create layer and lambda using local data along with API gateway trigger [F].
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package1" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index1.js"
+  output_path = "${path.module}/index1.zip"
+}
+
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name  = "layer-1"
+  description = "My Lambda layer"
+
+  filename = data.archive_file.lambda_package1.output_path
+  source_code_hash = data.archive_file.lambda_package1.output_base64sha256
+
+  compatible_runtimes = ["nodejs14.x"] # Adjust to the runtime you are using
+}
+
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "conversion"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.region}:524801764773:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+
+  depends_on = [aws_api_gateway_method.my_method, aws_api_gateway_integration.my_integration]
+
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  stage_name    = "dev"
+
+}
+
+
+
+
+
+# How to create lambda data from local and layers data from S3 bucket [F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+
+data "aws_s3_bucket_object" "layer_zip" {
+  bucket = "manoj-3020"
+  key    = "node-js.zip"
+}
+
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name          = "example_layer"
+  description         = "Example Lambda Layer"
+  compatible_runtimes = ["nodejs14.x"]
+
+  # Either specify a local filename (if you have the zip locally)
+  # filename = "path/to/your/node-js.zip"
+
+  # OR reference the S3 bucket and key (if the zip is in S3)
+  s3_bucket        = data.aws_s3_bucket_object.layer_zip.bucket
+  s3_key           = data.aws_s3_bucket_object.layer_zip.key
+  source_code_hash = data.aws_s3_bucket_object.layer_zip.etag
+
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+
+
+
+# How to create lambda data from local and layers data from S3 bucket along with APT trigger [F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+
+data "aws_s3_bucket_object" "layer_zip" {
+  bucket = "manoj-3020"
+  key    = "node-js.zip"
+}
+
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name          = "example_layer"
+  description         = "Example Lambda Layer"
+  compatible_runtimes = ["nodejs14.x"]
+
+  # Either specify a local filename (if you have the zip locally)
+  # filename = "path/to/your/node-js.zip"
+
+  # OR reference the S3 bucket and key (if the zip is in S3)
+  s3_bucket        = data.aws_s3_bucket_object.layer_zip.bucket
+  s3_key           = data.aws_s3_bucket_object.layer_zip.key
+  source_code_hash = data.aws_s3_bucket_object.layer_zip.etag
+
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "conversion"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.region}:524801764773:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+
+  depends_on = [aws_api_gateway_method.my_method, aws_api_gateway_integration.my_integration]
+
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  stage_name    = "dev"
+
+}
+
+
+
+
+# How to trigger s3 bucket to lambda using local data[F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "manoj-lambda"
+  acl    = "private"
+}
+
+
+resource "aws_lambda_permission" "s3_invoke_lambda" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.my_bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "lambda_trigger" {
+  bucket = aws_s3_bucket.my_bucket.bucket
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.html_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "manoj-lambda/files/"
+  }
+}
+
+
+
+
+
+
+
+# How to trigger s3 bucket to lambda data from local along with layers data from local [F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package1" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index1.js"
+  output_path = "${path.module}/index1.zip"
+}
+
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name  = "layer-1"
+  description = "My Lambda layer"
+
+  filename = data.archive_file.lambda_package1.output_path
+  source_code_hash = data.archive_file.lambda_package1.output_base64sha256
+
+  compatible_runtimes = ["nodejs14.x"] # Adjust to the runtime you are using
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "manoj-lambda"
+  acl    = "private"
+}
+
+
+resource "aws_lambda_permission" "s3_invoke_lambda" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.my_bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "lambda_trigger" {
+  bucket = aws_s3_bucket.my_bucket.bucket
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.html_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "manoj-lambda/files/"
+  }
+}
+
+
+
+# How to trigger s3 bucket to lambda data from local along with layers data from s3 [F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+data "aws_s3_bucket_object" "layer_zip" {
+  bucket = "manoj-3020"
+  key    = "node-js.zip"
+}
+
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name          = "example_layer"
+  description         = "Example Lambda Layer"
+  compatible_runtimes = ["nodejs14.x"]
+
+  # Either specify a local filename (if you have the zip locally)
+  # filename = "path/to/your/node-js.zip"
+
+  # OR reference the S3 bucket and key (if the zip is in S3)
+  s3_bucket        = data.aws_s3_bucket_object.layer_zip.bucket
+  s3_key           = data.aws_s3_bucket_object.layer_zip.key
+  source_code_hash = data.aws_s3_bucket_object.layer_zip.etag
+
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "manoj-lambda"
+  acl    = "private"
+}
+
+
+resource "aws_lambda_permission" "s3_invoke_lambda" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.my_bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "lambda_trigger" {
+  bucket = aws_s3_bucket.my_bucket.bucket
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.html_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "manoj-lambda/files/"  # When
+  }
+}
+
+
+
+
+
+
+
+
+
+
+# Add API gateway to lambda [F]
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  roles       = aws_iam_role.lambda_execution_role.name
+  policy_arn  = ["aws_iam_policy.lambda_policy.arn", "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "conversion"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.region}:254669244016:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+
+  depends_on = [aws_api_gateway_method.my_method, aws_api_gateway_integration.my_integration]
+
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  stage_name    = "dev"
+
+}
+
+
+
+
+# To add the s3 bucket trigger to lambda
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "manoj-lambda"
+  acl    = "private"
+}
+
+
+resource "aws_lambda_permission" "s3_invoke_lambda" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.my_bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "lambda_trigger" {
+  bucket = aws_s3_bucket.my_bucket.bucket
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.html_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "manoj-lambda/files/"
+  }
+}
+
+
+
+
+
+# Add API, version and alias to lamba
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  version          = 1
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "conversion"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.region}:366778366413:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+
+  depends_on = [aws_api_gateway_method.my_method, aws_api_gateway_integration.my_integration]
+
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  stage_name    = "prod"
+
+}
+
+resource "aws_lambda_alias" "my_lambda_alias" {
+  name             = "prod"
+  description      = "Production environment"
+  function_name    = aws_lambda_function.html_lambda.function_name
+  function_version = "$LATEST"
+}
+
+
+
+# dev
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  version          = 1
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_lambda_function" "example_lambda_version"{
+  function_name    = aws_lambda_function.example_lambda.function_name
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "conversion"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.region}:366778366413:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+
+  depends_on = [aws_api_gateway_method.my_method, aws_api_gateway_integration.my_integration]
+
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  stage_name    = "prod"
+
+}
+
+resource "aws_lambda_alias" "example_lambda_alias" {
+  name             = "production"
+  description      = "Production environment"
+  function_name    = aws_lambda_function.html_lambda.function_name
+  function_version = aws_lambda_function.example_lambda_version.version
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Working
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "root" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "my-endpoint"
+}
+
+resource "aws_api_gateway_method" "proxy" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.root.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "lambda_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.root.id
+  http_method             = aws_api_gateway_method.proxy.http_method
+  integration_http_method = "POST"
+  type                    = "MOCK"
+}
+
+resource "aws_api_gateway_method_response" "proxy" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  resource_id = aws_api_gateway_resource.root.id
+  http_method = aws_api_gateway_method.proxy.http_method
+  status_code = "200"
+}
+
+resource "aws_api_gateway_integration_response" "proxy" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  resource_id = aws_api_gateway_resource.root.id
+  http_method = aws_api_gateway_method.proxy.http_method
+  status_code = aws_api_gateway_method_response.proxy.status_code
+
+  depends_on = [
+    aws_api_gateway_method.proxy,
+    aws_api_gateway_integration.lambda_integration
+  ]
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  depends_on = [
+    aws_api_gateway_integration.lambda_integration
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name  = "dev"
+}
+
+
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "myLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
+  name       = "attach-lambda-policy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  roles      = [aws_iam_role.lambda_execution_role.name]
+}
+
+
+# Still 
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "my-endpoint"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Define the CloudWatch Event Rule
+#resource "aws_cloudwatch_event_rule" "lambda_trigger" {
+#  name = "LambdaTriggerRule"
+#  description = "Rule to trigger Lambda function"
+#  schedule_expression = "rate(1 minute)"  # Example: Trigger every minute
+#}
+
+# Define a Lambda Permission for CloudWatch to invoke the Lambda function
+#resource "aws_lambda_permission" "apigw_invoke_lambda" {
+#  statement_id  = "AllowExecutionFromCloudWatch"
+#  action        = "lambda:InvokeFunction"
+#  function_name = aws_lambda_function.html_lambda.function_name
+#  principal     = "events.amazonaws.com"  # CloudWatch Events
+#  source_arn    = aws_cloudwatch_event_rule.lambda_trigger.arn
+#}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+#resource "aws_lambda_permission" "apigw_invoke_lambda" {
+#  statement_id  = "AllowExecutionFromAPIGateway"
+#  action        = "lambda:InvokeFunction"
+#  function_name = aws_lambda_function.html_lambda.function_name
+#  principal     = "apigateway.amazonaws.com"
+#  source_arn    = aws_api_gateway_rest_api.my_api.execution_arn
+#}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  depends_on = [
+    aws_api_gateway_integration.my_integration
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name  = "dev"
+}
+
+output "api_gateway_invoke_url" {
+  value = "${aws_api_gateway_deployment.deployment.invoke_url}/my-endpoint"
+}
+
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "myLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
+  name       = "attach-lambda-policy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  roles      = [aws_iam_role.lambda_execution_role.name]
+}
+
+# Define the CloudWatch Event Rule
+resource "aws_cloudwatch_event_rule" "lambda_event_rule" {
+  name = "MyLambdaEventRule"
+  description = "Event rule to trigger Lambda function"
+  event_pattern = jsonencode({
+    source = ["aws.ec2"]
+    detail_type = ["AWS API Call via CloudTrail"]
+    detail = {
+      eventSource = ["ec2.amazonaws.com"]
+      eventName = ["RunInstances"]
+    }
+  })
+}
+
+# Define a Lambda Permission for the event rule to invoke the Lambda function
+resource "aws_lambda_permission" "event_lambda_permission" {
+  statement_id  = "AllowExecutionFromCloudWatchEvent"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.my_lambda.function_name
+  principal     = "events.amazonaws.com"  # CloudWatch Events
+  source_arn    = aws_cloudwatch_event_rule.lambda_event_rule.arn
+}
+
+
+
+# ANother 
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "my-endpoint"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  depends_on = [
+    aws_api_gateway_integration.my_integration
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name  = "dev"
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = aws_api_gateway_deployment.deployment.execution_arn
+}
+
+output "api_gateway_invoke_url" {
+  value = "${aws_api_gateway_deployment.deployment.invoke_url}/my-endpoint" # Use your endpoint
+}
+
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_network_interface_policy" {
+  name = "LambdaNetworkInterfacePolicy"
+
+  # Define the policy document with both permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = "ec2:CreateNetworkInterface",
+        Effect   = "Allow",
+        Resource = "*",
+      },
+      {
+        Action   = "ec2:DescribeNetworkInterfaces",
+        Effect   = "Allow",
+        Resource = "*",
+      },
+    ],
+  })
+}
+
+
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
+  name       = "attach-lambda-policy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  roles      = [aws_iam_role.lambda_execution_role.name]
+}
+
+# Attach the IAM policy to the IAM role
+resource "aws_iam_policy_attachment" "lambda_network_interface_attachment" {
+  name       = "LambdaNetworkInterfaceAttachment"
+  policy_arn = aws_iam_policy.lambda_network_interface_policy.arn
+  roles      = [aws_iam_role.lambda_execution_role.name]
+}
+
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "myLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  cloudwatch_log_group_name = aws_cloudwatch_log_group.lambda_log_group.name
+  # Add the logging configuration
+  tracing_config {
+    mode = "Active"  # Enable AWS X-Ray tracing if needed
+  }
+  
+  # Configure the Lambda function to send logs to CloudWatch
+  environment {
+    variables = {
+      AWS_LAMBDA_EXECUTOR = "Provisioned"  # Optional, for provisioned concurrency
+    }
+  }
+
+  # Specify the CloudWatch Log Group
+  vpc_config {
+    subnet_ids         = [aws_subnet.public.id, aws_subnet.private.id]  # Your subnet IDs
+    security_group_ids = [aws_security_group.example_security_group.id]  # Your security group IDs
+  }
+  
+  # Attach the Lambda function to the CloudWatch Log Group
+  
+}
+
+resource "aws_vpc" "vpc" {
+    cidr_block       = "10.0.0.0/16"
+    instance_tenancy = "default"
+    
+    tags = {
+        Name = "vpc01"
+    }
+}
+
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.vpc.id  # Replace with your VPC ID
+  cidr_block        = "10.0.0.0/24"   # Replace with your desired CIDR block
+  availability_zone = "ap-south-1a" # Replace with your desired Availability Zone
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Public Subnet"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.vpc.id  # Replace with your VPC ID
+  cidr_block        = "10.0.1.0/24"  # Replace with your desired CIDR block
+  availability_zone = "ap-south-1b" # Replace with your desired Availability Zone
+
+  # Optional: Assign tags to your subnets
+  tags = {
+    Name = "Private Subnet"
+  }
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  # Optional: Assign tags to your Internet Gateway
+  tags = {
+    Name = "My Internet Gateway"
+  }
+}
+
+resource "aws_eip" "eip" {
+    vpc  = true
+
+  # Optional: Associate tags with the Elastic IP
+  tags = {
+    Name = "MyElasticIP"
+  }
+}
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.eip.id
+  subnet_id     = aws_subnet.public.id
+
+# Optional: Associate tags with the Elastic IP
+  tags = {
+    Name = "net-gateway"
+  }
+}
+
+resource "aws_route_table" "rt1" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable"
+  }
+}
+
+resource "aws_route_table" "rt2" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.ngw.id
+  }
+
+  # Optional: Assign tags to your route table
+  tags = {
+    Name = "MyRouteTable2"
+  }
+}
+
+resource "aws_route_table_association" "subnet1_association" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.rt1.id
+}
+
+resource "aws_route_table_association" "subnet2_association" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.rt2.id
+}
+
+# Create a security group
+resource "aws_security_group" "example_security_group" {
+  name_prefix = "example-security-group"
+  description = "Example security group"
+  vpc_id      = aws_vpc.vpc.id
+
+  # Define your security group rules as needed
+  # For example, allow SSH and HTTP traffic
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 1433
+    to_port     = 1433
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # outgoing traffic
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+
+
+
+# Practice
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy"  # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource  = "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/MyLambdaFunction:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  roles      = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+# To Create Lambda
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.exports.handler"    # name should match with your file name
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on       = [aws_iam_role_policy_attachment.lambda_policy_attachment]
+}
+
+
+# One
+# How to Create the Lambda [F]
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To Create Lambda
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy"  # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource  = "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/MyLambdaFunction:*"
+      }
+    ]
+  })
+}
+
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role      = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+
+
+
+
+
+# Two
+# To Create Lambda
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  depends_on       = [ 
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+    ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name = "/aws/lambda/MyLambdaFunction"  # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy"  # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource  = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role      = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my-api"
+  description = "My API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "conversion"
+}
+
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.html_lambda.invoke_arn
+}
+
+# Attach the Lambda function's permission to be invoked by API Gateway
+resource "aws_lambda_permission" "apigw_invoke_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.html_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn = "arn:aws:execute-api:${var.region}:366778366413:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+
+  depends_on = [aws_api_gateway_method.my_method, aws_api_gateway_integration.my_integration]
+
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name = "dev"
+
+}
+
+---
+
+
+
+
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To Create Lambda
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "myLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
+  name       = "attach-lambda-policy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  roles      = [aws_iam_role.lambda_execution_role.name]
+}
+
+# Create a KMS key
+resource "aws_kms_key" "my_key" {
+  description = "My KMS Key"
+}
+
+
+# Practice
+
+provider "aws" {
+  region = "your_aws_region"
+}
+
+# Create the blue Lambda function
+resource "aws_lambda_function" "blue_lambda" {
+  function_name = "blue_lambda_function"
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  role          = "arn:aws:iam::your_account_id:role/your_lambda_execution_role"
+  filename      = "path/to/your/lambda_function.zip"
+  source_code_hash = filebase64("path/to/your/lambda_function.zip")
+
+
+# Create an alias for the blue Lambda function
+resource "aws_lambda_alias" "blue_alias" {
+  name             = "blue"
+  function_name    = aws_lambda_function.blue_lambda.function_name
+  function_version = aws_lambda_function.blue_lambda.version
+}
+
+# Create an API Gateway deployment pointing to the blue alias
+resource "aws_api_gateway_deployment" "blue_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name  = "prod"
+  variables = {
+    lambda_alias = aws_lambda_alias.blue_alias.name
+  }
+}
+
+# Switch to the green Lambda function by creating a new version and alias
+resource "aws_lambda_function" "green_lambda" {
+  function_name = "green_lambda_function"
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  role          = "arn:aws:iam::your_account_id:role/your_lambda_execution_role"
+  filename      = "path/to/your/lambda_function.zip"
+  source_code_hash = filebase64("path/to/your/lambda_function.zip")
+}
+
+resource "aws_lambda_alias" "green_alias" {
+  name             = "green"
+  function_name    = aws_lambda_function.green_lambda.function_name
+  function_version = aws_lambda_function.green_lambda.version
+}
+
+resource "aws_api_gateway_deployment" "green_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name  = "prod"
+  variables = {
+    lambda_alias = aws_lambda_alias.green_alias.name
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

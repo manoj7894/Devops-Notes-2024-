@@ -1,0 +1,202 @@
+# How to create lambda with layer by using local file
+
+# Provides
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To create the lambda function
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package1" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index1.js"
+  output_path = "${path.module}/index1.zip"
+}
+
+# To create the lambda layer from local
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name  = "layer-1"
+  description = "My Lambda layer"
+
+  filename         = data.archive_file.lambda_package1.output_path
+  source_code_hash = data.archive_file.lambda_package1.output_base64sha256
+
+  compatible_runtimes = ["nodejs14.x"] # Adjust to the runtime you are using
+}
+
+# To create the cloud watch logs
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+# To create IAM role for lambda
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+# To create the role for cloud watch logs
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role 
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+
+
+
+# How to create lambda with layer by S3 bucket
+
+# Provides
+provider "aws" {
+  region     = var.region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+# To create the lambda function
+resource "aws_lambda_function" "html_lambda" {
+  filename         = "index.zip"
+  function_name    = "MyLambdaFunction"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  layers           = [aws_lambda_layer_version.example_layer.arn]
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+}
+
+# Convert normal file to Zip file
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_file = "/home/ec2-user/index.js"
+  output_path = "${path.module}/index.zip"
+}
+
+# To get the data from s3 bucket
+data "aws_s3_bucket_object" "layer_zip" {
+  bucket = "manoj-3020"
+  key    = "node-js.zip"
+}
+
+# To create the layer from s3 bucket
+resource "aws_lambda_layer_version" "example_layer" {
+  layer_name          = "example_layer"
+  description         = "Example Lambda Layer"
+  compatible_runtimes = ["nodejs14.x"]
+
+  # Either specify a local filename (if you have the zip locally)
+  # filename = "path/to/your/node-js.zip"
+
+  # OR reference the S3 bucket and key (if the zip is in S3)
+  s3_bucket        = data.aws_s3_bucket_object.layer_zip.bucket
+  s3_key           = data.aws_s3_bucket_object.layer_zip.key
+  source_code_hash = data.aws_s3_bucket_object.layer_zip.etag
+
+}
+
+# To create the cloud watch logs
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/MyLambdaFunction" # Adjust the name to match your Lambda function's name
+  retention_in_days = 14
+}
+
+# To create IAM role for lambda
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+# To create the role for cloud watch logs
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "MyLambdaPolicy" # Name for the policy
+  description = "Policy for My Lambda Function"
+
+  # Define the policy document with the necessary permissions
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Attach a policy to the Lambda execution role if needed
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
