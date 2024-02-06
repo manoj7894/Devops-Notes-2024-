@@ -381,3 +381,23 @@ Note: If you want to know more about variable you will watch 33 number video in 
 
 -> If you want to more playbooks then you wil checkout below git hub link
 https://github.com/ashokitschool/ansible_playbooks_samples 
+
+
+# Ansible Tower
+-> Ansible Tower is a web based GUI tool which is used to manage infracture configuration
+-> We can centralize our infrastructure configuration using this UI
+-> we can do job scheduling
+-> It is providing graphical inventory management
+
+# Ansible Tower Features
+-> Clean dashboard
+-> Manage Inventory Dynamically
+-> Realtime job status
+-> Job Seheduling
+-> Integrate Internal Notification
+-> Rolebase access control
+-> Audit job and tower Resource
+-> Store Credentials safely
+
+-> It is licens software if you want to get know more about ansible tower
+-> You will checkout the 36 number video in ashokit
