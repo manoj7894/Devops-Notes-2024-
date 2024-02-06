@@ -33,3 +33,8 @@
 -> You will select the VPC networking
 -> create the load balancer
 -> create autoscalling and create
+
+# If you want to know more about ECS please checkout the below li nk
+https://youtu.be/k1LC-uRORis?si=w6OQF_1JRT-EcuwR
+
+https://github.com/aws-samples/aws-containers-task-definitions/tree/master/nginx
