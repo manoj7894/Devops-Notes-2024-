@@ -1,0 +1,34 @@
+# What is DMS
+-> DMS stands database migration service in aws. 
+-> It migrate relational databases, data warehouses, NoSQL databases data to other types of data stores.
+
+# If you want to migrate the data you have to follow the below steps
+-> First you will create the replication instance
+-> You will create the source and target endpoints
+-> You will create database migration tasks
+
+# How to migrate the data from MySQL to s3 bucket. You will follow the below link
+https://youtu.be/ncBG_fVCOQc?si=GHTGeD-v83QCBuQW
+
+
+# How to migrate the data from S3 bucket to MySQL. You will follow the below link
+https://youtu.be/_wb-IupX9JU?si=FGu6cB0bOoY4W-uV
+
+# How to migrate the data from Ec2 MySQL to RDS MySQL. You will follow the below link
+https://youtu.be/5VbKYnBn-jU?si=m7bLWDYeZnPcBXAl
+
+https://github.com/nasha2878/MySQLtoS3/blob/master
+
+
+
+mysql -h mysql-01.c9soyo44a2jj.ap-south-1.rds.amazonaws.com -u admin -P 3306 -pvarma3003
+
+status;
+
+SHOW Databases;
+
+USE <dbname>;
+
+SHOW TABLES;
+
+SELECT * FROM <tablename>;
