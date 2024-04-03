@@ -78,7 +78,7 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
    -> sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
    -> sudo tar -xvf apache-tomcat-9.0.82.tar.gz
    -> cd apache-tomcat-9.0.80
-   -> sudo vi webapps/manager/META_INFA/contex.xml      
+   -> sudo vi webapps/manager/META_INF/contex.xml      
 	allow ".*"                          
    -> cd /conf
    -> sudo vi server.xml  --> To change the port number                                            
