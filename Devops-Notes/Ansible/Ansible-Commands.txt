@@ -1,0 +1,56 @@
+# Anisble commands.
+-> anisble-doc -l   -> To see all the modules
+-> ansible-doc ping  -> To see the particular modules details
+-> ansible all -m ping  -> To ping the all host names
+-> ansible all -m ping -o  -> It display the output at single line
+-> ansible webserver -m ping -> To ping the all webservers
+-> ansible 172.186.34.5 -m ping -> To ping the particular ip
+-> ansible webserver -m shell -a 'date'  -> To see the particular webserver date details
+-> ansible all -m shell -a 'sudo yum install git -y'  -> To install git in all host machines
+-> ansible 172.132.1.8 -m shell -a 'date'  -> To see the particular hostname date details
+                                   'cat/etc/release'
+                                   'du -Th"
+                                   'git --version'
+-> ansible all -m shell -a 'sudo yum install git -y'    -> Install git in all machines 
+-> ansible all -b -m yum -a "name=httpd state=present"   -> Install httpd in all machines using yum module
+                                              latest
+                                              absent
+ b means elevated privileges (-b) to accomplish this task.
+  present: install
+  latest: Update to latest
+  absent: un-install
+-> ansible all -m shell -b -a "name=git state=present" -> Install git in all machines using shell module 
+-> ansible all -m apt -a "name=git state=present"   -> Install git in ubuntu os 
+
+# Ansible playbook commands
+-> ansible-playbook <filename.yml> --syntax-check  -> To check the syntax
+-> ansible-palybook <filename.yml>   -> To execute the playbook
+-> ansible-palybook <filename.yml> -v   -> It will display how playbook is working
+                                   -vv
+                                   -vvv  -> v means verbol 
+-> ansible-palybook <filename.yml> --check   -> it is dry run
+-> ansible-palybook <filename.yml> --list-hosts   -> To see all hosts machine
+-> ansible-palybook <filename.yml> --step  -> It execute one-by-one step to asking you permission
+-> ansible-playbook group.yml --extra-vars package_name=httpd   -> Define the varible with command
+
+# Ansible vault commands
+-> ansible-vault encrypt <filename>.yml   -> To encrypt the file
+-> ansible-vault view <filename>.yml   -> To view the encrypt the file
+-> ansible-vault edit <filename>.yml   -> To edit the file
+-> ansible-vault decrypt <filename>.yml   -> To decrypt the file
+-> ansible-vault rekey <filename>.yml   -> To change the password
+-> ansible-playbook <filename>.yml --ask-vault-pass  -> while execute tha password we need vault password
+
+-> We can store the vault password in a file and you can give file as input to execute the playbook
+-> vi vaultpass
+-> ansible-playbook <filename>.yml --vault-password-file=~/vaultpass
+-> ansible-vault encrypt /etc/ansible/group_vars/all.yml   -> To encrypt the file
+                 edit
+                 descrypt
+                 view
+                 rekey
+
+# Ansible role commants
+-> ansible-playbook tags.yml --list-tags    -> To see the all tags
+-> ansible-playbook tags.yml --tags "copy"    -> To execute the only copy tag task
+-> ansible-playbook tags.yml --tags "start,copy"   -> To execute the start,copy tasks
