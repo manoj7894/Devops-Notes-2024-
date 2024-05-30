@@ -1,0 +1,625 @@
+
+# What is AWS
+-> AWS stands for Amazon web service. It's a secure cloud platform. 
+-> It provide the on-demanding resources for hosting web services, storage, networking, database and other resources over the internet with pay as you go pricing.
+
+# What is meant by region, availablity zone, edge location
+-> Region: An independent collection of AWS resources in a defined geography. All availablity zones in a region connected by high bandwidth.
+-> Availablity zone: An availablity zone is a simply data centers. High speed connectivity. low latency
+-> Edeg location: Edge location is a important part of AWS infrastructure. Edge location are CDN endpoint of cloud front to deliver the content to end user with low latency.
+
+# How to access AWS platform
+-> AWS console
+-> AWS CLI (Command line interface)
+-> AWS SDK (Software development kit)
+
+# What are the components in AWS
+-> Ec2 -> Elastic computer cloud
+-> S3 -> Simple storage service
+-> EBS -> Elastic block storage
+-> Route53
+-> Cloudwatch and keypair are the few components of AWS
+
+# What is Ec2 instance
+-> Ec2 stands for Elastic computer cloud in aws.
+-> It is virtual server in AWS.
+-> It provide the computing resources for running the application. 
+
+# What is benefits of Ec2
+-> Easier and faster
+-> Elastic and scalable 
+-> High Availablity
+-> Cost effective
+
+# What are the types using in AWS Ec2
+-> General purpose
+-> Compute Optimized
+-> Memory Optimized
+-> Storage Optimized
+-> Accelerated Computing (GPU Based)
+
+# What are the reserved instance
+-> Reservers instance are the instance that you can reserve the fixed of ec2 instance. In reserved instance you will have to get the contract of 1 years or 3 years
+
+# When your instance show retired state
+-> Retired state only available in reserved instance. Once reserved instance reserving time (1yr/3yr)ends it shows retied state
+
+
+# What is keypair
+-> Keypair is the secure login information for your instance. To connect the instance we use keypair that contain public-key and private-key.
+
+# What are the pricing model for Ec2 instance
+-> On-Demand
+-> Reserved
+-> Spot
+-> Scheduled
+-> Dedicated
+
+# What are the types of volumes for ec2 instance
+-> Instance store volume
+-> EBS 
+
+# When i try to launch an ec2 instance i am getting service limit exceed how to fix the issue
+-> By default AWS offer service limit of 20 running instances per region, to fix the issue we need to contact AWS support to increase the limit based on requirment
+
+# You have launched linux instance in AWS ec2. While configuration security group, you have selected SSH, HTTP, HTTPS protocol. Why do we need to select SSH
+-> To verify that there is rule to allow the traffic from ec2 instance to your computer
+
+
+
+# What are the types of load balancer in ec2
+-> Classic load balancer
+-> Application load balancer
+-> Network load balancer [it used for transport layer, it work under TCP and UDP]
+-> Gateway load balancer [it is used for security purpose]
+
+# What is Elastic load balancer
+-> Elastic load Balancer automatically divert the incoming traffic into multiple targets like Ec2, containers, Ip address.
+
+# What is the difference between classic load balancer and application balancer
+-> One port listener is achieved via classic load balancer
+-> Dynamic port mapping, multiple port, multiple listener is used in application load balancer.
+
+# You are enabled sticky session with ELB. what does it do with your instance
+-> Binds the user session with specific instance
+
+# After configuring ELB, you need to ensure that the user requests are always attached to a single instance. What settings can you use
+-> Sticky session
+
+# What type of load balancer makes routing decisions at either the transport layer or the application layer and supports either Ec2 or VPC
+-> classic load balancer
+
+# Let to suppose you have an application where do you have to render image and also do some general computing, which service will be best fit your need
+-> Application load balancer
+
+# Load Balancer and DNS service comes under which type of cloud service
+-> IAAS-Storage.
+
+
+
+# What is S3
+-> S3 stands for Simple storage service. we can use to store the data at anytime in anywhere in the world.
+
+# What is the minimum and maximum size of individual objects that you can store in s3
+-> The minimum size of individual objects that you can store in s3 is 0 byte the maximum bytes that you can store for individual objets is 5TB
+
+# What is the maximum individual archive that you can store in glacier
+-> You can store maximum individual archive upto 40TB.
+
+# What are the different storage class in S3
+-> We have seven storage class in s3. we will spilit those seven storage class into four catagires
+	-> Frequently accessed data
+	-> Infrequently accessed dara
+	-> Archival storage
+	-> Intelligent storage
+# Frequently access data
+-> Standard storage class [frequently accessing data we will keep in this storage class]
+-> Reduce redundant storage class [if you keep the data in this storage class after one year you will lose somedata so that AWS is not recommand to use this storage class]
+
+# Infrequently accessed data
+-> Standard-IA [If you want to get the data 6 months once then you will keep the data in this storage class. For backup we will use this class] 
+-> Ozone-IA  [If you will keep data in this storage class it will maintained data at one availablity zone so that AWS is not recommand to use this storage class]
+
+# Archival storage [it is used for backup purpose]
+-> Glacier [if you upload file with 100MB it will store the file with 50MB]
+-> Deep Glacier [if you upload file with 100MB it will store the file with 20MB] [it work as heavy compriser]
+
+# Intelligent storage [it will work you dont know where would you keep the data neither frequently or infrequently then you will keep the data in intelligent storage class]
+
+
+# What is the default storage class in s3
+-> Standard storage class
+
+# What is glacier
+-> Glacier is used for to store the data for backup purpose
+
+# How can you encrypt the data in s3
+-> Severside Encryption  - S3(AES 256 Encryption)
+-> Serverside Encryption - KMS(Key Managnment service)
+-> Serverside Encryption - C (Client Side)
+
+# What are the parameters for S3 pricing
+-> Storage used
+-> Number requests you make
+-> Storage management
+-> Data transfer
+-> Transfer acceleration
+
+# What is the pre-requisite to work with cross region replication in s3
+-> You need to enable the versioning on both source bucket and destnation bucket with cross region replication. 
+-> Also both source and destination bucket should be in different region
+
+# One of my s3 bucket is deleted but i need to restore is there any possible way
+-> If you enable the versioning option we can easily restore
+
+# What is MFA in aws
+-> MFA stands for Multi factor Authentication can add the extract layer of security to your infrastructure by adding second methos of authentication beyond just password and access key.
+
+# What are the authentication in aws
+-> Username/Password
+-> Access key
+-> Access key/session Token
+
+
+
+
+# What is EBS volume
+-> EBS stands for Elastic Block storage in AWS. It allow you to create and persistence storage volume to your instance
+
+# What are the types of volumes in EBS
+-> we have two tyeps of volumes in EBS
+   -> SSD [Solid State Disk] it will work based on Iops
+   -> HDD [Hard Disk Drive]  it will work based on throughput
+-> In SSD we have two types  [it will work on volumes]
+  -> General purpose SSD -> General purpose SSD volume offer cost effective storage that is idel for broad range of workloads.
+          EBS Volume Size: 1 GB to 16 TB Maximun IOPS: upto 10,000 IOPS Maximum throughput: 160 MB
+  -> Provisioned IOPS SSD -> Provisioned IOPS SSD provides predictable and high performance
+          EBS Volume Size: 4 GB to 16 TB Maximun IOPS: upto 20,000 IOPS Maximum throughput: 320 MB
+-> HDD we have two types    [it will work on speed meand MBs]
+   -> Cold HDD -> Cold HDD volumes are designed for less frequently accessed workloads.
+         EBS Volume Size: 500 GB to 16 TB Maximun IOPS: upto 200 IOPS Maximum throughput: 250 MB
+   -> Throughput-Optimized HDD: Throughput-Optimized HDD volumes are low cost HDD volumes designed for frequent access.    
+         EBS Volume Size: 500 GB to 16 TB Maximun IOPS: upto 500 IOPS Maximum throughput: 500 MB
+
+# Is it possible to reduce a EBS volume 
+-> no its not possible, we can increase it but not reduece
+
+# I need modify the ebs volume in linux and windows is it possible
+-> yes its possible from console use modify the volumes in section give size u need
+-> In windows go to disk management for linux mount it to achive the modification
+
+#  You have an Ec2 instance that has an unencrypted volume. You want to create another encrypted volume from this unencrypted volume. Which of the following steps can achive this
+-> Create one snapchat of unencrypted volume and copy the snapchat and create volume from that copied snapchat
+
+# What is Amazon EBS-Optimized instance
+-> This optimization provides dedicated throughput between Amazon EC2 and Amazon EBS, which ensures that EBS performance is predictable and consistent.
+-> When you select the amazon EBS-Optimized for instance you will pay additonal hourly charge money for instance.
+
+# What is EBS Snapshot
+-> It can take backup on EBS volume. Snaphots are incremental backups
+-> If this is your first snapshot it will take some time to create. snapshot are point in time of copies of volume.
+
+# What is the difference between Bloack storage and File storage
+# Block Storage:- 
+-> Block storage operates at lower level, raw storage device level and manage the data as a set of numbered and fixed size block
+# File Storage:-
+-> File Storage operates at higher level, the operating system level and manage the data as a name hierachy of files and folder
+
+
+
+
+# What is Auto Scaling
+-> Autoscaling allows you to automatically scale up and scale down the number of instance depends on cpu utilization and memory utilization.
+-> we have two types of autoscaling
+  -> Horizontal Autoscaling  -> It will scaleup and scale down the instances
+  -> Vertical Autoscaling  -> It will increase the CPU capacity.
+-> we have two components in Autoscaling
+  -> Auto scaling group
+  -> Launch configuration
+
+# What are the benifits of auto scaling
+-> Better fault tolerance
+-> Better availablity
+-> Better cost management
+
+# Where does the user specify the maximum number of instances with the auto scaling commands
+-> Auto scaling lunch configuration
+
+# What is AMI
+-> AMI stands for Amazon machine image in aws. Its a template that contains a software configuration for virtual machine on amazon web service.
+
+# What are shared AMI's
+-> Shared AMI's are the AMI that are created by other developed and made available for other developed to use.
+
+# Which type of AMI's provided by AWS
+-> Instance store Backed, EBS Backed
+
+# Types of AMI'S
+-> Published by AWS
+-> AWS Marketplace
+-> Generated from existing instance
+-> Uploaded virtual server
+
+# How to plan autoscaling
+-> Manual Scaling
+-> Dynamic Scaling
+-> Scheduled Scaling
+
+
+
+
+
+# What is EIP
+-> EIP stands for elastic IP address in AWS. It is designed for dynamic cloud computing.
+-> When you want to have static IP address for your instance when you stop and restart your instance. you will use EIP address.
+
+# By default how many elastic ip address does AWS offer
+-> 5
+
+# What is the use of elastic ip are they charged by AWS
+-> These are ipv4 address which used to connect the instance from internet. they are charged if the instance are not attached it.
+
+# What is static IP
+-> It is a constant and perment IP it wil never change when you stop and restart the instance
+
+# What is Dynamic Ip
+-> Ip will change whenever you stop and restart the instance.
+
+# What Ip
+-> IP stands for internet protocal. It will communicate the data from one system to another system
+-> We have two types of IP address
+   -> Ipv4
+   -> Ipv6
+
+# What is Ipv4 [Internet protocal version 4]
+-> it having 32 bits
+-> Ipv4 having public and private Ip
+
+# What is Ipv6 [Internet protocal version 6]
+-> it having 128 bits
+-> Ipv4 having only public Ip
+
+Note: one IP having 4 octet
+      one octet having 8 bites
+      one bytes having 8 bites
+
+# What is subnet
+-> Subnets are associated with route tables that control the traffic flow within the VPC. 
+-> Public subnets typically have a route to an Internet Gateway (IGW) to allow internet access for resources within the subnet, while private subnets route traffic through NAT gateways.
+
+# What is VPC
+-> VPC stands for virtual provide cloud in aws. 
+-> It is virtual network in AWS
+-> It allow you to control your vitual network environment.
+
+Note: We can assign the ips using CIDR
+      CIDR stands for Classes inter Domain Range.
+# Ranges
+  10.0.0.0/16  -> This is one ipv4 range
+  this comes upto 65535 because above ip is ipv4 ip it have 32 bit and above ip range is 16
+  32 -16       16
+ 2        ->  2     -> two power 16 is 65536 but we will take 65535
+because 65536 it is allocated to broad casting it wont work in AWS network.
+
+-> Highest range is 16 in VPC
+-> Lowest range is 28 in VPC
+   10.0.0.0/16  = 65536
+                    32-32
+   10.0.0.0/32  = 2        = 0
+                    32-31         1
+   10.0.0.0/32  = 2        = 1 = 2  = 2
+                    32-30         2
+   10.0.0.0/32  = 2        = 2 = 2  = 4
+                    32-29         3
+   10.0.0.0/32  = 2        = 3 = 2  = 8
+                    32-28         4
+   10.0.0.0/32  = 2        = 2 = 2  = 16
+
+-> If you have 8 even VPC dont allow that range
+-> Mostly 16 and 24 ranges will be use in VPC.
+   
+# What is the difference between pubilc Ip and private Ip or subnets
+-> Public Ip having internet access
+-> Private Ip dont having internet access
+-> Web servers will keep in public subnets 
+-> DB server and secure data will keep in private subnet
+-> Public subnet having internet gateway to allow the internet access within vpc
+-> Private subnet having NAT gateway to take the data from private subnet.
+
+# What is internet gateway
+-> Internet gateway will provide the internet the access to the pubilc subnet
+-> Internet gateway it will work like a two way traffic means like incoming and outgoing
+
+# What is NAT Gateway
+-> NAT stands for Network address Translator.
+-> NAT gateway we will use to get the data from private subnet
+-> NAT gateway it will work like a one way traffic means like outgoing
+
+Note: When we are attach the NAT gateway to the private subnet it will work only outgoing traffic menas noone have change to enter into the subnet.
+
+# What is the difference between NACL and SG
+# NACL [Network access control list]
+-> It will work upto subnet level
+-> NACL will apply automatically when we create the resource
+-> It is a stateless because we can give permission to inbound and outbound rule
+-> We can attach only 1 NACL to subnet
+-> We can create both allow and denied rules
+
+# SG [Security Group]
+-> It will work upto instance level
+-> SG will select particularly
+-> It is a statefull because when we give permission to inbound rule and it will automatically to outbound rule
+-> We can attach the 5 security groups to subnet
+-> We can create only allow rules
+
+# How can you control the security to your VPC
+-> you can use security group and NACL to control the security in VPC
+
+# What are the Default services we get when we create custom AWS VPC
+-> Route table
+-> Security group
+-> NACL
+
+# By default how many Ip addredd does aws reserve in AWS
+-> 5
+
+# How can you convert the public subnet to private subnet
+-> Remove IGW and add NAT Gateway 
+
+# What is Security group
+-> Security allow you to control the traffic based on port , protocal and source/destination
+-> AWS allow you to control the traffic in and out of your instance through firewall is called security group
+
+# You have chosen windows instance with classic and you want to make some changes to the security group. how will these changes be effective
+-> Changes are automatically applied to windows instances
+
+
+# What is VPC peering connection
+-> VPC peering connection allows you to connect one vpc to another vpc. Instances in these vpc behave as if they are in same network.
+
+# To establish the peering connection between two VPC what conditions must be met
+-> CICD block should not overlap between VPC setting up peering connection.
+-> peering connection is allowed within a region, across region, across different account.
+
+# What is the virtual network interface that you can attach to an instance in a VPC
+-> Elastic network interface
+
+# When attached to an amazon VPC which two compenents provide connectivity with external network
+-> Internet gateway
+-> Virtual private gateway
+
+# What is NAT instance
+-> NAT stands for Network address translation instance is an amazon linux machine image that is design to accept the traffic from instance within a private subnet.
+
+
+
+
+
+# What is Cloud watch 
+-> Cloud watch is the monitoring tool. you can use to monitor the various AWS resources. Like health check, Network, applications etc..,
+
+# What are the types in cloudwatch
+-> There are two types in cloudwatch
+   -> Basic monitoring [Basic monitoring is free]
+   -> Detailed monitoring  [Detailed monitoring is chargeable]
+
+# What is the difference between Basic and detailed monitoring in cloud watch
+-> Basic monitoring:- Basic monitoring send data point to amazon cloud watch every five minutes for a limited number of preselected metrics at no charge
+-> Detailed monitoring:- Detailed monitoring send data point to amazon cloud watch every minute and allow the data aggregation for an additional charge
+
+# What are the cloudwatch matrics that are available for ec2 instance
+-> Disk reads, Disk writes, CPU utilization, NetworkpacketsIn, NetworkpacketsOut, NetworkIn, NetworkOut, CPUcreditUsage, CPUcreditBalance.
+
+
+
+
+# What IAM
+-> IAM stands for Idenity access managemnt
+-> I -> Identity -> Identity means Authentication -> Authentication means -> To give login permission
+-> A -> Access -> Access means Authorization -> Authorization means -> To access the service 
+-> M -> Managnment
+
+# What is role
+-> Roles is used to provide the permission in our AWS.
+-> Roles are similar to the users but with roles you dont need to create the any username and password to work with resources.
+
+# What is policy
+-> Policies are permission that you attach to the users. These policies contain access that you provided to the users.
+-> Policies have 2 types of policies
+   -> Managed Policies
+   -> Inline policies
+
+# What is the difference between role and policy
+# Role
+-> Roles are for AWS service, where we can assign permission of some aws service to other service
+   ex:- Giving s3 permission to ec2 instance to access s3 bucker content
+# Policy
+-> Polices are for users and groups. where we can assign permission to user and groups
+   ex: Giving permission to user to access to s3 bucket 
+
+# What are the two types of access that you can provide when you creating the user
+-> programmatic access
+-> Console access
+
+# I am viewing aws console but unable to launch the instance, i recive IAM error how can i rectify it
+-> I need to give ec2 permission to that IAM user
+
+# I dont want my AWS account id to be exposed to users how can i avoid it
+-> In IAM console there is option as sign in url where i can rename my account name with AWS account
+
+
+
+
+
+# What is cloudfront
+-> Cloud front is a content delivery netwrok(CDN) provided by AWS. It helps deliver content such as images and videos, to users with low latency
+and high data transfer speeds.
+-> CDN will manages the both DNS query and Data copy
+-> DNS query means To find the nearst data centers and regions
+-> Data Copy means To copy the data in all data centers.
+
+# What are the edge locations
+-> Edge location is the place where the content will be cached. Where a user tries to access some content the content will be searched in the edge location. 
+   If it is not available then  content will be made available from origin location and a copy will stored in the edge locations.
+
+# What is the relationship between Route53 and Cloud front
+-> In cloud front we will deliver content to edge location wise so here we can use route53 for content delivery network.
+
+# What is Snowball
+-> We use snowball to move the huge amount of data from one place to another place which reduces your network costs, long transfer time and also provide the better security.
+
+
+
+
+# What are the data types in RDS
+-> Oracle
+-> MariaDB
+-> Mysql
+-> Postgresql
+-> SQL Server
+-> Aurora
+
+# What is mulit AZ-RDS
+-> If we enable the multi AZ it will provide data in all availablity zones. Multi-AZ database is used for disaster recovery.
+
+# What are the types of backups in RDS
+-> We have two types of backups in RDS
+   -> Automated backups
+   -> Manual backups which are knows as snapshots.
+
+# Is it possible to stop the a RDS instance how can i do that
+-> Yes its possible to stop RDS. Instance which are non-production and non multi AZ
+
+#  What is meant by parameter group in rds. And what is the use of it
+-> Since rds manage service AWS offer a wide set of parameter in RDS as parameter group which is modified as per requirment
+
+# When do i perfer to privisioned IOPS over the standard RDS storage
+-> if you have do batch-oriented is workloads
+
+
+
+# What is redshift
+-> Amazon redshift is a data warehouse product. It is a fast and powerful, fully managed, petabyte scale data warehouse service in cloud.
+
+# What is the use of tags and how they are useful
+-> Tags are used for identification and grouping aws resources
+
+
+
+# What is SNS
+-> SNS stands for Simple notification service
+-> It is fully managed messaging service that enables you to send notification from the cloud to various endpoints such as email, SMS, moblie push notification and more.
+
+
+
+# What is Route53
+-> Route53 is a scalable and highly available domain name system (DNS) service provided by AWS.
+-> Route53 will handle the DNS servers.
+
+
+# What are the types of routing policies in route53
+-> Simple Routing
+-> Latency routing
+-> Failover routing
+-> Geolocation routing
+-> Weighted routing
+-> Mulitvalue routing
+
+# What is the maximum size of message in SQS
+-> 256 KB.
+
+# What are the types of queues in SQS
+-> Standard queue
+-> FIFO (First in first out)
+
+
+Note: We will check 11 and 12 linkdin AWS pages before interview
+
+
+# What is cloud computing
+-> Cloud computing means it provides services to access the application, programms, storage, network over the internet through browser.
+
+# Why we go for cloud computing
+-> Lower computing cost
+-> Improved performance
+-> No IT maintenance
+-> Bussiness connectivity
+-> Easily upgraded
+-> Device Independent
+
+# What are the deployment models using in Cloud
+-> Private cloud
+-> Public Cloud 
+-> Hybrid cloud
+-> Community cloud 4
+
+# Explain could service model
+-> SAAS(Software as a Service) 
+-> PAAS(Platform as a Service) 
+-> IAAS(Infrastructure as a service) 
+
+# What is SAAS
+-> In saas cloud worker host and manage the software application on pay as you go pricing model
+   users: End user
+
+# What is PAAS
+-> PAAS run cloud platform and runtime enviornment to develop, test and manage the software
+  users: Software developers
+
+# What is IAAS
+-> IAAS is a cloud service that run the service pay for what you use 
+-> IAAS worker include AWS, Azure and GCP
+   users: IT Administrators
+
+# What are the advantages of cloud computing
+-> Pay per use
+-> Scalability
+-> Elasticity
+-> High availablity
+-> Increase speed and Agility
+-> Go global in Minutes
+
+
+
+# What is Elastic Beanstalk
+-> AWS elastic beanstalk is the simplest way to get an application up and running on AWS. 
+-> Developers can simply upload their code and sevice automatically handle all the details such as resource provisioning, load balancer, auto scaling and monitoring
+
+
+# What is EFS
+-> EFS stands for Elastic file system
+-> It is serverless
+-> It is scalable and fully managed file storage device
+
+# What are the advantages and disadvantages of EFS
+-> Fully managed service
+-> Multi AZ replication
+-> Can support thousands of concurrent connections
+  Disadvantages
+-> Not available all region
+-> Cross region capability not available	
+-> More compicated provision comparate to S3 and EBSs
+
+
+
+Note: We will check 20 and 21 linkdin AWS pages before interview
+
+# What are the routing policies available in AWS
+-> Simple
+-> Weighted
+-> Latency Based
+-> Failover
+-> Geolocation
+
+# What is SES
+-> SES stands for Simple Email service
+-> SES is SMTP service provided by amazon which is designed to send bulk mails to customer in quick and cost effective manner.
+-> SES does not allow to configure mail server
+
+Note: We will check 35,36 and 37 linkdin AWS pages before interview
+
+
+
+
+
+
