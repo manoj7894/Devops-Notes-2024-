@@ -323,14 +323,11 @@ https://youtu.be/AXi2oENUJHo?si=9VXRKkuL0aguov-j
 
 
 # What is presistence volumes
-->  In simple word persistent volume is a solution to store data of a container permanently 
-   even after the pods got deleted.
--> Presistence volumes means to get storage from your storage devices or cloud providers
--> It will allocated storage to presistence volumes claim by the request from presistence volumes claim
+-> A PersistentVolume is a piece of storage in the Kubernetes cluster that has been provisioned by an administrator.
 
 # What is presistence volumes claim 
--> presistence volumes claim is a request for storage by a user.
--> Claims can request specific size and access modes
+-> A PersistentVolumeClaim is a request for storage by a user or developer.
+-> It is a resource object in the Kubernetes API that allows a Pod to access a piece of storage from a PersistentVolume (PV).
 
 -> In persistence volume claim we have different access modes
  1) RWO -> Read write once for single node
