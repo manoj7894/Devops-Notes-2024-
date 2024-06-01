@@ -381,6 +381,14 @@ Note: When we are attach the NAT gateway to the private subnet it will work only
 -> CICD block should not overlap between VPC setting up peering connection.
 -> peering connection is allowed within a region, across region, across different account.
 
+# what is VPC endpoint service
+-> If we want to access our service in other AWS account with same VPC then we will use VPC Endpoint service
+
+# We have three types of endpoints
+-> Interface Endpoint  -> It will support 86 services
+-> Gateway Endpoint  -> It will support only two service s3 and dynamoDB
+-> Gateway load balancer endpoint
+
 # What is the virtual network interface that you can attach to an instance in a VPC
 -> Elastic network interface
 
