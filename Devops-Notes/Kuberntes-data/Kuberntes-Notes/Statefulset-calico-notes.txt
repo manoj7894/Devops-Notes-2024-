@@ -1,6 +1,7 @@
 # What is kubernetes Statefulset
--> Statefulset is assgin a unique and stable hostanames based on defind naming conversion
--> When you delete the pod in statefulset then it will delete the whatever pod cretead latestly
+-> StatefulSet is the workload API object used to manage stateful applications.
+->  StatefulSets are particularly useful for applications that require unique network identifiers, stable storage, and ordered deployment and scaling.
+-> When you delete the pod in statefulset then it will delete the whichever pod cretead latestly
 -> If you want to host the database in kubernetes then you will use statefulset
 -> We have to give clusterIP to statefulset because we cant expose our database to everyone
 
@@ -22,11 +23,6 @@ How to work with statefulset
 -> You have to execute the persistence,volume.yml
 -> After execute the all above file later you have to execute the statefulset
 
-
-# what is calico netwrok 
--> Calico is an open-source networking and network security solution for containers and virtual machines.
--> It provides a scalable and secure netwrok fabric for connecting workloads across different environments.
--> Its commonly used in kubernetes clusters for managing network connectivity and policies.
 
 
 
