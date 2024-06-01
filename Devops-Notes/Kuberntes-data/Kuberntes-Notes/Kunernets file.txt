@@ -1,130 +1,145 @@
 # What is kubernetes
-1) k8s is an orchestration container
-2) k8s is an opensource software
-3) k8s is manage the docker container
-4) k8s will take care of container deployment, scalling, descalling and container load balancer
-5) k8s is not replacemt of docker
-6) k8s is replacement of docker-swarm
-7) k8s is developed by google and donted CNCF in 2014 
- CNCF means cloud native computing foundation
-8) k8s software developed by using Go langauge
-9) k8s version relased to market in the year of 2015
-10) K8s script write in json format
+-> k8s is an orchestration container
+-> k8s is an opensource software
+-> k8s is manage the docker container
+-> k8s will take care of container deployment, scalling, descalling and container load balancer
+-> k8s is not replacemt of docker
+-> k8s is replacement of docker-swarm
+-> k8s is developed by google and donted CNCF in 2014 
+    [CNCF means cloud native computing foundation]
+-> k8s software developed by using Go langauge
+-> k8s version relased to market in the year of 2015
+-> K8s script write in json format
+-> k8s works on clouste mudules
 
-# What are the difference between Docker-swarm and kubernetes
-    Docker-swarm                           kubernetes
-1) No Auto scalling                     1) Auto Scalling
-2) Good Community                       2) Great active community
-3) Easy to start the cluster            3) Diffcult to start the cluster
-4) Doesnt have much experience          4) Deployment at scale more often
-   with production deployment at scale      amoung organization
+# Why we are using K8S
+-> Kubernetes is a powerful open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications.
+-> To achive the below features we will use k8s
+  -> Auto Scheduling
+  -> Self healing capacity
+  -> Rollout and Rollback
+  -> Auto scalling
+  -> Service discovery
+  -> Storage orchestration
+  -> Secret and configuration management
 
-# What are the  kubernetes features
-1) Automated scheduling
-2) Self Healing capabilities [Replication controller]
-3) Automated rollouts and rollbacks [Deployment]
-4) Load Balancing
-5) Service Discovery
-6) Storage orchestration
-7) Secret and configuration management
+# What is Docker-swaram
+-> Docker Swarm is a container orchestration tool for clustering and scheduling Docker containers.
 
- Automated scheduling
-k8s providing advanced schedular concept to launch the container depends on our require
+# What is the difference between Docker-swaram and kubernets
+ # Docker swarm
+	-> Easy to start the cluster
+	-> Manual Autoscaling
+	-> Need third party tool to monitor like ELK
+	-> Auto setup of load balancer
+	-> No expernice with production deployment 
 
- Self Healing capabilities
-Replaces and reschedule the container when nodes die, kill the container
+  # Kubernetes
+	-> Difficult to start the cluster
+	-> Automatic autoscaling
+	-> Intergrated tool
+	-> Manual setup of load balancer
+	-> expernice with production deployment 
 
- Automated rollouts and rollbacks
-If something goes wrong, kubernets will rollback the change for you
+# What are the features of K8S
+-> Auto Scheduling
+-> Self healing capacity  [Replication controller]
+-> Rollout and Rollback  [Deployment]
+-> Auto scalling
+-> Service discovery
+-> Storage orchestration
+-> Secret and configuration management
 
- Load Balancing
-Scale your application up and down based on CPU usage
-Note: Docker-swarm load balancing is manual process
-      kubernets supports autoscaling load balancer
+# What is Auto Scheduling
+-> Kubernets will provide the advance schedular option to launch the containers based on your reruirment
 
-Service Discovery
- Kubernetes cluster will take everything about network
+# What is Self healing capacity
+-> If a containerized app or an application component fails or goes down. Kuberneted re-deploy it to retain the desired state
 
-Storage orchestration
- Automatically mount the storage system of your choice whether from local storage and public
+# Rollout and Rollback
+-> If something goes wrong, kubernets will rollback the change for you
 
-Secret and configuration 
- Deploy and updates secret and without exposing secret in your stack configuration
+# Auto scalling
+-> Autoscaling allow you to automatically scale up and scale down your application based on cpu utilization and memory utilization
+    Note: Docker-swarm load balancing is manual process
+          kubernets supports autoscaling load balancer
+# Service Discovery
+-> Kubernets will take care the every thing about network.
+
+# Storage orchestration
+-> Kubernets will automatically mount the storage
+
+# Secret and configuration management
+-> Depoly and update secrets are not exposing in your stack configuration
 
 Kubernets Architecture
 1) k8s works on cluster modules
 2) In k8s cluster we will have masternode and workernode
 
-Interactive with masternode
--> Kubectl 
--> UI
+# To Communicate with kubernets cluster we have 2 options
+-> UI (user interface)
+-> Kubectl (CLI S/w)
 
-master node
--> API Server
--> Schedular
--> controller-manager
+# What is Kubectl
+-> Kubectl is command line interface(CLI) for interacting with Kubernetes clusters
+-> Kubectl is used to run the commands on kubernetes cluster
+
+# How many nodes in k8s
+-> We have two nodes in k8s 
+   -> Master Node  [Master node will manage the worker node in cluster]
+   -> Worker node  [Worker will run the tasks assign by master node]
+
+# What are the components in master node
+-> API
 -> ETCD
+-> Scheduler
+-> Control manager
 
-worker-node
--> Pods
--> Container
--> kubelet
--> Docker
+# What is API 
+-> API server will act as communicator between develop/Devops and K8s componets
 
-To Communicate with kubernets cluster we have 2 options
-1) UI (user interface)
-2) Kubectl (CLI S/w)
+# What is ETCD
+-> It act as database in k8s
+-> ETCD will stores cluster information such it current state, desitred state, configuration resources and runtime data.
+-> Whenever we run k8s application that request goes to the API Server and API server will store the request in ETCD.
 
--> Master node manage the worker nodes in Cluster
--> worker nodes will run the tasks which is assign by master node
-
-What is API Server
-1) Pods
-2) Replication Controller
-3) Replication Set
-4) Deamon set
-5) Deployment
-6) volumes
-7) Services
--> All the above k8s service implemented using Go langauge
--> To use k8s service we no need to learn Go langauge
--> To use k8s services k8s provided API server
--> API server will acts as communication between Developer/devops eng and K8S components
-
-What is ETCD
--> It act as a Data base of K8s
--> When we run the k8s application then API server will receive the Request and that request will store in ETCD
-
-What is Schedular
+# What Schedular
 -> It will scheduled the pods for execution which are unschedule in ETCD
 -> Schedular will schedule the pods to workernode with the help of Kubelet
--> Schedular will ask the kubelet i have request do you have resource to run the application
 
-What is Kubelt
--> Kubelet will act as a node-agent 
--> kubelet ensure the containers are running healthy in pod 
--> kubelt will interact with docker to create the container
-
-What is Kubeproxy
--> kube proxy act as network proxy
--> Kube proxy will maintain network rules on pods
--> The network rules allow the network to communicate your pods from inside and outside of the cluster
-
-What is Pod
--> Pod is small execution unit in K8s
--> Pod having group of containers
--> Containers will grouped as a pod in order to increase the intelligence of resources
--> Pod will run single container and multi container
-
-What is Controller-manager
--> Controller-manager run the controller in background
--> It is responsible to run the tasks in k8s cluster
--> It proferms the cluster level operation
+# What is Control manager
+-> The Controller Manager monitors the current state of your cluster through the API Server and makes appropriate changes to keep the application running by ensuring sufficient Pods are in a healthy state.
 we have servel comtrollers in k8s
 -> Node Controller
 -> Replication Controller
 -> Endpoint Controller
 -> Deployment Controller
+
+# What are the components in worker node
+-> kubelet
+-> container runtime [docker]
+-> kubeproxy [Network proxy]
+-> Pods
+
+# What is kubelet
+-> Kubelet will act as a node-agent 
+-> kubelet ensure the containers are running healthy in pod 
+-> kubelt will interact with container runntime to create the container
+
+# What is container runtime
+-> It is responsible for managing the execution and lifecycle of containers within the Kubernetes environment.
+
+# What is kube-proxy
+-> kube proxy act as network proxy
+-> Kube proxy will maintain network rules on pods
+-> The network rules allow the network to communicate your pods from inside and outside of the cluster
+
+# What is Pod
+-> Pod is small execution unit in K8s
+-> Pod having group of containers
+-> Containers will grouped as a pod in order to increase the intelligence of resources
+-> Pod will run single container and multi container.
+
 
 # Kubernets cluster Setup
 There are mulitple ways to set up the kubernet cluster
@@ -236,7 +251,9 @@ Note: In Docker container is smallest part where we can deploy
       In Kubernets pod is smallest part where we can deploy
 
 # What is Namespace
--> Namespace represents a cluster inside another cluster
+-> In Kubernetes, a namespace is a virtual cluster within a Kubernetes cluster. 
+-> It is used to organize and scope resources within the cluster, providing a way to divide cluster resources between multiple users, teams, or projects. 
+-> Namespaces are primarily used to create isolated environments and prevent resource conflicts between different applications or users.
 -> kubernets components will be grouped logically using namespaces
 Note: we can consider namespace as a java package
 -> we will get 3 namespaces when we setup the kubernets cluster
@@ -318,19 +335,29 @@ we have three types of Services
 1) Cluster IP 
 2) Nodeport
 3) Load Balancer
+4) ExternalName Service
+5) Headless Service
 
-Cluster Ip
+# Cluster Ip
 -> If we use cluster ip type in service manifest file. We can access only within cluster
 
-Nodeport Ip
+# Nodeport Ip
 -> If we use Nodeport type in service manifest file. we can access inside and outside of the cluster
 -> We can access our service using workernode public Ip and port number
 -> When we execute the service manifest file using Nodeport then we will get one random port number
 -> [Port number range in K8S is 30000 to 32767]
 
-Load Balancer
+# Load Balancer
 -> If we use LoadBalancer type in service manifest file. we can access inside and outside of the cluster by using 
  loadbalancer DNS URL
+
+# ExternalName Service
+-> This type of service maps a service to an external DNS name. 
+-> It allows you access the Kubernetes pods outside of the cluster using a DNS name.
+
+# Headless Service
+-> This type of service is used when you don't need a single, stable IP address for accessing the service. 
+-> It returns the IP addresses of individual pods backing the service instead of a single cluster IP.
 
 # What are the difference between pod manifest file and service manifest file
 Pod manifest file having lables
@@ -367,8 +394,19 @@ we will create pod with replication controller manifestfile using below commands
 kubectl get svc --> To get services
 kubectl get pods --> To get the pods
 kubectl apply -f <replicationfilename> --> To execute the pod manifestfile
-kubectl scale rc <replicaname> --replicas 3 --> To scale up the replicas
-kubectl scale rc <replicaname> --replicas 0 --> To scale down the replicas
+kubectl scale <resource type> <deployment name> --replicas=<number-of-replicas>
+      resource type means kind
+      deployment name metadata name
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 1
+
+kubectl scale deployment my-deployment --replicas=3 --> To scale up the replicas
+kubectl scale deployment my-deployment --replicas=0 --> To scale down the replicas
 
 # what is ReplicationSet
 -> It is next generation of Replication controller
@@ -379,16 +417,16 @@ kubectl scale rc <replicaname> --replicas 0 --> To scale down the replicas
  1) Equality Selector
  2) Set-based Selector
 
-Equality Selector
-If we use Equlity Selector you can give only one selector
-Replication controller will supports the Equality Selector
+# Equality Selector
+-> If we use Equlity Selector you can give only one selector
+-> Replication controller will supports the Equality Selector
 
-Set-based Selector
-If we use Set-based Selector you can give only multiple selector
-Replication set will supports the Set-based Selector
+# Set-based Selector
+-> If we use Set-based Selector you can give only multiple selector
+-> Replication set will supports the Set-based Selector
 
 # What is Daemon Set
--> Daemon set is a copy of the pod should be execute in all the worknodes
+-> DaemonSet is a Kubernetes feature that lets you run a Kubernetes pod on all cluster nodes that meet certain criteria
 -> We create the daemon set for logs collections,monitoring and storage
 -> we cant use daemon set for reqular pod creation
 -> Scale up and scale down process not applicable in daemon set
@@ -398,13 +436,18 @@ Replication set will supports the Set-based Selector
 -> we can achive the auto-scalling by deployment
 -> Deployment is used to tell kubernets how to create and or modify the instaces of pods
 
-# Deployment Strategy
+What are Deployment Strategies in Kubernets
 1) Recreate deployment strategy
 2) Rolling deployment strategy
 3) Blue and green apporach [It is not a strategy it is a approach]
+4) Canary Deployment
+5) A/B Testing
+6) Shadow Deployment
+7) Staggered Deployment
+8) Rollback Deployment
 
 # What is Recreate deployment strategy
-When we use recrete existing pods will delete and new will create
+When we use recrete deployment strategy existing pods will delete and new will create
 
 # What is Rolling deployment strategy
 When we use the rolling deployment strategy pod will delete one by one while pod will create one by one 
@@ -412,6 +455,8 @@ When we use the rolling deployment strategy pod will delete one by one while pod
 
 # What is blue and green approach
 -> If you want to deploy your application with Zero down time. you will follw blue and green apporach
+-> A blue/green deployment is a deployment strategy in which you create two separate, but identical environments.
+-> One environment (blue) is running the current application version and one environment (green) is running the new application version.
 -> Blue and green deployment is an application release model
 -> It reduces the risk and minimizes the down time
 -> It uses two production env
@@ -454,9 +499,13 @@ None Prod ENV are used for application testing like Dev,Sit,UAT env
 
 Note: When we delete the deployment pod will delete the automatically but service wouldnt delete
 
+# What is Canary Deployment
+-> Introduce a new version of the application to a subset of users or traffic gradually. 
+-> Monitor for issues and progressively increase the rollout if everything goes well, or roll back the changes if issues are detected.
+
 
 # Auto Scalling [It is the process of increasing and decreasing the instance based on loads]
--> It is the process of increasing and decreasing infrastructure based an demand
+-> Auto Scalling allow to you to automatically scale up and scale down your application based CPU Utilization and Memory Utilization
 -> We have two types of auto scalling
   1) Horizontial scalling
   2) Vertical scalling
@@ -594,3 +643,39 @@ suppose if you want to install metric beat to see the metric of application then
 -> helm install metricbeat elastic/metricbeat -n efk  --> To install metric beat
 -> If you want to see the logs in terminal you will use the below commands
 -> kubelet logs pod <podname>  --> To see logs on pod name
+
+
+# Kubernets interview questions
+# What is Calico network 
+-> Calico implements the Kubernetes Container Network Interface (CNI) as a plug-in and provides agents for Kubernetes to provide networking for containers and pods.
+
+# What is CRD
+-> CRD Stands for Custom resource Definition
+-> CRDs allow users to create new types of resources without adding another API server.
+-> When you create a new CustomResourceDefinition (CRD), the Kubernetes API Server creates a new RESTful resource path for each version you specify. 
+
+# What is RBAC
+-> RBAC Stands for Role based access control
+-> RBAC is the heart of kubernetes security
+-> RBAC is a key security control to ensure that cluster users and workloads have only the access to resources required to execute their roles.
+
+# How to communicate the pod to another pod
+-> Pod-to-Pod Communication within the Same Node
+   When pods are scheduled on the same node, they can communicate with each other using localhost or the loopback interface (127.0.0.1). 
+   Pods on the same node can communicate directly via IP addresses or DNS names.
+-> Pod-to-Pod Communication across Nodes
+   When pods are scheduled on different nodes, they communicate over the cluster network. 
+   Kubernetes sets up networking between nodes using a container network interface (CNI) plugin, such as Calico, Flannel, or Cilium.
+
+# How to describe the kubernetes security
+-> Enable Role-Based-Access-Contro;
+-> Use Third party authentication for API server
+-> Protect ETCD with TLS and Firewall
+-> Isolate the kubernetes nodes
+-> Monitor network traffic to limit communications
+-> Use process whitelsting
+-> Turn on Audit logging
+-> Keep kubernets version up and Date
+-> Lock Down Kubelet
+-> Secure kubernetes with Aqua
+
