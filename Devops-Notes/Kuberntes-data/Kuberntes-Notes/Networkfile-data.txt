@@ -1,9 +1,17 @@
 # Kubernetes network policy
--> If you want to communicate connection between two pods then we will use network policy
+-> Network Policies are a feature that allows you to control the traffic flow between different pods and services within your cluster. 
+-> They provide a way to specify how groups of pods are allowed to communicate with each other and with other network endpoints.
+-> If you want to communicate connection between two pods you will use network policy.
 -> Pods become isolated by using network policy
 -> we have two types of network policy
   1) Ingress network policy  ->  Inbound rules [which pod we want to give inbound permission] 
   2) Egress network policy  -> Outbound rules  [Twhich pod we want to get the data]
+
+# What is ingress
+-> Ingress is a API object that helps developers expose their application and manage external access by providing https routing rules to the service within cluster.
+
+# What is Egress
+-> Egress refers to the process of traffic leaving the kubernets cluster and going to an external destination.
 
 Ingress means: you can get the above pod data only by Ingress pod
 Egress means: you can expose only Egress pod data only by above pod 
