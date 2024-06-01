@@ -68,6 +68,38 @@ SG(Security Rules)
 -> we can allow 5 security rules
 -> we can create only allow rules
 
+# What is VPC peering
+-> VPC peering connection allows you to connect one vpc to another vpc. Instances in these vpc behave as if they are in same network.
+
+Note: If you send to request from one VPC to another to do vpc peering. That request would be available in until 7 days after the link will expair
+
+# To establish the peering connection between two VPC what conditions must be met
+-> CICD block should not overlap between VPC setting up peering connection. [Both Ip address and range not be same ]
+-> peering connection is allowed within a region, across region, across different account.
+
+# How to work with VPC peering
+-> first you will create two VPC. In that one VPC you will create one public subnet and another VPC you will create the  private subnet
+-> Go to first VPC you will create one Ec2 instance using public subnet in first VPC and you will create internet gateway and attach that internet gateway to public subnet
+-> Go to second VPC you will create one Ec2 instance using private subnet in second VPC
+-> Go to first VCP and vpc peering and click create peering connection
+-> give name to the peering
+-> Choose first VPC  [From which VPC do you want to send the request] 
+-> Choose account [if you want to choose another account you can choose]
+-> Choose region  [if you want to choose another region you can choose]
+-> Click create peering connection then it request goes to the another VPC
+-> [You will be accept the request within 7 days if you not accept it will expair]
+-> After create the peering connection. Go to the Second VPC and accept the peering request.
+-> Go to the first VPC route table and click edit give second VPC ip and choose the peering connection in target 
+-> Later go to the second VPC route table and click edit give first VPC ip and choose the peering connection in target 
+-> Later you will access the your first vpc ec2 server using mobaxtream
+-> you can able to access the first vpc ec2 server
+-> if you want to aceess the second vpc ec2 server by firet vpc ec2 server
+-> First you have to create one file with pemfile name and paste the data in that file
+-> chmod 400 fielname
+-> ssh -i "filename" ec2-user@172.31.1.150 --> give second vpc PrivateIp
+-> you can access the second VPC ec2 by first vpc ec2 [if you attached the vpc peering you can access if you not attach you cant access]
+
+
 
 # what is VPC endpoint service
 -> If we want to access our service in other AWS account with same VPC then we will use VPC Endpoint service
@@ -81,5 +113,10 @@ SG(Security Rules)
 
 # VPC endpoint sample project link
   https://youtu.be/8AjcPQHjahU?si=-9-o_q7wN8tdc5gF
+
+
+# Why we need VPC
+-> In data center (date center nothing but a availablity zone) we have so many servers if create any thing without vpc all will be combined so that to overcome that problem we will use VPC.
+-> When we are using VPC that space will isolated no-one access without having permission.  
  
 
