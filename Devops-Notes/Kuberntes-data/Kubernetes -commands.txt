@@ -20,8 +20,8 @@
 17) kubectl describe service <servicefilename> --> To describe the service name
 18) curl serviceip:portnumber  --> To access the pod inside the cluster
 # Replication Controller and set Commands
-19) kubectl scale rc <replicaname> --replicas 3 --> To scale up the replicas
-20) kubectl scale rc <replicaname> --replicas 0 --> To scale down the replicas
+19) kubectl scale deployment my-deployment --replicas=3 --> To scale up the replicas
+20) kubectl scale deployment my-deployment --replicas=0 --> To scale down the replicas
 # Deployment Commands
 21) kubectl get deployment  --> To see the deployments 
 22) kubectl delete deployment <deploymentname>  --> To delete the deployment
