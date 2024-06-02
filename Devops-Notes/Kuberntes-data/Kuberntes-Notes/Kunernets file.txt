@@ -436,15 +436,15 @@ kubectl scale deployment my-deployment --replicas=0 --> To scale down the replic
 -> we can achive the auto-scalling by deployment
 -> Deployment is used to tell kubernets how to create and or modify the instaces of pods
 
-What are Deployment Strategies in Kubernets
-1) Recreate deployment strategy
-2) Rolling deployment strategy
-3) Blue and green apporach [It is not a strategy it is a approach]
-4) Canary Deployment
-5) A/B Testing
-6) Shadow Deployment
-7) Staggered Deployment
-8) Rollback Deployment
+# What are Deployment Strategies in Kubernets
+-> Recreate deployment strategy
+-> Rolling deployment strategy
+-> Blue and green apporach [It is not a strategy it is a approach]
+-> Canary Deployment
+-> A/B Testing
+-> Shadow Deployment
+-> Staggered Deployment
+-> Rollback Deployment
 
 # What is Recreate deployment strategy
 When we use recrete deployment strategy existing pods will delete and new will create
