@@ -1,11 +1,11 @@
 # What is the Version Control
-Version control system (VCS) is a software that helps you manage changes to your code over time. 
-It allows multiple people to collaborate on a project, track changes, and easily revert back to previous versions if needed. 
-One popular VCS is Git.
+-> Version control system (VCS) is a software that helps you manage changes to your code over time. 
+-> It allows multiple people to collaborate on a project, track changes, and easily revert back to previous versions if needed. 
+-> One popular VCS is Git.
 
 # We have two version control system
-1) Centralized Version Control System
-2) Distributed Version Control System
+-> Centralized Version Control System
+-> Distributed Version Control System
 
 # Centralized Version Control System
 -> Database maintained at one site
@@ -17,49 +17,58 @@ One popular VCS is Git.
 -> If one system fails system continues work with other 
 -> More reliable
 
-# What is git (Global Information Tracker)
-Git is a distribution version control system that allow people collaborate on project
+# What is git
+-> Git standards for Global Information Tracker
+-> Git is a distribution version control system that allow people collaborate on project
 
 # what is git hub
-Git having the repository
+-> Git hub is the remote repository hosting service and collaboration platform
+-> It provide the free and paid services
+-> Git having the repository
 
 # what is repository
-Repository having the source code data
+-> Repository having the source code data
 
 # Git Commands
-git init .   --> To create the local repo
-git add .    --> Take files from untracked and modified staged to stagged stage [Untracked means newly created files][modify means if you do any change in file after commit then file it commes unstagged or modifyes staged]
-git config --global user.name <write some name>
-git config --global user.email <write mail id> to set the author name and email id to the files
-git commit -m "somename"  (or) git commit -m .   --> take staged files into local repo
-git remote add origin <git hub url>  --> To add the origin
-if you want to change the origin name
-git remote add <name>  -->  To add the origin name
-git remote rename <old-name> <new-name>   --> To Rename the origin name
-git remote remove <name>  --> To remove the origin name
-git remote -v  --> To see list of remote
-git log  --> To see the commit history
-git push -u origin branch name --> push the data from local repo to git hub repo
-git branch  --> To see the git branches [It is used to maintain the spearate code base is called git branch]
-git branch <branch name>  --> To create the branch name
-git checkout -b <branch name>  --> It create the new branch and checkout that branch
-git checkout <branch name>   --> To shift from one branch to another branch
-git merge <branch name>      --> [It merge the changes from one branch to another branch][It maintain the commit history]
-# Merges are two types
-1) fast forward merge  --> we will merge without commit
-2) recursive       --> we will merge after commit
-git rebase <branch name>    --> [It merge the changes from one branch to another branch][It does not mainatain the commit history]
-git stash   --> [it save the changes from local repo to tempory location to make working directory clean]
-git stash list  --> To see stash list
-git stash apply --> It will take lastet file from git stash. that file wont delete in git stash when we do git stash apply
-git stash drop  --> It will delete files in git stash 
-git stash pop   --> It will take latest file as well as it will delete file automatically in git stash
-git stash apply stash@{enter stash number}   --> it will take particular files from git stash
-git stash -u    --> It moved the file into untracked stage from git stash
-git stash branch <branch name>   --> if you want to create to separate branch with git stash files
-git reset --soft HEAD~1   --> To take the commit files to untracked stage
-git reset          --> To take the stagged file to untracked stage
-git diff           --> To see the whichever data in untracked stage files
+-> git init .   --> To create the local repo
+-> git status  --> To check the current repository status, including change, untracked and statged files.
+-> git config --global user.name <write some name> --> Config the git settings such as username and email
+-> git config --global user.email <write mail id> 
+-> git add .    --> Take files from untracked and modified staged to stagged stage [Untracked means newly created files][modify means if you do any change in file after commit then file it commes unstagged or modifyes staged]
+-> git commit -m "somename"  (or) git commit -m .   --> Take the staged files into local repo
+-> git remote[Manage the connection to remote repository such adding and remove remote]
+-> git remote add <name>  -->  To add the origin name
+-> git remote add origin <git hub url>  --> To add the git hub url to origin
+-> git remote rename <old-name> <new-name>   --> To Rename the origin name
+-> git remote remove <name>  --> To remove the origin name
+-> git remote -v  --> To see list of remote
+-> git log  --> To see the commit history
+-> git push --> push the data from local repo to remote repo
+-> git push -u origin branch name --> push the particular branch data from local repo to remote repo
+-> git branch  --> To see the git branches [It is used to maintain the spearate code base is called git branch]
+-> git branch <branch name>  --> To create the branch name
+-> git checkout -b <branch name>  --> It create the new branch and checkout that branch
+-> git checkout <branch name>   --> To shift from one branch to another branch
+-> git merge <branch name>      --> [It merge the changes from one branch to another branch][It maintain the commit history]
+    Merges are two types
+      1) fast forward merge  --> we will merge without commit
+      2) recursive       --> we will merge after commit
+-> git rebase <branch name>    --> [It merge the changes from one branch to another branch][It does not mainatain the commit history]
+-> git stash   --> [it save the changes from local repo to tempory location to make working directory clean]
+-> git stash list  --> To see stash list
+-> git stash apply --> It will take lastet file from git stash. that file wont delete in git stash when we do git stash apply
+-> git stash drop  --> It will delete files in git stash 
+-> git stash pop   --> It will take latest file as well as it will delete file automatically in git stash
+-> git stash apply stash@{enter stash number}   --> it will take particular files from git stash
+-> git stash -u    --> It moved the file into untracked stage from git stash
+-> git stash branch <branch name>   --> if you want to create to separate branch with git stash files
+-> git reset   --> To take the stagged file to untracked stage
+-> git reset --soft HEAD~1   --> To take the commit files to untracked stage
+-> git diff           --> View the difference between changes made to file
+-> git clone  --> Create copy of remote repository on your local machine
+-> git pull  --> It pull the data from remote repository to local repository
+-> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
+
 
 
 # When you get below error while doing git push 
