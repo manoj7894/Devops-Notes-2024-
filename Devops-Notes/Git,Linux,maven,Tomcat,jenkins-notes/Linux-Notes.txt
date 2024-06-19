@@ -65,6 +65,7 @@ after understand the binary language it will return back the result to shell. sh
 -> ls  --> To see the list of files
 -> cd ~  --> Change the directory
 -> ls -al  --> To show the hidden files
+-> ls -i   --> To show the inode numbers of files
 -> ls -ail
 -> ls -al [Fm]*   --> It will open the all the files forth having f m
 -> ls -al [!Fm]*  --> It will not give forth f and m files
