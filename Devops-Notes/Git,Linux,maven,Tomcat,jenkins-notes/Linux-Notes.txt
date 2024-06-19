@@ -89,6 +89,10 @@ after understand the binary language it will return back the result to shell. sh
 -> find / -size 10k   --> search the files based on size
 -> find / -size -10k  --> search the files based on below 10k size files
 -> find / -size +10k  --> search the files based on above 10k size files
+-> rm filename  --> To delete the file
+-> rmdir dirname  --> To delete the dirname
+-> rm -rf dirname  --> To delete the dir forcefully
+-> rm -rf * --> To delete all the data
 
 # To open the files
 -> head (To see the first 10 lines)
