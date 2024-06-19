@@ -93,6 +93,9 @@ after understand the binary language it will return back the result to shell. sh
 -> rmdir dirname  --> To delete the dirname
 -> rm -rf dirname  --> To delete the dir forcefully
 -> rm -rf * --> To delete all the data
+-> su -   --> To login into the root user
+-> sudo su -  --> To login into the root user
+-> vi /etc/ssh/sshd_config  --> To enable authentication option and change the ssh port number
 
 # To open the files
 -> head (To see the first 10 lines)
