@@ -95,6 +95,8 @@ after understand the binary language it will return back the result to shell. sh
 -> rm -rf * --> To delete all the data
 -> su -   --> To login into the root user
 -> sudo su -  --> To login into the root user
+-> sudo su username  --> To enter into the particular user without asking password
+-> su username  --> To enter into the particular user
 -> vi /etc/ssh/sshd_config  --> To enable authentication option and change the ssh port number
 
 # To open the files
@@ -195,8 +197,8 @@ whatis ls --> To see that command properties
 # User Management
 -> We have three type of user in linux
 -> root user -> It default start from 0
--> System user -> It default start from 1 to 499
--> Normal user -> It start from 500 to 60000
+-> System user -> It default start from 1 to 999
+-> Normal user -> It start from 1000 to 60000
 
 # What are the properties in user
 1) username  2) password 3) UID 4) GID 5) comments  6) directory 7) shell
@@ -204,7 +206,7 @@ UID -> it having only one user (user ID)
 GI -> It having collection people (group ID)
 -> root and system user it will come defaultly like above format
 -> normal user
-1) manoj  2) password  3) 500-60000 4) 500-60000 5) somewriting 6) /home 7) bin/bash
+1) manoj  2) password  3) 1000-60000 4) 1000-60000 5) somewriting 6) /home 7) bin/bash
 
 -> sudo useradd username   --> To create username
 -> sudo passwd username    --> To create passwd to username
