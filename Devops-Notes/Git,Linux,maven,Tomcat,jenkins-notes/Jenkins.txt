@@ -52,6 +52,20 @@ sudo systemctl enable jenkins
 sudo systemctl start jenkins                        
 sudo systemctl status jenkins                
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# How to install jenkins in ubuntu 
+sudo apt update
+sudo apt install default-jdk
+java -version
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt update
+sudo apt install jenkins
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo systemctl status jenkins
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
      
 -> After complete the jenkins instalition You will copy your Public Ip and paste that ip in your web browser along with port number[jenkins default port number is 8080]
 -> Then It will ask the password you will paste initialAdminPassword there and install all plugins
