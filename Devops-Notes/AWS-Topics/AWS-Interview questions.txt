@@ -4,8 +4,8 @@
 -> It provide the on-demanding resources for hosting web services, storage, networking, database and other resources over the internet with pay as you go pricing.
 
 # What is meant by region, availablity zone, edge location
--> Region: An independent collection of AWS resources in a defined geography. All availablity zones in a region connected by high bandwidth.
--> Availablity zone: An availablity zone is a simply data centers. High speed connectivity. low latency
+-> Region: Regions in cloud computing refer to geographic locations where cloud providers have data centers. Each region contains multiple data centers.
+-> Availablity zone: Availability Zones are isolated locations within a region that have their own power, cooling, and networking. They are designed to provide high availability and fault tolerance
 -> Edeg location: Edge location is a important part of AWS infrastructure. Edge location are CDN endpoint of cloud front to deliver the content to end user with low latency.
 
 # How to access AWS platform
