@@ -579,6 +579,8 @@ Note: We will check 11 and 12 linkdin AWS pages before interview
 -> IAAS worker include AWS, Azure and GCP
    users: IT Administrators
 
+https://youtu.be/e99QsTsJPJs?si=BfFVIzHepvboc6-t
+
 # What are the advantages of cloud computing
 -> Pay per use
 -> Scalability
