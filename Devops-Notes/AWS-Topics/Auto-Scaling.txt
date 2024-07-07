@@ -61,5 +61,5 @@ Horizontal scaling Divied into three types
 
 Note: Auto scaling wont apply the target group instances 
 
-
+https://youtu.be/FZPTL_kNvXc?si=wnI8E-zMUt4NdkX0
 
