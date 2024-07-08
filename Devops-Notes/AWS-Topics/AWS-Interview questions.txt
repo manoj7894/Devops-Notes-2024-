@@ -404,7 +404,20 @@ Note: When we are attach the NAT gateway to the private subnet it will work only
 
 
 # What is Cloud watch 
--> Cloud watch is the monitoring tool. you can use to monitor the various AWS resources. Like health check, Network, applications etc..,
+-> AWS CloudWatch is a powerful monitoring and observability service provided by Amazon Web Services.
+-> Cloud is gate keeper for my AWS account which help to understanding and implementing the monitoring, Alerting, reporting, logging and metrics
+
+# What is Metrics
+-> Metrics means what is the cpu utilization consumption during 30min of Ec2
+                             memory
+-> How many API requests Ec2 instence get
+
+# What is Alarm
+-> Alarm means it will send the notification or alarm if CPU overcome the load
+
+# What is Logging 
+-> Logging provide the insights which services are accessing the another services
+  https://youtu.be/u4XngwbY-O0?si=Rsci0IkqJn_ATfxX
 
 # What are the types in cloudwatch
 -> There are two types in cloudwatch
