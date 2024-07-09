@@ -1,0 +1,31 @@
+# What is funcation
+-> A function in Python is a block of code that performs a specific task. Functions are defined using the def keyword
+# advantages of functions
+-> readability
+-> reuseability
+-> easy debugging
+
+# What is module
+-> A module is a Python script containing Python code.
+-> module is nothing but a group of functions
+-> moduel is used for reuseability
+-> module is used for collection of function
+
+# What is package
+-> packages is nothing but a group of moduels
+-> Packages help you organize related modules into a hierarchy.
+-> They contain a special file named __init__.py
+
+-> pypi is store place where the packages available
+-> If you want to install boot3, you will search pypi in web browser and search boot3 in search bar.
+-> pip install boto3
+
+# Python workspaces
+-> To work in different enviroment
+-> pip install virtualenv
+-> python -m venv myenv   -> To create the environment
+# Activate the virtual environment (on Windows)
+myenv\Scripts\activate
+
+# Activate the virtual environment (on macOS/Linux)
+source myenv/bin/activate

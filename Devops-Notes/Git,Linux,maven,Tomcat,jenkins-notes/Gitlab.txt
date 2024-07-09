@@ -21,6 +21,13 @@
   Build -> unit -> merge -> acceptence test -> Deploy to staging -> Deploy production
                                                                 automatically
 
+# What is the difference between continuous deployment and continuous delivery
+ Continuous deployment
+-> The deployment to the production environment is fully automated does not requir manual and human intervention
+
+Continous delivery
+-> In this process some amount of manual intervention with the manager approval is need for deployment to a production environment
+
 
 # Stages in CI/CD
 -> Source stage -> When any changes made in your source code and CI/CD pipeline trigger to build stage
@@ -55,7 +62,8 @@ It enables teams to collaborate on code, manage repositories, track issues, and 
 -> SSH is a network communication protocal that enables two computer communicate
 -> SSH is a secure way to access a computer
 -> SSH portnumber is 22
--> vi /etc/ssh/ssh_config   -> To change the ssh port number
+-> vi /etc/ssh/ssh_config   -> SSH configuration file
+-> vi /etc/sshd  -> To change the SSH port number
 -> systemctl start sshd.service
 -> ssh-copy-id username@privateIp   [to connect with other user]
 

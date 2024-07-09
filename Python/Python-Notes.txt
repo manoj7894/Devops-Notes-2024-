@@ -1,0 +1,67 @@
+# What is python
+-> Python is a scripting and interpreted programming language
+-> It was developed by guido van rossan and introduced at Feb 20 1991.
+-> He was born at Jan 31 1956.
+-> He is a Dutch programmer
+-> Pyth0on is dynamical typed
+-> Python uses .py extension
+-> Python name came from monty python flying circus from BBC show.
+
+Note:- If anyone wants to talk with anyone they need langauge. As well as if anyone wants to talk with system even they need programming langauge.
+
+# What is programming
+-> Programming is a way to instruct computer to perform various tasks.
+
+# What is shell scripting
+-> Shell is executable file it containg mulitple commands that are executed sequently.
+-> shell scripting will support only linux
+-> shell use .sh is extension of file
+-> ./filename to execute the shell scripting
+
+# What is the difference between python and shell 
+# Python
+-> Python will support both windows and linux
+-> To interact with API, Complex and data python is good than shell
+
+# Shell
+-> shell scripting will support only linux
+
+# Who will convert from High level(Human language) to low level (Machine language)
+-> Compiler
+-> Interpreted
+-> Assemble
+-> Translator
+
+# What is compiler
+-> It converts the high level language to machine code in one session (Whole code)
+Ex:- C, C++, Java etc
+
+# What is Interpreted
+-> It convert the high level language to machine code line by line
+Ex:- Python,Perl,Matlab etc
+
+# What is Assembler
+-> It converts assemble language to machine language.
+
+# What is Translator
+-> Anything that converts one level language to another level language is known as translator.
+
+# How to install python
+-> https://www.python.org/downloads/windows
+-> click on Download Windows installer (64-bit)
+-> After install go to windows search bar and search IDLE
+-> IDLE means Integrated development learning environment
+-> IDE means Integrated development environment
+  Ex:- Notepad ++, Visual sudio code
+-> You should install Notepad++, After install you will write code and save the file in python file type.
+-> After that go to CMD and go to path where the file is being and execute the file.
+-> print('Welcome to hyderabad')
+
+
+-> When you write the code in funcation what is advantages
+-> readability
+-> reuseablity
+-> easy debugging
+
+module is nothing but a group of functions
+

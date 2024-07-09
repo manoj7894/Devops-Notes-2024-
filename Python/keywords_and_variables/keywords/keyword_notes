@@ -1,0 +1,45 @@
+# What is keywords
+-> Keywords are reserved words in python
+-> We can't use them for variablesname and identifier
+-> Keywords are case sensitive
+-> To get the key words. You will use below commands
+    help()
+-> We have 35 keywords
+
+# Identifier
+-> Identifier is the name given to identify a variable, class, funtions etc..
+-> Fisrt letter of identifier should be letter or underscore
+-> It should not be digit and number
+-> Dont use special symbols: #,!,%
+Ex:- var = 10
+     _var = 12
+
+# What is indentation
+-> All statement with the same distance to the right will make block of code.
+  Note:- To indicate a block of code in python you must indent each line of the block by the same white space
+
+# Comment-Real-Life
+-> Improve the readability of the program
+-> Information that the developers provide to understand the code
+-> These comments are not part of your program. For this reason, comments statements are skipped while executing your program
+-> Debugging
+-> Comments of two types
+-> Single line comment "#" -> To use for single line
+-> Multi-line comments starts with """ or ''' and ends with """ or '''
+
+# What is statement
+-> Any executable instruction that tells computer to perform a specific action is called a statement.
+-> We have two types of statement
+-> Single-line-statement
+-> Multi-line-statement
+# Single-line-Statement
+-> Instruction written in the source code for execution are called single-line-statement
+
+# Multi-line-statement
+-> Statements can be extended to one more lines using brackets[], braces{}, parventhesis() etc
+
+# What is block 
+-> Group of statement is called block
+
+# Some important keywords
+1. def: It is used to define a function in Python.

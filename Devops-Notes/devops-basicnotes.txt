@@ -35,7 +35,7 @@
 -> Delivery
 -> Maintence
 
-# What are the advantages of devops
+# What are the advantages of devops  
 -> Speed
 -> Rapid Delivery
 -> Security
@@ -58,4 +58,11 @@
 -> It move forward and reverse direction
 -> Client involumet is ver high
 -> Using devops culture we can easily adept the agile methodology
+
+
+# What is Configuration Management
+-> Configuration management is basically a practice of systematic handling of the changes in such way that system does not lose its integrity over the period of time.
+
+
+
  

@@ -1,0 +1,24 @@
+# What is variable
+-> Variable are used to store the data
+-> When we use variable we can make our program more dynamically
+-> When you declare available, it occupies some space in the memory
+-> Variable can be changed at any time.
+
+# Why we use variable
+-> If we use variable concept we can easily understand the program
+-> If you want to use large value in your program again and again there may the change of type mistake. You may miss one or two digits and you may get wrong output
+instead of that if you use variable concept you will get right output and you can avoid the errors.
+
+# Points to keep in mind while declaring variables
+-> Variables names cannot start with numbers
+-> Variables names cannot have special characters
+-> Variables names cannot be same as keywords
+-> Variables names should be written in lower case, snake_case and canelcase
+-> Variable names should be descriptive and indicate their purpose.
+
+name = "manoj"       -> lower case
+Full_name = "manoj"  -> Snake_case
+fullName = "manoj"   -> canelcase
+
+# Note:- you will use upper case also its not good way to use upper case in python
+             Ex:- CHANNEL = "manoj"
