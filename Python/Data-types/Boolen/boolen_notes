@@ -1,0 +1,6 @@
+# Boolean
+# Booleans are used to assign or compare Boolean values
+subscribed = True
+print(type(subscribed))
+followed = False
+print(type(followed))

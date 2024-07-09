@@ -1,0 +1,126 @@
+# Sequence data type
+-> Python supports three primary Sequence data types:
+1) str Represents strings (sequences of characters). Example: text = "Hello, World"
+2) list Represents lists (ordered, mutable sequences). Example: my_list = [1, 2, 3]
+3) tuple Represents tuples (ordered, immutable sequences). Example: my_tuple = (1, 2, 3) 
+
+# What is string (str)
+-> In Python, a string is a sequence of characters, enclosed within single (' '), double (" "), or triple (''' ''' or """ """) quotes.
+-> It is immutable
+-> Strings support various built-in methods, 
+    such as len(), upper(), lower(), strip(), replace(), and more, for manipulation.
+
+# Difference between single quote, Double quote and triple quote
+-> No Difference between single and double quotes, we can use as the requirment
+-> Use triple quote for multi line strings
+
+# Accessing characters in a string
+-> Can access individual characters using indexing and range of characters using slicing
+
+# Indexing
+channelName = 'Suresh Tech'
+print(channelName[0])
+print(channelName[-1])
+
+# Slicing
+channelName = 'Suresh Tech'
+print(channelName[0:4])
+
+Note: Step by default value is 1
+channelName = 'Suresh Tech'
+print(channelName[0:4:2])
+print(channelName[:4])
+print(channelName[:])
+print(channelName[::2])
+print(channelName[::-1])  
+
+# Deleting/updating a string
+-> You can't update/delete a character from a string as they are immutable(elements cannot be changed once assigned)
+-> We can change the entire string
+-> We can delete the entire string
+  ex:- name = 'suresh'
+       Name[2]='w' -> not possible
+       name = 'harish'  -> possible
+       del name[0]  -> not possible
+       del name  -> possible
+
+# String operations
+-> concatenation
+   -> Joining of two or more strings into a single string is called concatenation
+   -> + operator is used to concatenate
+Ex:-
+channelName = "surech" + "Techs"
+print(channelName)
+     
+channelName = "surech" * 3
+print(channelName)
+
+# Membership operator in string
+channelName = "surech is awesome"
+print("awesome" in channelName)
+print("hello" not in channelName)
+
+
+# What is list
+-> Holds heterogenous data (differnet types of data)
+-> Frequently used data type
+-> Ordered collection of items
+-> Mutable
+-> Allow the duplicate values
+-> We can write list in square brackets
+
+Note: Can we keep one list inside another list = yes
+      Aslo knowns as nested lists or multidimensional lists
+
+
+# Change list items
+-> Because it is mutable so, we can change them
+-> =(what is this operator)
+-> we can use assignment operator to change an item from list
+Ex:-
+marks = [50,20,90,30]
+print(marks)
+marks[1]=40
+print(marks)
+
+# Concatenation and repeating to the list
+-> concatenation (+)
+-> Repeating (*)
+Ex:-
+marks = [50,20,90,30]
+friends = ["manoj","raja","ravi"]
+print(marks + friends)
+print(friends*2)
+
+# Add item/items to the list
+-> Single item - append()
+-> More than one item - extend()
+Ex:-
+friends = ["manoj","raja","ravi"]    
+print(friends)
+friends.append("sai")
+print(friends)
+friends.extend(["varma","vamsi"])
+print(friends)
+
+# How to add at specific position
+-> insert(position,value)
+-> insert multiple elements at specific position using slicing
+Ex:-
+friends = ["manoj","raja","ravi"]
+print(friends)
+friends.insert(1,"harish")
+print(friends)
+friends[1:1]=["a","b","c"]
+print(friends)
+
+
+# How to write the tuple
+-> Similar as list
+-> Use parenthesis () to group elements
+-> We need to put comma to make it as a tuple
+-> Note:- It is not mandatory to enclose in parenthesis, but it it a good practice to use
+-> Main Difference: We cannot change the elements of the tuple once it is assigned  because it is immutable
+Ex:-
+marks = (20,50,80)
+print(type(marks))

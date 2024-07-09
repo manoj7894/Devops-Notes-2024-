@@ -1,0 +1,24 @@
+# What is Numeric data type
+-> Python supports three primary numeric data types: 
+1) int for integers 
+2) float for floating-point numbers.
+3) Complex
+
+# What is integers (int)
+-> All the positive and negetive whole numbers without decimal points.
+-> represented as "int"
+    Ex : 10, 0, -100, -5000, 276
+-> Default value -> 0
+-> int() : is used check the default value of integer
+
+# What is float
+-> All the positive and negetive number with decimal point
+-> represented as "float"
+     Ex: 10.55, -500.0, -0.67, 0.0
+-> default value -> 0.0
+-> float() : used to check default value of float
+
+# What is Complex
+-> Represents complex numbers. Example: z = 2 + 3j
+-> Specified as (real part)+(imaginary part)
+   Ex:- 10+3j
