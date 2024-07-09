@@ -6,6 +6,7 @@
 -> Pyth0on is dynamical typed
 -> Python uses .py extension
 -> Python name came from monty python flying circus from BBC show.
+-> python is a dynamical programming langauge
 
 Note:- If anyone wants to talk with anyone they need langauge. As well as if anyone wants to talk with system even they need programming langauge.
 
@@ -58,10 +59,16 @@ Ex:- Python,Perl,Matlab etc
 -> print('Welcome to hyderabad')
 
 
--> When you write the code in funcation what is advantages
--> readability
--> reuseablity
--> easy debugging
+# What are the data types in python
+-> There are eight types of data types
+-> Mostly we used five types of data  types
+1) Numeric Data Types
+2) Sequence Types
+3) Boolean
+4) Set
+5) Mapping Type
 
-module is nothing but a group of functions
-
+# Few terms before we start
+-> Mutable -> mutable means we can modified/alterd
+-> Immutable  -> immutable means we cant modified/alterd
+-> Hazable -> Any immutable object is called hashable(its value does not change during lifetime)
