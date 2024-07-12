@@ -1,0 +1,14 @@
+# What is Dictionaries
+A dictionary in Python is a data structure that allows you to store and retrieve values using keys.
+-> It is mutable
+
+# What is the difference between Dictionary and list, string, typle
+name = "manoj"   -> It is string it store the one data
+frineds = ["manoj", "raja", "ravi"]     -> It is list give the multiple without any properties
+frineds = ("manoj", "raja", "ravi")     -> It is tuple give the multiple without any properties
+-> Suppose if you want to create any ec2 instance you cant create using above data types because they wont provide properties and key value pair as like below dictionary
+ec2_instance = {
+    "name": "Instance1",
+    "instance_type": "t2.micro",
+    "key_pair": "manoj"
+}

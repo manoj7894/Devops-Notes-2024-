@@ -1,18 +1,18 @@
-# a = 10
-# b = 25
-# def addition():
-#     print(a + b)
-# def sub():
-#     print(a - b)
-# def multiplication():
-#     print(a * b)
-# def division():
-#     print(a / b)
+a = 10
+b = 25
+def addition():
+    print(a + b)
+def sub():
+    print(a - b)
+def multiplication():
+    print(a * b)
+def division():
+    print(a / b)
     
-# addition()
-# sub()
-# multiplication()
-# division()
+addition()
+sub()
+multiplication()
+division()
 
 # Another way
 def addition(num1, num2):

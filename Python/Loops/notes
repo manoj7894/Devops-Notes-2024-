@@ -1,0 +1,24 @@
+# What is Loop in python
+-> Loops are a fundamental concept in programming, and they allow you to perform repetitive tasks efficiently. In Python, there are two primary types of loops: "for" and "while."
+
+# What is For loop
+-> The "for" loop is used to iterate over a sequence (such as a list, tuple, string, or range) and execute a set of statements for each item in the sequence. The loop continues until all items in the sequence have been processed.
+ex:-
+for variable in sequence:
+for is keyword
+variable = Give whatever name do you want
+in keyword
+sequence = list, tuple, range
+
+# While Loop
+-> The "while" loop continues to execute a block of code as long as a specified condition is true. It's often used when you don't know in advance how many times the loop should run.
+Ex:-
+while condition:
+
+
+# What is the difference For loop and While loop
+# For Loop
+-> When you know fixed number then you will use for loop
+
+# While loop
+-> When dont you know fixed number then you will use while loop

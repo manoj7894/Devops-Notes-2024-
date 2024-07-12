@@ -68,19 +68,48 @@ print(channelName[::2])        # doubt
 print(channelName[::-1])
 
 
-# Deleting/updating a string
-# update string
-name = 'suresh'
-name = 'harish'
-print(name)  # Output: harish
+# # Deleting/updating a string
+# # update string
+# name = 'suresh'
+# name = 'harish'
+# print(name)  # Output: harish
 
 name = 'harish'
 del name
 print(name)
 
-# modification
-name = 'suresh'
-# Change 'r' at index 2 to 'w'
-name = name[:2] + 'w' + name[3:]
-print(name)  # Output: suwesh
+# # modification
+# name = 'suresh'
+# # Change 'r' at index 2 to 'w'
+# name = name[:2] + 'w' + name[3:]
+# print(name)  # Output: suwesh
+# print(type(name))
+
+
+# Final overview about string
+name = "manoj"
+print(name)
 print(type(name))
+print("length of the name: ", len(name))  # length of the name
+uppercase = name.upper()                  # Uppercase
+print(uppercase)                          
+lowercase = name.lower()                  # lowercase
+print(lowercase)
+replace = name.replace("manoj", "varma")          # replace the name
+print(replace)
+candidate = "Manoj varma"
+print(candidate)
+split = candidate.split()                # it split the names
+print(split)
+remove = candidate.split("varma")
+print(remove)
+item = "  mango  "                 # It remove the spaces strip
+word = item.strip()
+print(word)                 
+person = "varun"                   # index accesing
+print(person[1])
+print(person[0:3])                  # Slice accessing
+del person                          # to delete
+
+
+

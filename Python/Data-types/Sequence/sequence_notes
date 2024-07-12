@@ -118,9 +118,22 @@ print(friends)
 # How to write the tuple
 -> Similar as list
 -> Use parenthesis () to group elements
+-> immutable
 -> We need to put comma to make it as a tuple
 -> Note:- It is not mandatory to enclose in parenthesis, but it it a good practice to use
 -> Main Difference: We cannot change the elements of the tuple once it is assigned  because it is immutable
 Ex:-
 marks = (20,50,80)
 print(type(marks))
+
+
+# What is the difference between list and tuple
+# List
+-> It mutable
+-> We will use square brackets
+-> Memory allocation is dynamic
+
+# Tuple
+-> It is immutable
+-> We will use parenthesis ()
+-> memory allocation is static

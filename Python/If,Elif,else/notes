@@ -1,0 +1,8 @@
+# if Statement
+-> The if statement is used to execute a block of code if a specified condition is True. If the condition is False, the code block is skipped.
+
+# elif Statement
+-> The elif statement allows you to check additional conditions if the previous if or elif conditions are False. You can have multiple elif statements after the initial if statement.
+
+# else Statement
+-> The else statement is used to specify a block of code to execute when none of the previous conditions (in the if and elif statements) are True.

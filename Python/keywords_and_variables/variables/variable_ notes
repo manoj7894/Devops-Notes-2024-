@@ -22,3 +22,6 @@ fullName = "manoj"   -> canelcase
 
 # Note:- you will use upper case also its not good way to use upper case in python
              Ex:- CHANNEL = "manoj"
+
+
+# we will use environment variables when you deal with sencitive information
