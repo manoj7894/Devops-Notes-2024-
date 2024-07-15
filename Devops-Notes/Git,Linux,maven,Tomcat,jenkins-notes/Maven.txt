@@ -42,7 +42,7 @@ maven is also provided dependency managnment.
 
 # To install maven
 sudo yum update
-sudo wget https://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+sudo wget https://dlcdn.apache.org/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.tar.gz
 sudo tar -xvf apache-maven-3.6.3-bin.tar.gz
 sudo mv apache-maven-3.6.3 /opt/
 cd /etc/profile.d/                                
