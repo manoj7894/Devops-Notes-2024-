@@ -16,6 +16,10 @@ Archetype [it means what kind of do you want to install]
  artifactID [It represents the project name]
  packing [It represents the jar and war file]
 
+# What is the difference between JAR and WAR files
+-> JAR files are used for packaging and distributing standalone java application and libraries
+-> WAR files are used for packaging and distributing webapplication
+
 When installed jar or war file using maven then pom.xml will create
 pom -> project object model
 pom is input file of maven
