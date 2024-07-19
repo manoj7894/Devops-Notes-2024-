@@ -69,6 +69,7 @@
 -> git pull  --> It pull the data from remote repository to local repository
 -> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
 -> git clean -f <file>   --> To remove the file from untracked stage
+-> git reviot  -> undoing changes to repository commit history.
 
 
 
