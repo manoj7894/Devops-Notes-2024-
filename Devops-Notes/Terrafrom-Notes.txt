@@ -209,8 +209,8 @@ sudo yum -y install terraform
 terraform --version
 
 # Terrafrom Commands
-terraform init
-terraform fmt
+terraform init  -> This first command will initialize your working directory and download the necessary provider plugins.
+terraform fmt      -> used to format your terraform configuration files into canonical format and style.
 terraform validate   ->Check the syntax of terraform code
 terraform plan   -> It compare the code with current state and desired state
 terraform apply

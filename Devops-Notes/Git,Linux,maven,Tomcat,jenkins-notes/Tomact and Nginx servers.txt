@@ -44,6 +44,8 @@ sudo vi tomcat-user.xml
 After instilation you will login your tomcat using your public Ip and port Number
 After login upload your war file manually and deploy
 
+-> /usr/share/tomcat-version/webapps  -> Tomcat root directory.
+
 
 # What is Nginx
  It is a web server that accept request via HTTP/s and respond to display website content through storing,
@@ -58,6 +60,8 @@ sudo service nginx status
 
 sudo vi /etc/nginx/nginx.conf  --> To see the nginx port number
 sudo vi /usr/share/nginx/html/index.html  --> To see index.html regarding nginx
+
+sudo vi /etc/httpd/conf/httpd.conf     -> To change the HTTPD port number.
 
 After instiling the nginx you will paste your public Ip along with portnumber 80 
 
