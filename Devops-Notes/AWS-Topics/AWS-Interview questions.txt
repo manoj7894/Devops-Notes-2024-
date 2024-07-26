@@ -536,6 +536,7 @@ and high data transfer speeds.
 # What is Route53
 -> Route53 is a scalable and highly available domain name system (DNS) service provided by AWS.
 -> Route53 will handle the DNS servers.
+  [HTTP -> Hyper text transfer protocal(80), HTTPS -> Hyper text transfer protocal secure(443), SSL -> Secure Sockets Layer, TLS -> Transport Layer Security]
 
 
 # What are the types of routing policies in route53
@@ -640,6 +641,7 @@ Note: We will check 20 and 21 linkdin AWS pages before interview
 -> SES does not allow to configure mail server
 
 Note: We will check 35,36 and 37 linkdin AWS pages before interview
+
 
 
 
