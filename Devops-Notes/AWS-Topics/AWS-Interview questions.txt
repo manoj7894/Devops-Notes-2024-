@@ -400,6 +400,14 @@ Note: When we are attach the NAT gateway to the private subnet it will work only
 -> NAT stands for Network address translation instance is an amazon linux machine image that is design to accept the traffic from instance within a private subnet.
 
 
+# What is VPN
+-> VPN Stands for Virtual private Network
+-> It create the secure connection over the internet to protect the data exchanges between user and the network.
+  # Example:- To connect the private network server by VPN from different region or account. 
+
+-> https://youtu.be/OLi1mdBW_9Y?si=o0ID8GWowlVWxszn
+-> https://youtu.be/lN7jFHRdwzA?si=-7RYIr3fBvZcjFbG
+
 
 
 
