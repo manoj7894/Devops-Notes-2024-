@@ -81,3 +81,6 @@ DynamoDB supports two different kinds of primary keys:
   https://youtu.be/g3b_sY-z6AY?si=IG4qhglRKRFAUfEw
 
 
+https://youtu.be/3ay92ZdCgwQ?si=EtMRZz09AXAcCKX1
+
+
