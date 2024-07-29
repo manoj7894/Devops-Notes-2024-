@@ -1,0 +1,39 @@
+# What is App Runner
+-> AWS App Runner is a fully managed, fast, simple and cost-effective service that enables you to deploy source code or container images
+    directly to a scalable,load-balanced,monitored and secured web application
+-> Scalability
+   Scale up or down easily
+   configure number of provisioned instnaces
+   configure the max load an instance handles
+-> Security 
+   Include fully managed TLS with no setup required
+   Amazon Cloudwatch integration
+-> Simplifies the process of deploying a new version of your code(github) or images(Amazon elasic container registry)
+-> Automate deployment each time a commit is pushed to the code repository or a new container image version is pushed to the image repository
+-> App Runner is accessible via CLI,API,Console and SDK
+
+# What are the Benefits 
+-> Its Easy
+-> Scalability
+-> Cost Effective
+
+# Features of APP runner
+-> Autoscaling
+-> Deployment
+-> Observability  [observability means to cover logs and metrics]
+-> Others
+
+# Three types of logs
+-> Deployment log   [Build out logs]
+-> Application logs [Logs emitted by your web application]
+-> Event logs [log of lifecycle operation executed by app runner during service creating and deployment]
+
+
+
+# You will follow below three links to work on App runner
+-> https://youtu.be/zbJnuArKAuY?si=LyThGFCpz1meDMWD
+-> https://youtu.be/TKirecwhJ2c?si=8PT9BE7-yV3e045V
+-> https://youtu.be/Muq3m0tzbQI?si=cE6LKCMB0SLUjGSt
+
+ 
+
