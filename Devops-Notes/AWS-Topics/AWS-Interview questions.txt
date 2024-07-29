@@ -400,6 +400,14 @@ Note: When we are attach the NAT gateway to the private subnet it will work only
 -> NAT stands for Network address translation instance is an amazon linux machine image that is design to accept the traffic from instance within a private subnet.
 
 
+# What is VPN
+-> VPN Stands for Virtual private Network
+-> It create the secure connection over the internet to protect the data exchanges between user and the network.
+  # Example:- To connect the private network server by VPN from different region or account. 
+
+-> https://youtu.be/OLi1mdBW_9Y?si=o0ID8GWowlVWxszn
+-> https://youtu.be/lN7jFHRdwzA?si=-7RYIr3fBvZcjFbG
+
 
 
 
@@ -536,6 +544,7 @@ and high data transfer speeds.
 # What is Route53
 -> Route53 is a scalable and highly available domain name system (DNS) service provided by AWS.
 -> Route53 will handle the DNS servers.
+  [HTTP -> Hyper text transfer protocal(80), HTTPS -> Hyper text transfer protocal secure(443), SSL -> Secure Sockets Layer, TLS -> Transport Layer Security]
 
 
 # What are the types of routing policies in route53
@@ -640,6 +649,7 @@ Note: We will check 20 and 21 linkdin AWS pages before interview
 -> SES does not allow to configure mail server
 
 Note: We will check 35,36 and 37 linkdin AWS pages before interview
+
 
 
 

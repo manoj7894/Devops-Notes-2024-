@@ -27,7 +27,6 @@
 
 
 
-
 # How to create certificate manager
 -> If you want to host your application with https protocal then you have attached the SSL and TLS certificate
 
@@ -60,6 +59,10 @@
 
 # If you want to get more details about how to assgin SSL/TLS certificates to route53 and load balancer you will checkout the below link
 https://youtu.be/_bEPuvrjB5Y?si=4qnMojKDAiJ-3OjI
+
+
+# How to create free the SSL and TLS cerficates
+-> https://youtu.be/YVbwVet8aI4?si=u1cOMRdqQ68aWe56
 
 
 

@@ -89,7 +89,7 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 -> Do you want to configure Apache-tomact server in jenkins. You have follow the below steps
    -> You have to install Below tomact commands in jenkins terminal
    -> cd /opt
-   -> sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+   -> sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.91/bin/apache-tomcat-9.0.91.tar.gz
    -> sudo tar -xvf apache-tomcat-9.0.82.tar.gz
    -> cd apache-tomcat-9.0.80
    -> sudo vi webapps/manager/META_INFA/contex.xml      

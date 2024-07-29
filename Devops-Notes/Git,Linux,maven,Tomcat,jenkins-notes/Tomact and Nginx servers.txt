@@ -26,7 +26,7 @@ ls -al /usr/bin/java
 ls -al /etc/alternatives/java  --> To see the java path
 
 you will get link by apache tomcat
-sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.91/bin/apache-tomcat-9.0.91.tar.gz
 sudo tar -xvf apache-tomcat-9.0.82.tar.gz
 cd apache-tomcat-9.0.80
 cd /bin
