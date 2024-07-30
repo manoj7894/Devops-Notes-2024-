@@ -1,5 +1,6 @@
 # What is lambda
 -> It is a serverless computing service. serverless means AWS will take care the total infrastructure
+-> We can use event based trigger
 
 # What is the difference between EC2 and Lambda
 # Ec2
@@ -14,12 +15,23 @@
 -> Lambda will install the all softwares
 -> Only piece of code
 
+# Advantages of Lambda
+-> No maintaince
+-> Pay as you use
+-> High availablity
+-> Scaliablity
+-> Monitoring the logs
+
 Note: [Benifits of lambda]
 -> Lambda maximum time limit = 15min [If you want you will increase]
 -> memory = 128MB to 10240MB
 -> Monthly 1 million requets free
 -> Monthly 400000GB we can use freely [If you want morethan this you have to pay]
 -> You can add only upto 50 MB data in lambda
+
+Note:- 15min executable time code we can execute in lambda. Morethan 15min time code we wont execute in lambda then we have to use virtual machines or containers.
+       We can edit only python and Nodeja applications in lambda. we wont edit other application like java, react ..etc
+       
 
 # Lambda Pricing
 -> You pay only for what you use. you are charged based on number of requests for your function and duration.
@@ -86,5 +98,9 @@ Note: [Benifits of lambda]
 -> After complete the above process. you will go to lambda and changes that code as you need
 -> You will follow below youtube link to get the full information
   https://youtu.be/JO5B4tPutzI?si=gEZ0onfLij1qZhqU  
+
+
+
+https://youtu.be/sBkoT6_xK1Q?si=KzwQ_uwJu3-R4EpR
 
 
