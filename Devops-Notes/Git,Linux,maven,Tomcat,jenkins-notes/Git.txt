@@ -70,6 +70,17 @@
 -> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
 -> git clean -f <file>   --> To remove the file from untracked stage
 -> git reviot  -> undoing changes to repository commit history.
+-> git restore -> Remove the files from the staging area
+
+# What are the files and folders would be in .git folder
+-> HEAD(file) -->  This file points to the current branch reference, which indicates the branch that is currently checked out.
+-> config(file) --> This file contains repository-specific configuration settings, such as user information, remote repository details, and other Git settings.
+-> description(file) --> This file is used by Gitweb and other web interfaces to provide a brief description of the repository. It’s mostly used for informational purposes.
+-> hooks(dir) --> This directory contains sample scripts for Git hooks.
+-> info(dir) --> This directory contains the exclude file, which can be used to specify files and directories that should be ignored by Git, in addition to the patterns specified in .gitignore.
+-> objects(dir) --> This directory stores all the content of your repository, including commits, trees (directories), and blobs (file contents). Each object is stored as a file with a name based on its hash.
+-> refs(dir) --> This directory contains references to commit objects, including branches and tags.
+
 
 
 
