@@ -1,5 +1,5 @@
 # What is the Version Control
--> Version control system (VCS) is a software that helps you manage changes to your code over time. 
+-> Version control system (VCS) is a software that helps you manage changes to our entire code over time. 
 -> It allows multiple people to collaborate on a project, track changes, and easily revert back to previous versions if needed. 
 -> One popular VCS is Git.
 
