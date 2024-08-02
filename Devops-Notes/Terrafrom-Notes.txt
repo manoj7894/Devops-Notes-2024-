@@ -235,6 +235,18 @@ terraform destroy
 -> Later on open the cmd and check the wheather terraform install or not
 terraform -version
 
+
+# Install AWS CLI on Amazon linux
+-> Install AWS CLI in your instance
+-> How to install AWSCLI
+sudo yum update -y
+sudo yum install python3-pip -y
+sudo pip3 install awscli
+aws --version
+-> Create Secret key In IAM
+aws configure
+aws sts get-caller-identity
+
 # How to install AWS cli in windows
 -> https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 -> https://awscli.amazonaws.com/AWSCLIV2.msi
@@ -247,6 +259,9 @@ aws --version
 -> unzip awscliv2.zip
 -> sudo ./aws/install
 -> aws --version
+-> Create Secret key In IAM
+aws configure
+aws sts get-caller-identity
 
 
 
