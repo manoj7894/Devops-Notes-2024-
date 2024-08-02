@@ -24,3 +24,5 @@ Integration: Jenkins can integrate with a wide range of tools and services, but 
 -> Jenkins: Automation server with extensive plugin support for building, testing, and deploying software.
 -> GitHub Actions: Native CI/CD and automation tool tightly integrated with GitHub repositories.
 
+
+https://youtu.be/zNCUFE28Soo?si=k0nD4RkXL-FXZ9uH
