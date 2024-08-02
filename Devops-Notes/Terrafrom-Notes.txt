@@ -240,4 +240,13 @@ terraform -version
 -> https://awscli.amazonaws.com/AWSCLIV2.msi
 aws --version
 
+# How to install AWS-CLI on ubuntu
+-> sudo apt-get update
+-> sudo apt-get install -y curl unzip
+-> curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+-> unzip awscliv2.zip
+-> sudo ./aws/install
+-> aws --version
+
+
 
