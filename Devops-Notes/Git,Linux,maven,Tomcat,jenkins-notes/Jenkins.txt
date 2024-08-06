@@ -577,3 +577,24 @@ ssh 'jenkins@172.31.1.150'
 	1) Invoke top-level maven target
 -> Post-buils Actions
 	1) Deploy war/ear to a container
+
+
+# How to get custom plugin from jenkins
+In Jenkins, if you need to use or manage custom plugins that are not available in the official Jenkins plugin repository, you can handle this in a few ways. Here's a guide on how to get and use custom plugins from outside the standard Jenkins plugin ecosystem:
+
+1. Install a Plugin Manually
+Step-by-Step:
+
+Obtain the Plugin:
+
+Download the .hpi or .jpi file for the custom plugin from the source where it's available. This might be a direct download link from a website, a GitHub repository, or another distribution method.
+Upload the Plugin:
+
+Go to your Jenkins instance.
+Navigate to Manage Jenkins > Manage Plugins.
+Click on the Advanced tab.
+Under Upload Plugin, click Choose File and select the .hpi or .jpi file you downloaded.
+Click Upload.
+Restart Jenkins:
+
+After uploading the plugin, Jenkins typically requires a restart to activate the plugin. You can restart Jenkins from the Manage Jenkins page by selecting Reload Configuration from Disk, or you may need to restart the Jenkins service depending on your setup.
