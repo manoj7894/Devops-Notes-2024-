@@ -199,4 +199,27 @@ Boundary permission means you can allow the set of resources to the user
 -> You can access only s3 because you have mention s3 policy in Permissions boundary so that you can access only that policy.
 
 
+What Does "Assume Role" Mean?
+When you "assume a role," you are temporarily adopting the permissions associated with that role. This process involves:
+
+Role Definition: The role is created with a specific set of permissions defined in its policies. For example, a role might have permissions to access certain AWS resources like S3 buckets or DynamoDB tables.
+
+Assume Role Request: The entity requests to assume the role. This involves specifying the role to be assumed and providing any necessary credentials or context. In AWS, this is typically done using the sts:AssumeRole API call.
+
+Temporary Credentials: Upon successfully assuming the role, the entity receives temporary security credentials (an access key ID, secret access key, and session token) that are valid for a limited time. These credentials allow the entity to perform actions according to the permissions granted by the role.
+
+# What assume policy
+Assume Role: This allows an entity to temporarily take on a set of permissions defined by a role.
+
+Trust Policy: In the context of IAM roles, this is a specific type of policy that defines who is allowed to assume the role.
+
+Let's break down these concepts:
+
+Trust Policy
+A trust policy is a JSON document attached to an IAM role that specifies which entities (users, services, or accounts) are allowed to assume that role. It essentially governs who can use the sts:AssumeRole action to gain the permissions defined in the role.
+
+
+Role Policy
+In addition to the trust policy, an IAM role also has a role policy (or permissions policy) that defines what actions are allowed on which resources when the role is assumed. This policy is attached directly to the role and specifies the permissions granted.
+
 
