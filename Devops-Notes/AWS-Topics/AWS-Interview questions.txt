@@ -52,7 +52,7 @@
 -> On-Demand - whenever we can we can use   
 -> Reserved  - you will have to get the contract of 1 years or 3 years
 -> Spot - if u want instance fr 1 hour u cn take nd use if load increase it will terminate
--> Scheduled - It will schedule the instance when 
+-> Scheduled - It will schedule the instances
 -> Dedicated - here cpu storage all dedicated to one instance only
 
 # What are the types of volumes for ec2 instance
