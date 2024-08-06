@@ -555,6 +555,16 @@ and high data transfer speeds.
 -> Weighted routing
 -> Mulitvalue routing
 
+# What is DNS record
+A DNS (Domain Name System) record is a database entry that provides information about a domain name and how it should be handled on the internet. These records help translate domain names into IP addresses and configure various aspects of domain behavior. Common types of DNS records include:
+
+A Record (Address Record): Maps a domain name to an IPv4 address.
+AAAA Record: Maps a domain name to an IPv6 address.
+CNAME Record (Canonical Name Record): Alias for another domain name.
+MX Record (Mail Exchange Record): Specifies mail servers for handling email for the domain.
+TXT Record: Holds text information, often used for verification or security purposes.
+NS Record (Name Server Record): Specifies the DNS servers responsible for managing the domain.
+
 # What is the maximum size of message in SQS
 -> 256 KB.
 
