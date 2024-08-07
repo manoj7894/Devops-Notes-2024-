@@ -135,6 +135,9 @@ We can create pull request in two types
 1) Pull request to repository
 2) Pull request to branch within repository
 
+# If you want to change the default branch name
+-> Go to settings, click repository, chnage the branch name
+
 # What is GubHub Project
 If you want to assign any repositories project to particular person and daily get the status of the repository then you will use Project
 
