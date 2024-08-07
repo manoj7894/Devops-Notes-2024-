@@ -2,6 +2,9 @@
 -> Linux is open source operating system it is reliable and secure than other. It is developed by linus torvalds.
 -> It was launched at sep 17 1991.
 
+# What is operating system 
+-> It is established communication between software and hardware.
+
 # What is the difference between Linux and windows
 # Linux
 -> you will installed linux with free license
