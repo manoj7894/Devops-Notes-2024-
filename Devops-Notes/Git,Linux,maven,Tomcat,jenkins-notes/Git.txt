@@ -116,7 +116,7 @@ git pull <repo Url> branch name
 
 # What is git branch strategy
 we have 5 branches
-master  --> It is a Production means live env and it having existing code
+master  --> It is a Production means live env and it having existing code  [Upto date]
 feature  --> If we want to update any existing app then we will create the feature branch after complete the code update we will merge the code into master branch
 release  --> Ready to delivered to the customres
 Hot fix  --> If customer raise the any problem then we will create hotfix branch and we will reslove that problem. we will merge the code into master branch after reslove the problem
