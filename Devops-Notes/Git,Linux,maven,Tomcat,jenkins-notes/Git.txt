@@ -4,8 +4,8 @@
 -> One popular VCS is Git.
 
 # We have two version control system
--> Centralized Version Control System
--> Distributed Version Control System
+-> Centralized Version Control System [CVS, SVN]
+-> Distributed Version Control System [Git]
 
 # Centralized Version Control System
 -> Database maintained at one site
@@ -16,6 +16,9 @@
 -> Database maintained at number of different sites
 -> If one system fails system continues work with other 
 -> More reliable
+
+# What is fork in github
+-> On GitHub, "fork" refers to creating a personal copy of someone else's repository. This allows you to freely experiment with changes without affecting the original project
 
 # What is git
 -> Git standards for Global Information Tracker
