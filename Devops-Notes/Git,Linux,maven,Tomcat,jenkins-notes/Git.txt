@@ -35,7 +35,7 @@
 -> Repository having the source code data
 
 # Git Commands
--> git init .   --> To create the local repo
+-> git init .   --> It install the empty repository
 -> git status  --> To check the current repository status, including change, untracked and statged files.
 -> git config --global user.name <write some name> --> Config the git settings such as username and email
 -> git config --global user.email <write mail id> 
