@@ -95,6 +95,8 @@ https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
 
 # When you get below error while doing git push 
 you will use below to command to seems like this master -> master
+-> git push -f origin master  --> If it is not work you will execute below steps
+-> git clone <URL>  -> later you will execute above git push steps even the it is not work you will execute below steps
 -> git fetch origin master:tmp
 -> git rebase tmp
 -> git push --set-upstream origin master
