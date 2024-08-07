@@ -77,6 +77,7 @@
 -> git restore -> Remove the files from the staging area
 
 # What are the files and folders would be in .git folder
+.git will track our entire repository
 -> HEAD(file) -->  This file points to the current branch reference, which indicates the branch that is currently checked out.
 -> config(file) --> This file contains repository-specific configuration settings, such as user information, remote repository details, and other Git settings.
 -> description(file) --> This file is used by Gitweb and other web interfaces to provide a brief description of the repository. It’s mostly used for informational purposes.
