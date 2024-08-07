@@ -38,7 +38,7 @@ When anyuser enter the command using keyboard it will interact with shell. shell
 or not if it is valid it will interact with kernal. kernal will translate into binary language then hard will understand the binary language
 after understand the binary language it will return back the result to shell. shell will display the result.
 
--> Shell:- Shell is interputed command, interface between user and kernal
+-> Shell:- Shell is interputed command, interface between user and kernal, Shell is the way to interact with operating system.
 -> kernal:- It translate into binary language, interface between shell and hardware
 -> Hardware: it will understand the binary language
 
