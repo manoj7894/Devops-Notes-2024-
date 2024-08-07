@@ -75,6 +75,9 @@
 -> git clean -f <file>   --> To remove the file from untracked stage
 -> git reviot  -> undoing changes to repository commit history.
 -> git restore -> Remove the files from the staging area
+-> IF you want to go to the previous version or to see the previous data in file
+   git reset --hard "give commit id"
+https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
 
 # What are the files and folders would be in .git folder
 .git will track our entire repository
