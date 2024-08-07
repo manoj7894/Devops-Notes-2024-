@@ -28,6 +28,7 @@
 -> Git hub is the remote repository hosting service and collaboration platform
 -> It provide the free and paid services
 -> Git having the repository
+-> Addressing issues and reviewing PR's and commits.
 
 # what is repository
 -> Repository having the source code data
