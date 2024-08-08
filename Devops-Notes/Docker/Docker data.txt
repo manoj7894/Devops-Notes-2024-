@@ -55,6 +55,22 @@ If it is not work once you will exit from instance and again you will login
 4) Docker Registry
 5) Doker engine or Docker demon
 
+
+# Files and Folders in containers base images
+    /bin: contains binary executable files, such as the ls, cp, and ps commands.
+
+    /sbin: contains system binary executable files, such as the init and shutdown commands.
+
+    /etc: contains configuration files for various system services.
+
+    /lib: contains library files that are used by the binary executables.
+
+    /usr: contains user-related files and utilities, such as applications, libraries, and documentation.
+
+    /var: contains variable data, such as log files, spool files, and temporary files.
+
+    /root: is the home directory of the root user.
+
 # what docker file
 Docker file contains instruction to create an images
 Dockerfile is a file where you provide the steps to build your Docker Image.
