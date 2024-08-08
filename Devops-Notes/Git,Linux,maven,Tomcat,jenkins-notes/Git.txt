@@ -54,11 +54,11 @@
 -> git branch <branch name>  --> To create the branch name
 -> git checkout -b <branch name>  --> It create the new branch and checkout that branch
 -> git checkout <branch name>   --> To shift from one branch to another branch
--> git merge <branch name>      --> [It merge the changes from one branch to another branch][It maintain the commit history]
+-> git merge <branch name>      --> [It merge the changes from one branch to another branch][It wont maintain the liner commit history]
     Merges are two types
       1) fast forward merge  --> we will merge without commit
       2) recursive       --> we will merge after commit
--> git rebase <branch name>    --> [It merge the changes from one branch to another branch][It does not mainatain the commit history]
+-> git rebase <branch name>    --> [It merge the changes from one branch to another branch][It maintain the liner commit history]
 -> git stash   --> [it save the changes from local repo to tempory location to make working directory clean]
 -> git stash list  --> To see stash list
 -> git stash apply --> It will take lastet file from git stash. that file wont delete in git stash when we do git stash apply
@@ -93,6 +93,17 @@ https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
 # What is the difference between FORk and CLONE
 -> FROK will create the copy of repository on remote server
 -> CLONE will download the remote repository in local
+
+# To merge the data from one branch to another branch we have three ways to merge the data.
+-> merge
+-> rebase
+-> cherry-pick [Cheery-pick easy to merge one or two commits if we want to merge more commit its to difficult to merge all commit manually so that we will use merge and rebase]
+
+# How to use cherry-pick
+-> if you want to merge the data from feature branch to master branch
+-> give git log command and give copy the lastest commit id in feature branch and checkout the master branch and you use below command
+-> git cherry-pick <commit-id>
+-> git log
 
 
 
