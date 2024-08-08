@@ -141,6 +141,9 @@ We can create pull request in two types
 # What is GubHub Project
 If you want to assign any repositories project to particular person and daily get the status of the repository then you will use Project
 
+# How to clone the repository using SSH
+-> 
+
 
 
 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
