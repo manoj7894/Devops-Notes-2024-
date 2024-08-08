@@ -95,7 +95,7 @@ https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
 -> CLONE will download the remote repository in local
 
 # To merge the data from one branch to another branch we have three ways to merge the data.
--> merge
+-> merge [you would be keep in destination place and use the git merge command] 
 -> rebase
 -> cherry-pick [Cheery-pick easy to merge one or two commits if we want to merge more commit its to difficult to merge all commit manually so that we will use merge and rebase]
 
@@ -124,6 +124,7 @@ First you have to checkout from whichever branch do you want to push the data to
 
 # It you want to merger files from one branch to another branch
 you would be keep in destination place and use the git merge command. when you do the merge in terminal it wont apply in git hub
+git log
 if you want to check the files ls -l
 
 # It you want to use the pull command
