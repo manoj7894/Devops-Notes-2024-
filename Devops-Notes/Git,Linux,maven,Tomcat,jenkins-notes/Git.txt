@@ -142,7 +142,10 @@ We can create pull request in two types
 If you want to assign any repositories project to particular person and daily get the status of the repository then you will use Project
 
 # How to clone the repository using SSH
--> 
+-> create the SSh in your terminal
+-> ssh-keygen
+-> cd .ssh/
+-> Copy the pubilc key and go the github and go to setting and click SSh and GPG keys and click new SSh key and give some title name and paste the public ssh-key in key
 
 
 
