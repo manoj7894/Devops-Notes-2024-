@@ -10,7 +10,7 @@ Docker will abstruct and package developer written code. After that it will crea
 
 # What is Container
 -> container is a way to package application with all the necessary dependencies and configuration
--> Containers having lite weight operating system
+-> Containers having lite weight operating system [Why it is lite weight operating system it doesn't have full operating system. it has base operating system. it get the resources from base OS]
 we can run containers in multiple machines easily
 container will take every thing which is we required
 
