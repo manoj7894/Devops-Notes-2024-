@@ -186,6 +186,10 @@ docker run -it --name=containername --mount source=volumename,destination=/data 
 docker volume rm volumename  --> To delete the volumes
 docker volume prune -->  It will delete all unused volumes
 
+# what is the difference between bind mount and volume in docker
+-> Bind Mount [A bind mount is another type of mount, which lets you share a directory from the host's filesystem into the container. When working on an application, you can use a bind mount to mount source code into the container]
+-> Volume [A volume mount is a great choice when you need somewhere persistent to store your application data]
+
 we will transfer volumes in two ways
 1) Container to Container
 2) Host to Container
