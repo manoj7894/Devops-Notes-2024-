@@ -4,6 +4,7 @@ Docker is a platform that allow the application you to package and distribute so
 Docker is used to manage the container based application
 Deployment into multiple environment easy if we use docker
 It is a containerisation software
+Docker is a containerization platform that provides easy way to containerize your applications, which means, using Docker you can build container images, run the images to create containers and also push these containers to container regestries such as DockerHub, Quay.io and so on.
 
 # How docker will work 
 Docker will abstruct and package developer written code. After that it will create on image. later we will run our machines using that images 
