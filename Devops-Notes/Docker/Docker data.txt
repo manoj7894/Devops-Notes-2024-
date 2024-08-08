@@ -57,6 +57,7 @@ If it is not work once you will exit from instance and again you will login
 
 # what docker file
 Docker file contains instruction to create an images
+Dockerfile is a file where you provide the steps to build your Docker Image.
 It contains Domain specific language keywords to build the image
 
 # How to create Docker file [Default file name is Dockerfile]
@@ -120,6 +121,7 @@ docker rm -f $(docker ps -aq) --> To remove all container at a time
 Docker registry is a place where we can store our docker images
 
 # what is Docker engine or Docker daemon
+The Docker daemon (dockerd) listens for Docker API requests and manages Docker objects such as images, containers, networks, and volumes. A daemon can also communicate with other daemons to manage Docker services.
 Docker engine is a software using which we will create docker image and docker container
 
 # What is Docker volume
