@@ -14,9 +14,16 @@ Docker will abstruct and package developer written code. After that it will crea
 we can run containers in multiple machines easily
 container will take every thing which is we required
 
+
 # What is Virtualization
 It is a old technique to run the application
 we need to install hydervisior software to use
+
+# What is hypervisior
+-> Hypervisior is a software that install the virtual machine in azure like ec2 in aws in servers
+-> We have two types of hypervisior
+  -> Virtual machine
+  -> Xen
 
 # What are the difference between Docker and  virtualization
    Docker                  virtualization           
