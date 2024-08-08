@@ -70,7 +70,7 @@
 -> git reset   --> To take the stagged file to untracked stage
 -> git reset --soft HEAD~1   --> To take the commit files to untracked stage
 -> git diff           --> View the difference between changes made to file
--> git clone  --> Create copy of remote repository on your local machine
+-> git clone  --> Download the remote repository on your local machine
 -> git pull  --> It pull the data from remote repository to local repository
 -> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
 -> git clean -f <file>   --> To remove the file from untracked stage
@@ -89,6 +89,10 @@ https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
 -> info(dir) --> This directory contains the exclude file, which can be used to specify files and directories that should be ignored by Git, in addition to the patterns specified in .gitignore.
 -> objects(dir) --> This directory stores all the content of your repository, including commits, trees (directories), and blobs (file contents). Each object is stored as a file with a name based on its hash.
 -> refs(dir) --> This directory contains references to commit objects, including branches and tags.
+
+# What is the difference between FORk and CLONE
+-> FROK will create the copy of repository on remote server
+-> CLONE will download the remote repository in local
 
 
 
