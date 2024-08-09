@@ -1,0 +1,28 @@
+# What is Docker?
+
+# How containers are different from virtual machines
+-> Containers are light weight operating system.
+-> Containers it doesn't have full operating system. it has base operating system.
+-> Containers having shared libries
+-> Virtual machine having full operating system. it having system libries
+
+# What is Docker lifecycle
+-> First we should create the dockerfile set of instructions that defines docker file
+-> thenafter we have to create the docker images with the help of docker build command [docker build -t imagename .]
+-> Later we should create the docker container using that image with the help docker container command [docker run -d containername -p hostip:conatinerip imagename]
+
+# What are the different docker components
+Client
+-> docker build 
+-> docker pull
+-> docker run
+
+Host
+-> images
+-> containers
+-> daemon
+
+Registry
+-> Docker hub
+
+# What is the difference between docker ADD and docker COPY
