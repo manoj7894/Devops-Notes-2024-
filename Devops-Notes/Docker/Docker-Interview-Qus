@@ -26,3 +26,36 @@ Registry
 -> Docker hub
 
 # What is the difference between docker ADD and docker COPY
+-> Docker ADD [Copy the files from URL]
+-> Docker COPY [Copy the files from host system into containers]
+
+# What is the difference between CMD and EntryPoint
+-> When we are using CMD we can override the arguments
+-> When we are using Entrypoint we can't override the arguments
+
+# What are the networking types in docker what is default network
+-> Default network is bridge network
+-> Types of networks are
+   Bridge
+   Host
+   None
+   overlay
+   Macvaln
+
+# Can you explain how to isolated network between containers
+-> When you create the container with custom network then you will go into isolated state
+
+# What is the multi stage build in docker
+-> Multi stage build allow you to build your docker container in multiple stages allowing you to copy the artifacts from one to another stage.
+-> Multi stages build are used to reduced the size of image [800%]
+
+# What are distro less images in docker
+-> Distroless images contain only your application and it's runtime dependencies with very minimum operating system libraries
+-> They are very small and light weight images
+
+# Real time challenges with docker
+-> Docker is single daemon process. which can cause the single point of failure. if the docker daemon goes down for some reason all the application are down.
+
+# What stpes would you take to secure your container
+-> Ensure that the networking configured properly. This is the one of the most comman reasons for security issues. If required configure custom network and assign them to isolated containers.
+
