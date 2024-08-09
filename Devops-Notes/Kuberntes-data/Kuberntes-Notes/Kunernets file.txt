@@ -41,6 +41,11 @@
 	-> Manual setup of load balancer
 	-> expernice with production deployment 
 
+# What is the difference between Docker and Kubernetes
+  # Docker
+   -> Single host
+   -> When we are using docker we won't get below features so that you will use kubernets
+
 # What are the features of K8S
 -> Auto Scheduling
 -> Self healing capacity  [Replication controller]
