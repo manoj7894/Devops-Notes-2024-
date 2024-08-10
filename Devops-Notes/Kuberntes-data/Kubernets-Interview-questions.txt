@@ -33,6 +33,7 @@
 -> Need third party tool to monitor like ELK
 -> Auto setup of load balancer
 -> No expernice with production deployment 
+-> Docker swarm is better suited for small organisation
 
 # Kubernetes
 -> Difficult to start the cluster
@@ -40,6 +41,7 @@
 -> Intergrated tool
 -> Manual setup of load balancer
 -> expernice with production deployment 
+-> Kubernetes is better suited for large organisation
 
 # What are the features of K8S
 -> Auto Scheduling
@@ -394,6 +396,35 @@ Deployment
 -> Keep kubernets version up and Date
 -> Lock Down Kubelet
 -> Secure kubernetes with Aqua
+
+
+# Scenario based questions
+# What is the difference between docker and kubernetes?
+
+# What are the main components of kubernetes architecture?
+
+# What is the difference between Docker swaram and kubernetes?
+
+# What is the difference between Docker container and kubernetes pod?
+-> pod in kubernetes is a runtime specification of a container in docker
+-> Pod provide more declarative way of defing using YAML and you can more than one container in POD.
+
+# What is Namaspece in Kubernets
+-> In kubernetes namespace is logical isolation of resource, Netwrok, policies, rbac and everything.
+-> For example there are two projects using same k8s cluster. one project can use ns1 and another project can use ns2 without ant overlap and authentication problems.
+
+# What is the role of Kube-proxy
+
+# What are the different types of services within kubernetes
+
+# What is the difference between NodePort and Loadbalancer
+NodePort exposes applications to external clients via specific ports on worker nodes, and LoadBalancer provides publicly accessible IP addresses for external traffic distribution
+
+# What is the role of kubelet
+
+
+
+
 
 
   
