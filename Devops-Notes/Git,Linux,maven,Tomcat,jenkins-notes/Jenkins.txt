@@ -631,3 +631,30 @@ Click Upload.
 Restart Jenkins:
 
 After uploading the plugin, Jenkins typically requires a restart to activate the plugin. You can restart Jenkins from the Manage Jenkins page by selecting Reload Configuration from Disk, or you may need to restart the Jenkins service depending on your setup.
+
+# Jenkins interview questions
+
+# Explain the CI/CD pipeline implemention method
+-> we used github as a source code and our taget is kuberntes in our CI/CD pipeline
+-> we use jenkins orchestration for CI/CD. The reason we use jenkins is whenever user make commit changes in source code webhooks trigger the declarative pipeline then using declarative pipeline we run mulitple stages
+-> Stage-1 [Checkout -> Clone the code from repository]
+-> Stage-2 [Build -> Build the code using maven tool]
+-> Stage-3 [code scaner -> Test the code using sonar-scanner]
+-> Stage-4 [build the image -> Create the docker image]
+-> Stage-5 [Push the image into dockerhub]
+-> Stage-6 [Deploy the code into kuberntes]
+
+# Why we are using declarative pipeline script
+-> Scripted pipeline does not have more flexibility compare to declarative pipeline.
+-> Using Declarative pipeline we can easily collaborate with people and everyone can easily understand
+
+# How do you handle the issues if your worknode is down and not responce
+-> I will log into the worker node and try to understand the problems.
+-> I will try lookinto the worknode the health. In case CPU and RAM going out of limit or CPU and RAM full you will write python or shell script to send alert then you will take the immediate action and implement the autoscaling to that ec2 instances.
+
+# There is developer who has commit the change in git repo how deos your jenkins notify ?
+-> Using webhooks
+
+# What type of agnet are you using in jenkins
+-> Docker agent because it is light weight and dont need do lots of installization like maven and other tools which we require
+
