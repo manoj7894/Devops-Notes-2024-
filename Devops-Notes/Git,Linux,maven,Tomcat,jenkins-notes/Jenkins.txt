@@ -244,6 +244,39 @@ How to create master and slave configurion
 -> click Build Now
 -> [when node seeing offline then you have to click node and click bring back online later on you will execute]
 
+# In Above we work on master and slave  
+-> Now mostly used docker as a agent instaed of slave nodes in jenkins project setup because in terms of cost, efficiency and spining up and tearing the down the docker containers.
+
+# How to follow the process
+-> First you will create one ubuntu instance
+-> you will install jenkins using below commands
+sudo apt update
+sudo apt install default-jdk
+java -version
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt update
+sudo apt install jenkins
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo systemctl status jenkins
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+-> Later you will install docker using below commands
+sudo apt update
+sudo apt install docker.io
+sudo su - 
+usermod -aG docker jenkins
+usermod -aG docker ubuntu
+systemctl restart docker
+exit and login agian
+su - jenkins
+run the sample docker file to check wheather docker is working or not
+
+-> You should do the some configuration in jenkins to watch below github URL
+https://github.com/manoj7894/Jenkins-Zero-To-Hero
+https://youtu.be/zZfhAXfBvVA?si=hS04cnv5wp_QwKVm
+
 
 # What is jenkins pipeline
 -> jenkins pipeline is a automation solution that lets you create simple or complex pipeline
