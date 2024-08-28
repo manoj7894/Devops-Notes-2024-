@@ -140,6 +140,15 @@ AMI stands for Amazon machine image. Its a template that contains a software con
      sudo xfs_growfs -d /            [This is use for xfs file system]
      df -Th
 -> You will restart the jenkins in terminal and browser.
+https://youtu.be/usOv-5_hzu0?si=6Rq0kYm_zU_QwgxP
+
+
+# How to take Ec2 EBS volume backup
+-> You will create one snapchat with your existing ec2 instance
+-> you will create one volume using that snapchat 
+-> you will create one ec2 instance after create the instance you will stop the instance. later you will detach and delete the volume of ec2 instance
+-> you will attach the snapchat volume to that stop state ec2 instance.
+-> thereafter you will login and checkit out the files and folders.
      
 
 
