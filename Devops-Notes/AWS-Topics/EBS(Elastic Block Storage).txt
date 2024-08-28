@@ -116,6 +116,34 @@ AMI stands for Amazon machine image. Its a template that contains a software con
 -> After create the instance check the files wheather it would there are not whichever files you have created in past instance
 
 
+# How to increase the EBS volume to the running Ec2 instances
+-> We should follow the 3 types to attach the vloume
+   -> Take the snapchat of present running EBS volume [For safe purpose]
+   -> Increare the EBS volume in AWS console
+   -> Extended the linux file system after resizeing volume
+
+-> First take the snapchat of the EBS volume
+    Click volume and go to the action create the snapchat. You will go snapchat to check after create [It will take some time to create]
+
+-> Increate the EBS volume
+     Click volume and go to the action click the modify and increare the volume  [Note: you can only increate the volume in EBS we cant decrease the volume. [it will take some time to come at used state]
+
+-> Extended the linux file system after resizeing volume
+   -> You will execute the below commands in ec2 terminal
+      df -Th   -> To see the disk space size
+     lsblk     -> To check the volume partition
+     sudo growpart /dev/xvda 1     --> extended the partition
+     lsblk      --> To cheeck whether partition size to add o not
+     -> later you use below to extended the filesystem
+     df -Th
+     sudo resize2fs /dev/xvda1       [This is use for Ext4 file system]
+     sudo xfs_growfs -d /            [This is use for xfs file system]
+     df -Th
+-> You will restart the jenkins in terminal and browser.
+     
+
+
+
  
 
 
