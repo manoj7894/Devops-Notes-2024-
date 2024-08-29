@@ -74,11 +74,14 @@
 -> git pull  --> It pull the data from remote repository to local repository
 -> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
 -> git clean -f <file>   --> To remove the file from untracked stage
--> git reviot  -> undoing changes to repository commit history.
+-> git revert  -> undoing changes to repository commit history.
 -> git restore -> Remove the files from the staging area
 -> IF you want to go to the previous version or to see the previous data in file
    git reset --hard "give commit id"
 https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
+
+# To get more details about git revert and git resert. you will watch below link
+  https://youtu.be/mTNWyyMbxmU?si=6uudwsD2FowavO2M
 
 # What are the files and folders would be in .git folder
 .git will track our entire repository
