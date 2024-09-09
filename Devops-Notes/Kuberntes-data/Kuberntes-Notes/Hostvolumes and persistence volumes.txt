@@ -436,7 +436,7 @@ spec:
 -> If you understand more about persistence vloumes you will watch below link
 https://youtu.be/hAhoeg3RryY?si=Dwtz4jDpFAYzJYyO
 
--> suppode if you create two pods when add the files in one pod in con then automatically files will add in another pod.
+-> suppose if you create two pods when add the files in one pod in con then automatically files will add in another pod.
 -> kubectl edit pvc <pvc-name>  --> To change persistentVolumeReclaimPolicy
 
 Finally: when we use persistence volume will we do add volume in one worknode then it will automatically to another worknode
