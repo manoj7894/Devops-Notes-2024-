@@ -283,21 +283,21 @@ pipeline {
 
 # To delete previous docker images we will use below pipeline script
 pipeline {
-    agent {
-    docker {
-      image 'abhishekf5/maven-abhishek-docker-agent:v1'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    agent any
+    
+    tools {
+        nodejs 'node22'
     }
-  }
 
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Docker_id')
-        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
-        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
-        GIT_REPO_NAME = "tomat123"
+        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
+        GIT_REPO_NAME = "Manipulating"
         GIT_USER_NAME = "manoj7894"
-        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
+        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
+        SCANNER_HOME= tool 'sonar-scanner'
     }
 
     stages {
@@ -330,36 +330,55 @@ pipeline {
                 }
             }
         }
-
         stage('GetCode') {
             steps {
-                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
+                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
             }
         }
-
-        stage('Build') {
+        
+        stage('Install Package Dependencies') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                sh "npm install"
             }
         }
-
-        stage('Login') {
+        /*
+        stage('unit test') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                sh "npm test"
+            }
+        } */
+        
+        stage ("Trivy filesystem scan") {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
                 }
             }
         }
-
-        stage('Static Code Analysis') {
-            environment {
-                SONAR_URL = "http://13.233.28.18:9000"
-            }
+        
+        stage('Build') {
             steps {
-                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh '''
-                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
-                    '''
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage ("Trivy image scan") {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage ("SonarQube") {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+                    -Dsonar.projectKey=Campground '''
                 }
             }
         }
@@ -367,8 +386,9 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    def dockerImage = docker.image(DOCKER_IMAGE)
-                    dockerImage.push() // Pushes the Docker image to the repository
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                    sh "docker push ${DOCKER_IMAGE}"
+                    }
                 }
             }
         }
@@ -384,7 +404,7 @@ pipeline {
                         '''
 
                         // Check out the repository
-                        sh 'git checkout master'
+                        sh 'git checkout main'
 
                         // Display the current content of the deployment file for debugging
                         sh 'cat ${DEPLOYMENT_FILE_PATH}'
@@ -402,7 +422,7 @@ pipeline {
                             else
                                 git add ${DEPLOYMENT_FILE_PATH}
                                 git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                             fi
                         '''
                     }
@@ -413,7 +433,7 @@ pipeline {
 
     post {
         always {
-            emailext (
+            emailext attachLog: true,
                 subject: "Pipeline Status: ${BUILD_NUMBER}",
                 body: '''<html>
                            <body>
@@ -422,15 +442,14 @@ pipeline {
                               <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
                            </body>
                         </html>''',
-                to: 'varmapotthuri4@gmail.com',
+                to: 'manojvarmapotthutri@gmail.com',
                 from: 'jenkins@example.com',
                 replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
                 mimeType: 'text/html'
-            )
         }
     }
 }
-
 
 
 
