@@ -1,0 +1,1079 @@
+# How to deploy application using CI/CD pipeline
+-> You will create one ubuntu Ec2 instance with t2.large Instance type and 20Gb Size.
+-> Thereafter you will login the ec2 server using mobxterm
+-> You have to install Jenkins, Docker, SonarQube, maven, git, trivy and npm in the server using below commands
+-> sudo apt-get update -y
+-> mkdir scripts
+-> cd scripts
+
+# Install Jenkins and create the file using below and paste the script whichever file you have created
+
+vi Jenkins.sh
+
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+    https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install fontconfig openjdk-17-jre
+sudo apt-get install jenkins -y
+
+# Execute the below commands to run the script
+sudo chmod +x Jenkins.sh
+./Jenkins.sh
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# Install Docker and create the file using below and paste the script whichever file you have created
+
+vi docker.sh
+
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+sudo chmod 666 /var/run/docker.sock
+
+# Execute the below commands to run the script
+sudo chmod +x docker.sh
+./docker.sh
+
+
+-> After install the docker you will execute the below commands for Docker Slave Configuration
+sudo apt update
+sudo apt install docker.io
+sudo su - 
+usermod -aG docker jenkins
+usermod -aG docker ubuntu
+systemctl restart docker
+
+
+# # To install sonar execute below steps one by one [You may install SonarQube using commands or docker image]
+sudo su -
+apt install unzip
+adduser sonarqube
+sudo su - sonarqube
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.4.0.54424.zip
+sudo unzip sonarqube-9.4.0.54424.zip
+chmod -R 755 /home/sonarqube/sonarqube-9.4.0.54424
+chown -R sonarqube:sonarqube /home/sonarqube/sonarqube-9.4.0.54424
+cd sonarqube-9.4.0.54424/bin/linux-x86-64/
+./sonar.sh start
+
+
+# Install maven and create the file using below and paste the script whichever file you have created
+
+vi maven.sh
+
+sudo apt update
+sudo apt install maven -y
+mvn -version
+
+# Execute the below commands to run the script
+sudo chmod +x maven.sh
+./maven.sh
+
+# Install Git and create the file using below and paste the script whichever file you have created
+
+vi git.sh
+
+sudo apt update
+sudo apt install git -y
+git --version
+
+# Execute the below commands to run the script
+sudo chmod +x git.sh
+./git.sh
+
+
+# To install trivy execute below steps one by one
+
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+trivy --version
+
+# To install NPM execute below steps one by one
+
+# installs fnm (Fast Node Manager)
+curl -fsSL https://fnm.vercel.app/install | bash
+
+# activate fnm
+source ~/.bashrc
+
+# download and install Node.js
+fnm use --install-if-missing 22
+
+# verifies the right Node.js version is in the environment
+node -v # should print `v22.7.0`
+
+# verifies the right npm version is in the environment
+npm -v # should print `10.8.2`
+
+
+# After install the all the above tools, using publicIp and portnumber access the browser
+-> PubilcIp:8080 -> To get Jenkins
+-> PubilcIp:9000 -> To get Sonar-qube
+
+-> After login the Jenkins and go to the manage Jenkins, Click Plugins and install the below Plugins
+
+  EclipseTemurin  and JDK for java pupose
+  Docker and Docker Pipeline
+  Sonar-scanner
+  Nodjs
+  Dependency check
+  Email-extension plugin
+
+-> You will restart the Jenkins after install the plugins
+
+-> Go to manage Jenkins, click configuration tools and install below tools
+  -> JDK-17  install automatically
+  -> default, Git     install automatically
+  -> sonar-scanner  install automatically
+  -> Nodejs installations -> Give name, install automatically
+  -> dependency check
+  -> maven  install automatically
+  -> Docker  install automatically
+
+-> Later go the credentials and add the docker,sonar,git and email credentials
+    Docker -> click username and password Give docker username,password and id
+    sonar  -> Click secret text and give sonar token and keep some name in ID
+    git    -> Click secret text and give token and ID
+    git    -> Click username and password and give username and token
+    email  -> Click username and password and give mail id and password [go gmail and click manage google account 
+              Click security and search App password in search bar and click app password and give one name and create then you will get one password you save that password and give that password in above credentials]
+
+-> You will restart the jenkins after complete the above steps
+
+-> Click the manage jenkins, click system configuration and go SonarQube installations give name, sonaqube URL and click sonar token. 
+-> Later you will configure email by pic in mobile
+-> You will configure above details by video in ph
+-> You will restart the jenkins after complete the above steps
+
+Later you will try to run the jobs using below scripts
+
+pipeline {
+    agent {
+    docker {
+      image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    }
+  }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        GIT_REPO_NAME = "tomat123"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
+    }
+    
+    stages {
+        stage('GetCode') {
+            steps {
+                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://13.233.28.18:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
+                    '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        // Configure Git
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        // Check out the repository
+                        sh 'git checkout master'
+
+                        // Display the current content of the deployment file for debugging
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        // Update the image tag in deployment.yml
+                        sh '''
+                            # Use sed to replace the image tag dynamically
+                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        // Check for changes and commit if necessary
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext (
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'varmapotthuri4@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                mimeType: 'text/html'
+            )
+        }
+    }
+}
+
+
+# To delete previous docker images we will use below pipeline script
+pipeline {
+    agent {
+    docker {
+      image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    }
+  }
+
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
+        GIT_REPO_NAME = "tomat123"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    // Get the list of old images matching the pattern
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    # Check if the image exists before trying to delete it
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        # Try to remove the image
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+
+        stage('GetCode') {
+            steps {
+                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://13.233.28.18:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
+                    '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        // Configure Git
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        // Check out the repository
+                        sh 'git checkout master'
+
+                        // Display the current content of the deployment file for debugging
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        // Update the image tag in deployment.yml
+                        sh '''
+                            # Use sed to replace the image tag dynamically
+                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        // Check for changes and commit if necessary
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext (
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'varmapotthuri4@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                mimeType: 'text/html'
+            )
+        }
+    }
+}
+
+
+
+
+# Do you want to deploy the job using agent any you have to use below script
+pipeline {
+    agent any
+
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        GIT_REPO_NAME = "tomat123"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
+    }
+
+    stages {
+           stage('GetCode') {
+            steps {
+                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://13.233.28.18:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
+                    '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        // Configure Git
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        // Check out the repository
+                        sh 'git checkout master'
+
+                        // Display the current content of the deployment file for debugging
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        // Update the image tag in deployment.yml
+                        sh '''
+                            # Use sed to replace the image tag dynamically
+                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        // Check for changes and commit if necessary
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext (
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'varmapotthuri4@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                mimeType: 'text/html'
+            )
+        }
+    }
+}
+
+
+# To delete the previous docker images you should use below script
+
+
+pipeline {
+    agent any
+
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
+        GIT_REPO_NAME = "tomat123"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    // Get the list of old images matching the pattern
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    # Check if the image exists before trying to delete it
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        # Try to remove the image
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+
+        stage('GetCode') {
+            steps {
+                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://13.233.28.18:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
+                    '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        // Configure Git
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        // Check out the repository
+                        sh 'git checkout master'
+
+                        // Display the current content of the deployment file for debugging
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        // Update the image tag in deployment.yml
+                        sh '''
+                            # Use sed to replace the image tag dynamically
+                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        // Check for changes and commit if necessary
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext (
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'varmapotthuri4@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                mimeType: 'text/html'
+            )
+        }
+    }
+}
+
+# Do you want to deploy the application with dependency check. you can use dependency check only in build applications
+pipeline {
+    agent any
+
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
+        GIT_REPO_NAME = "tomat123"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    // Get the list of old images matching the pattern
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    # Check if the image exists before trying to delete it
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        # Try to remove the image
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+
+        stage('GetCode') {
+            steps {
+                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "mvn clean package"
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+        stage('OWASP SCAN') {
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage ("Trivy image scan") {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://13.201.185.189:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
+                    '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        // Configure Git
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        // Check out the repository
+                        sh 'git checkout master'
+
+                        // Display the current content of the deployment file for debugging
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        // Update the image tag in deployment.yml
+                        sh '''
+                            # Use sed to replace the image tag dynamically
+                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        // Check for changes and commit if necessary
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
+
+# To deploy the nodejs application we will follow the below script
+pipeline {
+    agent any
+    
+    tools {
+        nodejs 'node22'
+    }
+
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
+        GIT_REPO_NAME = "Manipulating"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    // Get the list of old images matching the pattern
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    # Check if the image exists before trying to delete it
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        # Try to remove the image
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+        stage('GetCode') {
+            steps {
+                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
+            }
+        }
+        
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        /*
+        stage('unit test') {
+            steps {
+                sh "npm test"
+            }
+        } */
+        
+        stage ("Trivy filesystem scan") {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+        
+        stage ("Trivy image scan") {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage ("SonarQube") {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+                    -Dsonar.projectKey=Campground '''
+                }
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        // Configure Git
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        // Check out the repository
+                        sh 'git checkout main'
+
+                        // Display the current content of the deployment file for debugging
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        // Update the image tag in deployment.yml
+                        sh '''
+                            # Use sed to replace the image tag dynamically
+                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        // Check for changes and commit if necessary
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
+# So far we have completed the continuous integration process 
+# From now we are going to do continous delivery and continous deployment
+# We have to create EKS cluster because we are going to deploy the application by using EKS cluster
+
+# We have to execute the below commands to connect with the cluster after complete the installation.
+aws eks --region ap-south-1 describe-cluster --name eks-1 --query cluster.status
+aws eks --region ap-south-1 update-kubeconfig --name eks-1
+aws eks list-clusters --> To see the cluster
+kubectl get nodes
+
+# We have to execute below commands in cluster to create argocd for doing contious deployment and It is like monitor tool.
+
+kubectl create namespace argocd   --> To create the namespace
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml    --> To install argocd
+kubectl get all -n argocd   --> To check instalitation
+kubectl edit svc argocd-server -n argocd     --> by default it will come with clusterIP. edit and keep load balancer.[After the modify the service it will give load balancer URL then copy that URL and paste in web browser]
+kubectl get secret -n argocd   --> To see the secret
+kubectl edit secret argocd-initial-admin-secret -n argocd   --> To get the password of argocd and username is admin and you will get password in encryption format. you will use command decrypted the passowrd and paste that password in argocd.
+
+echo MWV1QzFNaElVQ2lJVHdKSA== | base64 --decode  --> To decode the data or decrypt
+
+# After Loginto the Argocd you will deploy the application into Cluster using below video link
+         https://youtu.be/JGQI5pkK82w?si=2D32gqfVuXjetLoM
+
+
+# Later to monitor our cluster i have used dynatrace monitor tool. To install the dynatrace one agent in our cluster. i have followed the below video.
+       https://youtu.be/GC2JH3DVxwg?si=wvBDIFqUPR6dMbRl
+
+# You have to download dynakube.yml file in dynatrace. If you follow the above video you will get know all the things.
+
+helm install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operator --create-namespace --namespace dynatrace --atomic
+
+kubectl apply -f dynakube.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
