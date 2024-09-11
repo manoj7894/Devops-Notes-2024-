@@ -1,0 +1,9 @@
+# What is Web-hook
+Web-hook is basically method of communication that allow the users to subscribe to events happening in a software system.
+
+# How a Web-hook work
+Web-hook can be trigger whenever specific event occur on github.
+
+# What is the benefit of webhook
+With the help of webhook we can automate workflows using trigger that we can setup in webhook configuration, whenever particular event will happen automatically trigger will start its functionality.
+
