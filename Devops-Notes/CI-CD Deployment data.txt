@@ -283,21 +283,21 @@ pipeline {
 
 # To delete previous docker images we will use below pipeline script
 pipeline {
-    agent any
-    
-    tools {
-        nodejs 'node22'
+    agent {
+    docker {
+      image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
     }
+  }
 
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Docker_id')
-        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
-        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
-        GIT_REPO_NAME = "Manipulating"
+        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
+        GIT_REPO_NAME = "tomat123"
         GIT_USER_NAME = "manoj7894"
-        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
-        SCANNER_HOME= tool 'sonar-scanner'
+        DEPLOYMENT_FILE_PATH = "Kubernets/deployment.yml"  // Adjust the path if necessary
     }
 
     stages {
@@ -330,55 +330,36 @@ pipeline {
                 }
             }
         }
+
         stage('GetCode') {
             steps {
-                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
+                git branch: 'master', url: 'https://github.com/manoj7894/tomat123.git'
             }
         }
-        
-        stage('Install Package Dependencies') {
-            steps {
-                sh "npm install"
-            }
-        }
-        /*
-        stage('unit test') {
-            steps {
-                sh "npm test"
-            }
-        } */
-        
-        stage ("Trivy filesystem scan") {
-            steps {
-                script {
-                    sh "trivy fs --format table -o fs-report.html ."
-                }
-            }
-        }
-        
+
         stage('Build') {
             steps {
-                script {
-                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
-                    sh "docker build -t ${DOCKER_IMAGE} ."
-                    }
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                 }
             }
         }
-        
-        stage ("Trivy image scan") {
-            steps {
-                script {
-                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
-                }
+
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://13.233.28.18:9000"
             }
-        }
-        
-        stage ("SonarQube") {
             steps {
-                withSonarQubeEnv('Sonar_Install') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
-                    -Dsonar.projectKey=Campground '''
+                withCredentials([string(credentialsId: 'sonar_token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL
+                    '''
                 }
             }
         }
@@ -386,9 +367,8 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
-                    sh "docker push ${DOCKER_IMAGE}"
-                    }
+                    def dockerImage = docker.image(DOCKER_IMAGE)
+                    dockerImage.push() // Pushes the Docker image to the repository
                 }
             }
         }
@@ -404,7 +384,7 @@ pipeline {
                         '''
 
                         // Check out the repository
-                        sh 'git checkout main'
+                        sh 'git checkout master'
 
                         // Display the current content of the deployment file for debugging
                         sh 'cat ${DEPLOYMENT_FILE_PATH}'
@@ -422,7 +402,7 @@ pipeline {
                             else
                                 git add ${DEPLOYMENT_FILE_PATH}
                                 git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
                             fi
                         '''
                     }
@@ -433,7 +413,7 @@ pipeline {
 
     post {
         always {
-            emailext attachLog: true,
+            emailext (
                 subject: "Pipeline Status: ${BUILD_NUMBER}",
                 body: '''<html>
                            <body>
@@ -442,14 +422,15 @@ pipeline {
                               <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
                            </body>
                         </html>''',
-                to: 'manojvarmapotthutri@gmail.com',
+                to: 'varmapotthuri4@gmail.com',
                 from: 'jenkins@example.com',
                 replyTo: 'jenkins@example.com',
-                attachmentsPattern: 'trivy.txt',
                 mimeType: 'text/html'
+            )
         }
     }
 }
+
 
 
 
@@ -1058,6 +1039,321 @@ aws eks --region ap-south-1 update-kubeconfig --name eks-1
 aws eks list-clusters --> To see the cluster
 kubectl get nodes
 
+# To connect with Jenkins securely you have to create service account and roles
+
+# Create service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: webapps
+
+kubectl appl-f name.yml
+
+# Create Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: app-role
+  namespace: webapps
+rules:
+  - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+    resources:
+      - pods
+      - secrets
+      - componentstatuses
+      - configmaps
+      - daemonsets
+      - deployments
+      - events
+      - endpoints
+      - horizontalpodautoscalers
+      - ingress
+      - jobs
+      - limitranges
+      - namespaces
+      - nodes
+      - pods
+      - persistentvolumes
+      - persistentvolumeclaims
+      - resourcequotas
+      - replicasets
+      - replicationcontrollers
+      - serviceaccounts
+      - services
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+kubectl appl-f name.yml
+
+
+# Bind the role to service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-rolebinding
+  namespace: webapps 
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-role 
+subjects:
+- namespace: webapps 
+  kind: ServiceAccount
+  name: jenkins 
+
+kubectl appl-f name.yml
+
+
+# Create the secret token
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  annotations:
+    kubernetes.io/service-account.name: Jenkins
+
+kubectl appl-f name.yml -n webapps
+kuebctl get secret -n webapps
+kubectl describe secret <secretname> -n webapps
+# Copy the token and go the Jenkins credentials and selelt secret text in kind and copy the token and id some is name.
+
+
+pipeline {
+    agent any
+    
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
+        GIT_REPO_NAME = "swiggy-nodejs-devops-project"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml"  // Adjust the path if necessary
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+        
+        stage('GetCode') {
+            steps {
+                git branch: 'main', url: 'https://github.com/manoj7894/swiggy-nodejs-devops-project.git'
+            }
+        }
+        
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+        
+        /*
+        stage('unit test') {
+            when {
+                expression { env.TEST_SCRIPT_EXISTS == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        sh "npm test"
+                        currentBuild.result = 'SUCCESS'
+                    } catch (Exception e) {
+                        echo "Unit tests failed. Continuing with the pipeline."
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        } */
+        
+        stage('OWASP SCAN') {
+            when {
+                expression {
+                    // Check if pom.xml exists
+                    return fileExists('pom.xml')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        stage("Trivy filesystem scan") {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage("Trivy image scan") {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage("SonarQube") {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+                    -Dsonar.projectKey=Campground '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        sh 'git checkout main'
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        sh '''
+                            sed -i "s|image: manoj3003/database:[^[:space:]]*|image: manoj3003/database:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('K8S-Deploy') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: ' eks-1', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://05FF96831A57B61D6882E866196EB072.sk1.ap-south-1.eks.amazonaws.com') {
+                sh "kubectl apply -f Kubernetes/deployment.yml"
+                sh "kubectl apply -f Kubernetes/service.yml"
+                sleep 20
+                }
+            }
+        }
+        
+         stage('Verify the Deployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: ' eks-1', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://05FF96831A57B61D6882E866196EB072.sk1.ap-south-1.eks.amazonaws.com') {
+                sh "kubectl get pods"
+                sh "kubectl get svc"
+                }
+            }
+        }
+    }
+    
+    
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
+
+
+
 # We have to execute below commands in cluster to create argocd for doing contious deployment and It is like monitor tool.
 
 kubectl create namespace argocd   --> To create the namespace
@@ -1083,16 +1379,13 @@ helm install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operato
 kubectl apply -f dynakube.yaml
 
 
+# Use the below command to clen the disk space in your terminal
+docker system prune -a --volumes
+
+#Remove old logs
+sudo find /var/log -type f -name "*.log" -delete
 
 
 
-
-
-
-
-
-
-
-
-  
-  
+# To use the docker private image for kubernets deployment. we have to create secret using below command
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=webapps
