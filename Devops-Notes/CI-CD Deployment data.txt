@@ -864,15 +864,14 @@ pipeline {
         nodejs 'node22'
     }
 
-
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Docker_id')
-        DOCKER_IMAGE = "manoj3003/pipelie-cicd:${BUILD_NUMBER}"
-        OLD_IMAGE_TAG_PATTERN = "manoj3003/pipelie-cicd:*"  // Pattern to match old images
+        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
         GIT_REPO_NAME = "Manipulating"
         GIT_USER_NAME = "manoj7894"
         DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
-        SCANNER_HOME= tool 'sonar-scanner'
+        SCANNER_HOME = tool 'sonar-scanner'
     }
 
     stages {
@@ -881,7 +880,6 @@ pipeline {
                 script {
                     echo "Cleaning up old Docker images..."
                     
-                    // Get the list of old images matching the pattern
                     def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
                     
                     if (oldImages) {
@@ -889,9 +887,7 @@ pipeline {
                             if (image != DOCKER_IMAGE) {
                                 echo "Attempting to remove old image ${image}"
                                 sh """
-                                    # Check if the image exists before trying to delete it
                                     if docker images -q ${image} > /dev/null 2>&1; then
-                                        # Try to remove the image
                                         docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
                                     else
                                         echo 'Image ${image} does not exist.'
@@ -905,6 +901,19 @@ pipeline {
                 }
             }
         }
+        
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+        
         stage('GetCode') {
             steps {
                 git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
@@ -916,14 +925,48 @@ pipeline {
                 sh "npm install"
             }
         }
+        
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+        
         /*
         stage('unit test') {
+            when {
+                expression { env.TEST_SCRIPT_EXISTS == 'true' }
+            }
             steps {
-                sh "npm test"
+                script {
+                    try {
+                        sh "npm test"
+                        currentBuild.result = 'SUCCESS'
+                    } catch (Exception e) {
+                        echo "Unit tests failed. Continuing with the pipeline."
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
             }
         } */
         
-        stage ("Trivy filesystem scan") {
+        stage('OWASP SCAN') {
+            when {
+                expression {
+                    // Check if pom.xml exists
+                    return fileExists('pom.xml')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        stage("Trivy filesystem scan") {
             steps {
                 script {
                     sh "trivy fs --format table -o fs-report.html ."
@@ -933,11 +976,15 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
             }
         }
         
-        stage ("Trivy image scan") {
+        stage("Trivy image scan") {
             steps {
                 script {
                     sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
@@ -945,7 +992,7 @@ pipeline {
             }
         }
         
-        stage ("SonarQube") {
+        stage("SonarQube") {
             steps {
                 withSonarQubeEnv('Sonar_Install') {
                     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
@@ -954,19 +1001,12 @@ pipeline {
             }
         }
 
-        stage('Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'Docker_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                }
-            }
-        }
-
         stage('Push') {
             steps {
                 script {
-                    def dockerImage = docker.image(DOCKER_IMAGE)
-                    dockerImage.push() // Pushes the Docker image to the repository
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
                 }
             }
         }
@@ -975,25 +1015,18 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
                     script {
-                        // Configure Git
                         sh '''
                             git config user.email "manojvarmapotthuri3003@gmail.com"
                             git config user.name "Manojvarma Potthuri"
                         '''
 
-                        // Check out the repository
                         sh 'git checkout main'
-
-                        // Display the current content of the deployment file for debugging
                         sh 'cat ${DEPLOYMENT_FILE_PATH}'
 
-                        // Update the image tag in deployment.yml
                         sh '''
-                            # Use sed to replace the image tag dynamically
-                            sed -i "s|image: manoj3003/pipelie-cicd:[^[:space:]]*|image: manoj3003/pipelie-cicd:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                            sed -i "s|image: manoj3003/database:[^[:space:]]*|image: manoj3003/database:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
                         '''
 
-                        // Check for changes and commit if necessary
                         sh '''
                             if git diff --quiet; then
                                 echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
@@ -1007,8 +1040,7 @@ pipeline {
                 }
             }
         }
-    }
-
+    
     post {
         always {
             emailext attachLog: true,
@@ -1029,6 +1061,7 @@ pipeline {
     }
 }
 
+
 # So far we have completed the continuous integration process 
 # From now we are going to do continous delivery and continous deployment
 # We have to create EKS cluster because we are going to deploy the application by using EKS cluster
@@ -1039,7 +1072,60 @@ aws eks --region ap-south-1 update-kubeconfig --name eks-1
 aws eks list-clusters --> To see the cluster
 kubectl get nodes
 
+# If we want to deploy the application with ArgoCd through EKS cluster. you have to follow the below steps
+kubectl create namespace argocd   --> To create the namespace
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml    --> To install argocd
+kubectl get all -n argocd   --> To check instalitation
+kubectl edit svc argocd-server -n argocd     --> by default it will come with clusterIP. edit and keep load balancer.[After the modify the service it will give load balancer URL then copy that URL and paste in web browser]
+kubectl get secret -n argocd   --> To see the secret
+kubectl edit secret argocd-initial-admin-secret -n argocd   --> To get the password of argocd and username is admin and you will get password in encryption format. you will use command decrypted the passowrd and paste that password in argocd.
+
+echo MWV1QzFNaElVQ2lJVHdKSA== | base64 --decode  --> To decode the data or decrypt
+
+# After Loginto the Argocd you will deploy the application into Cluster using below video link
+         https://youtu.be/JGQI5pkK82w?si=2D32gqfVuXjetLoM
+
+# To use the docker private image for kubernets deployment. we have to create secret using below command
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=webapps
+
+
+
+# Later to monitor our cluster i have used dynatrace monitor tool. To install the dynatrace one agent in our cluster. i have followed the below video.
+       https://youtu.be/GC2JH3DVxwg?si=wvBDIFqUPR6dMbRl
+
+# You have to download dynakube.yml file in dynatrace. If you follow the above video you will get know all the things.
+
+helm install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operator --create-namespace --namespace dynatrace --atomic
+
+kubectl apply -f dynakube.yaml
+
+
+# Use the below command to clen the disk space in your terminal
+docker system prune -a --volumes
+
+#Remove old logs
+sudo find /var/log -type f -name "*.log" -delete
+
+
+
+
+
+
+
+
+
+# If you want to deploy the application using CI/CD pipeline through EKS CLuster
+-> You have install the plugins in jenkins
+   -> Kubernetes
+   -> Kuberntes Client API
+   -> Kubernetes Credentials
+   -> Kubernetes CLI
+# Restart the jenkins after install the plugins
+
+# To deploy the application with RBAC
 # To connect with Jenkins securely you have to create service account and roles
+roles worked on namespaces and cluster role worked on cluster level means work on all the namespaces
+persistence volumes cant work on roles level. you deploy below application without having persistence volume ymal scrpit
 
 # Create service account
 apiVersion: v1
@@ -1353,39 +1439,577 @@ pipeline {
 
 
 
+# We can deploy application with having persistence volume application
+# Crate service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: webapps
 
-# We have to execute below commands in cluster to create argocd for doing contious deployment and It is like monitor tool.
+# create Cluster role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jenkins-cluster-role
+rules:
+  - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+    resources:
+      - pods
+      - secrets
+      - componentstatuses
+      - configmaps
+      - daemonsets
+      - deployments
+      - events
+      - endpoints
+      - horizontalpodautoscalers
+      - ingress
+      - jobs
+      - limitranges
+      - namespaces
+      - nodes
+      - pods
+      - persistentvolumes
+      - persistentvolumeclaims
+      - resourcequotas
+      - replicasets
+      - replicationcontrollers
+      - serviceaccounts
+      - services
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 
-kubectl create namespace argocd   --> To create the namespace
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml    --> To install argocd
-kubectl get all -n argocd   --> To check instalitation
-kubectl edit svc argocd-server -n argocd     --> by default it will come with clusterIP. edit and keep load balancer.[After the modify the service it will give load balancer URL then copy that URL and paste in web browser]
-kubectl get secret -n argocd   --> To see the secret
-kubectl edit secret argocd-initial-admin-secret -n argocd   --> To get the password of argocd and username is admin and you will get password in encryption format. you will use command decrypted the passowrd and paste that password in argocd.
-
-echo MWV1QzFNaElVQ2lJVHdKSA== | base64 --decode  --> To decode the data or decrypt
-
-# After Loginto the Argocd you will deploy the application into Cluster using below video link
-         https://youtu.be/JGQI5pkK82w?si=2D32gqfVuXjetLoM
-
-
-# Later to monitor our cluster i have used dynatrace monitor tool. To install the dynatrace one agent in our cluster. i have followed the below video.
-       https://youtu.be/GC2JH3DVxwg?si=wvBDIFqUPR6dMbRl
-
-# You have to download dynakube.yml file in dynatrace. If you follow the above video you will get know all the things.
-
-helm install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operator --create-namespace --namespace dynatrace --atomic
-
-kubectl apply -f dynakube.yaml
+# Bind the service and cluster role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins-cluster-role
+subjects:
+- namespace: webapps
+  kind: ServiceAccount
+  name: jenkins
 
 
-# Use the below command to clen the disk space in your terminal
-docker system prune -a --volumes
+# Create the secret token based on service account
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  annotations:
+    kubernetes.io/service-account.name: jenkins
 
-#Remove old logs
-sudo find /var/log -type f -name "*.log" -delete
+kubectl apply -f secret.yml -n webapps
+# Copy the token and go the Jenkins credentials and selelt secret text in kind and copy the token and id some is name
+
+pipeline {
+    agent any
+    
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
+        GIT_REPO_NAME = "Manipulating"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+        
+        stage('GetCode') {
+            steps {
+                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
+            }
+        }
+        
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+        
+        /*
+        stage('unit test') {
+            when {
+                expression { env.TEST_SCRIPT_EXISTS == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        sh "npm test"
+                        currentBuild.result = 'SUCCESS'
+                    } catch (Exception e) {
+                        echo "Unit tests failed. Continuing with the pipeline."
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        } */
+        
+        stage('OWASP SCAN') {
+            when {
+                expression {
+                    // Check if pom.xml exists
+                    return fileExists('pom.xml')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        stage("Trivy filesystem scan") {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage("Trivy image scan") {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage("SonarQube") {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+                    -Dsonar.projectKey=Campground '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        sh 'git checkout main'
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        sh '''
+                            sed -i "s|image: manoj3003/database:[^[:space:]]*|image: manoj3003/database:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('K8S-Deploy') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: ' eks-1', contextName: '', credentialsId: 'K8S-Token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://05FF96831A57B61D6882E866196EB072.sk1.ap-south-1.eks.amazonaws.com') {
+                sh "kubectl apply -f Manifests/pv.yml"
+                sh "kubectl apply -f Manifests/pvc.yml"
+                sh "kubectl apply -f Manifests/secret.yml"
+                sh "kubectl apply -f Manifests/service.yml"
+                sh "kubectl apply -f Manifests/dss.yml"
+                sleep 20
+                }
+            }
+        }
+        
+         stage('Verify the Deployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: ' eks-1', contextName: '', credentialsId: 'K8S-Token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://05FF96831A57B61D6882E866196EB072.sk1.ap-south-1.eks.amazonaws.com') {
+                sh "kubectl get pods"
+                sh "kubectl get svc"
+                sh "kubectl get pv"
+                sh "kubectl get pvc"
+                }
+            }
+        }
+    }
+    
+    
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
 
 
 
-# To use the docker private image for kubernets deployment. we have to create secret using below command
-kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=webapps
+
+
+
+
+
+# To deploy the application directly with having any RBAC
+# You have to copy the config file data into normal file and keep file on desktop
+# Create the credentials with secret text, choose the file which you copied on desktop and give id name
+# You will install the two plugins
+   -> AWS Steps
+   -> AWS Credentials
+# Create the credentials and choose the AWS and give access and secret key, Id name
+ 
+
+pipeline {
+    agent any
+    
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
+        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
+        GIT_REPO_NAME = "Manipulating"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
+        SCANNER_HOME = tool 'sonar-scanner'
+        AWS_CREDENTIALS = credentials('aws-credentials-id')
+        KUBECONFIG = credentials('config_token')  // Adjust if necessary
+    }
+
+    stages {
+        stage('Cleanup Old Docker Images') {
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
+                    
+                    if (oldImages) {
+                        oldImages.split('\n').each { image ->
+                            if (image != DOCKER_IMAGE) {
+                                echo "Attempting to remove old image ${image}"
+                                sh """
+                                    if docker images -q ${image} > /dev/null 2>&1; then
+                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                    else
+                                        echo 'Image ${image} does not exist.'
+                                    fi
+                                """
+                            }
+                        }
+                    } else {
+                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
+                    }
+                }
+            }
+        }
+        
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+        
+        stage('GetCode') {
+            steps {
+                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
+            }
+        }
+        
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+        
+        /*
+        stage('unit test') {
+            when {
+                expression { env.TEST_SCRIPT_EXISTS == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        sh "npm test"
+                        currentBuild.result = 'SUCCESS'
+                    } catch (Exception e) {
+                        echo "Unit tests failed. Continuing with the pipeline."
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        } */
+        
+        stage('OWASP SCAN') {
+            when {
+                expression {
+                    // Check if pom.xml exists
+                    return fileExists('pom.xml')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        stage("Trivy filesystem scan") {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage("Trivy image scan") {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage("SonarQube") {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+                    -Dsonar.projectKey=Campground '''
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+
+                        sh 'git checkout main'
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+
+                        sh '''
+                            sed -i "s|image: manoj3003/database:[^[:space:]]*|image: manoj3003/database:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+        
+        // stage('Create Namespace') {
+        //     steps {
+        //         script {
+        //             withCredentials([file(credentialsId: 'config_token', variable: 'KUBECONFIG_FILE')]) {
+        //                 sh '''
+        //                     export KUBECONFIG=$KUBECONFIG_FILE
+        //                     kubectl get namespace webapps || kubectl create namespace webapps
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'config_token', variable: 'KUBECONFIG_FILE')]) {
+                        sh '''
+                            export KUBECONFIG=$KUBECONFIG_FILE
+                            kubectl apply -f Manifests/pv.yml
+                            kubectl apply -f Manifests/pvc.yml
+                            kubectl apply -f Manifests/secret.yml
+                            kubectl apply -f Manifests/service.yml
+                            kubectl apply -f Manifests/dss.yml
+                        '''
+                        sleep 20
+                    }
+                }
+            }
+        }
+        
+        stage('Verify the Deployment') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'config_token', variable: 'KUBECONFIG_FILE')]) {
+                        sh '''
+                            export KUBECONFIG=$KUBECONFIG_FILE
+                            kubectl get pods
+                            kubectl get svc
+                            kubectl get pv
+                            kubectl get pvc
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
