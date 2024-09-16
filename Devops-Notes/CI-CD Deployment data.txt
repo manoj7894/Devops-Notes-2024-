@@ -136,6 +136,13 @@ npm -v # should print `10.8.2`
   Dependency check
   Email-extension plugin
 
+Note: If you want to install plugins manually from local, Go to the below website and search the plugin
+https://plugins.jenkins.io/
+click the releases and download the plugin, How to upload the plugin into jenkins
+go to manage jenkins and click plugins and go to advance settings and choose the file and click deploy.
+later go to the installed plugins and check wheather is it installed or not
+
+
 -> You will restart the Jenkins after install the plugins
 
 -> Go to manage Jenkins, click configuration tools and install below tools
@@ -143,7 +150,7 @@ npm -v # should print `10.8.2`
   -> default, Git     install automatically
   -> sonar-scanner  install automatically
   -> Nodejs installations -> Give name, install automatically
-  -> dependency check
+  -> dependency check click install automatically and click github
   -> maven  install automatically
   -> Docker  install automatically
 
@@ -2013,3 +2020,502 @@ pipeline {
     }
 }
 
+
+
+
+
+
+
+# Final upto CI
+
+
+
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
+        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
+        GIT_REPO_NAME = "Manipulating"
+        GIT_USER_NAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
+        SCANNER_HOME = tool 'sonar-scanner'
+        WORKSPACE_BASE = "/var/lib/jenkins/workspace" // Set this to the base path of your Jenkins workspaces
+    }
+
+    stages {
+         stage('Cleanup Old Workspaces') {
+            steps {
+                script {
+                    echo "Cleaning up all workspaces except the current build..."
+
+                    // Get the current workspace directory
+                    def currentWorkspaceDir = env.WORKSPACE
+
+                    // Use a shell script to clean up old workspaces
+                    sh '''
+                        #!/bin/bash
+
+                        # Enable diagnostics
+                        set -x
+                        echo "Current workspace: ${currentWorkspaceDir}"
+
+                        # The directory we need to preserve
+                        PRESERVE_DIR="${currentWorkspaceDir}"
+
+                        # Base path for Jenkins workspaces
+                        BASE_PATH="${WORKSPACE_BASE}"
+
+                        # Ensure that the current build workspace directory exists
+                        if [ ! -d "$PRESERVE_DIR" ]; then
+                            echo "Current workspace directory $PRESERVE_DIR does not exist. Skipping cleanup."
+                            exit 0
+                        fi
+
+                        # Find and delete directories excluding the current build directory
+                        for dir in $(find $BASE_PATH -maxdepth 1 -type d ! -path "$PRESERVE_DIR" ! -path "$BASE_PATH"); do
+                            echo "Deleting old workspace: $dir"
+                            rm -rf "$dir"
+                        done
+                    '''
+                }
+            }
+        }
+
+        stage('Check Old Docker Images') {
+            steps {
+                script {
+                    echo "Checking for old Docker images..."
+                    
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '^manoj3003/database:' || true", returnStdout: true).trim()
+                    echo "Old images found: ${oldImages}"
+                    
+                    if (oldImages) {
+                        env.OLD_IMAGES_EXIST = 'true'
+                    } else {
+                        echo "No old images found."
+                        env.OLD_IMAGES_EXIST = 'false'
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup Old Docker Images') {
+            when {
+                expression { env.OLD_IMAGES_EXIST == 'true' }
+            }
+            steps {
+                script {
+                    echo "Cleaning up old Docker images..."
+                    
+                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '^manoj3003/database:' || true", returnStdout: true).trim()
+                    echo "Old images found for cleanup: ${oldImages}"
+                    
+                    if (oldImages) {
+                        def imagesToRemove = oldImages.split('\n').findAll { image ->
+                            image != DOCKER_IMAGE
+                        }
+                        
+                        if (imagesToRemove) {
+                            imagesToRemove.each { image ->
+                                echo "Attempting to remove old image ${image}"
+                                try {
+                                    sh """
+                                        if docker images -q ${image} > /dev/null 2>&1; then
+                                            docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
+                                        else
+                                            echo 'Image ${image} does not exist.'
+                                        fi
+                                    """
+                                } catch (Exception e) {
+                                    echo "Error while attempting to remove image ${image}: ${e.getMessage()}"
+                                }
+                            }
+                        } else {
+                            echo "No old images to remove."
+                        }
+                    } else {
+                        echo "No old images found matching pattern 'manoj3003/database:'"
+                    }
+                }
+            }
+        }
+        
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+        
+        stage('Get Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
+            }
+        }
+        
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+        
+        /*
+        stage('Unit Test') {
+            when {
+                expression { env.TEST_SCRIPT_EXISTS == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        sh "npm test"
+                        currentBuild.result = 'SUCCESS'
+                    } catch (Exception e) {
+                        echo "Unit tests failed. Continuing with the pipeline."
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        } */
+        
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('pom.xml')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage('Trivy Image Scan') {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+                    -Dsonar.projectKey=Campground \
+                    -Dsonar.host.url=http://65.0.180.233:9000'''
+                }
+            }
+        }
+        
+        stage('Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+        
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        sh '''
+                            git config user.email "manojvarmapotthuri3003@gmail.com"
+                            git config user.name "Manojvarma Potthuri"
+                        '''
+                        
+                        sh 'git checkout main'
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+                        
+                        sh '''
+                            sed -i "s|image: manoj3003/database:[^[:space:]]*|image: manoj3003/database:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+                        
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# To deploy the application into tomcat server you have to follow the below steps
+-> First you will download the tomcat using below steps
+##################----INSTALL TOMCAT----##################
+cd /opt
+you will get below link from apache tomcat website
+https://tomcat.apache.org/download-90.cgi  click tar.gz in core
+sudo wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz
+sudo tar -xvf apache-tomcat-9.0.65.tar.gz
+
+cd /opt/apache-tomcat-9.0.65/conf
+sudo vi tomcat-users.xml
+# ---add-below-line at the end (2nd-last line)----
+# <user username="admin" password="admin1234" roles="admin-gui, manager-gui"/>
+
+sudo ln -s /opt/apache-tomcat-9.0.65/bin/startup.sh /usr/bin/startTomcat
+sudo ln -s /opt/apache-tomcat-9.0.65/bin/shutdown.sh /usr/bin/stopTomcat
+
+sudo vi /opt/apache-tomcat-9.0.65/webapps/manager/META-INF/context.xml
+
+comment:
+<!-- Valve className="org.apache.catalina.valves.RemoteAddrValve"
+  allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+
+sudo vi /opt/apache-tomcat-9.0.65/webapps/host-manager/META-INF/context.xml
+
+comment:
+<!-- Valve className="org.apache.catalina.valves.RemoteAddrValve"
+  allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+
+
+cd /opt/apache-tomcat-9.0.65/bin
+sh startup.sh
+
+-> You will install the Deployment container plugin in jenkins
+-> you will tomcat username and password in your credentials
+-> You will execute the below script
+
+
+
+pipeline {
+    agent any
+
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+        WORKSPACE_BASE = "/var/lib/jenkins/workspace" // Set this to the base path of your Jenkins workspaces
+    }
+
+    stages {
+        /*
+         stage('Cleanup Old Workspaces') {
+            steps {
+                script {
+                    echo "Cleaning up all workspaces except the current build..."
+
+                    // Get the current workspace directory
+                    def currentWorkspaceDir = env.WORKSPACE
+
+                    // Use a shell script to clean up old workspaces
+                    sh '''
+                        #!/bin/bash
+
+                        # Enable diagnostics
+                        set -x
+                        echo "Current workspace: ${currentWorkspaceDir}"
+
+                        # The directory we need to preserve
+                        PRESERVE_DIR="${currentWorkspaceDir}"
+
+                        # Base path for Jenkins workspaces
+                        BASE_PATH="${WORKSPACE_BASE}"
+
+                        # Ensure that the current build workspace directory exists
+                        if [ ! -d "$PRESERVE_DIR" ]; then
+                            echo "Current workspace directory $PRESERVE_DIR does not exist. Skipping cleanup."
+                            exit 0
+                        fi
+
+                        # Find and delete directories excluding the current build directory
+                        for dir in $(find $BASE_PATH -maxdepth 1 -type d ! -path "$PRESERVE_DIR" ! -path "$BASE_PATH"); do
+                            echo "Deleting old workspace: $dir"
+                            rm -rf "$dir"
+                        done
+                    '''
+                }
+            }
+        } */
+        
+        stage('Get Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/manoj7894/java-tomcat.git'
+            }
+        }
+        
+        stage("Compile"){
+            steps{
+                sh "mvn clean compile"
+            }
+        }
+        
+        stage("Test Cases"){
+            steps{
+                sh "mvn test"
+            }
+        }
+        
+        // stage('SonarQube') {
+        //     steps {
+        //         withSonarQubeEnv('Sonar_Install') {
+        //             sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
+        //             -Dsonar.projectKey=Campground \
+        //             -Dsonar.host.url=http://13.232.72.13:9000'''
+        //         }
+        //     }
+        // }
+        
+        stage('SonarQube'){
+            steps{
+                withSonarQubeEnv('Sonar_Install') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Petclinic \
+                    -Dsonar.java.binaries=. \
+                    -Dsonar.projectKey=Sample \
+                    -Dsonar.host.url=http://13.233.77.222:9000'''
+    
+                }
+            }
+        }
+        
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('pom.xml')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        // stage("OWASP Dependency Check"){
+        //     steps{
+        //         dependencyCheck additionalArguments: '--scan ./ --format HTML ', odcInstallation: 'DP-Check'
+        //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        //     }
+        // }
+        
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage("Build"){
+            steps{
+                sh " mvn clean install"
+            }
+        }
+        
+        stage('Deploy to tomcat server') {
+            steps{                                 
+                deploy adapters: [tomcat9(credentialsId: 'tomcat_id', path: '', url: 'http://13.233.77.222:9090/')], contextPath: 'sample-java', war: '**/*.war'
+            }
+        }
+    }
+    
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
+
+
+
+
+# If you want to run the jobs on docker agent 
+-> Click manage jenkins, click nodes, click new node, give name, click permanent, click docker and give laber docker-agent. 
+-> root directory means create one directory in terminal and give path at that place.
+-> follow video in phone to configure the reset of the steps.
+
+keep like this 
+  agent {
+        label 'docker-agent'
+    }
