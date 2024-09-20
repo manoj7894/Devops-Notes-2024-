@@ -1,0 +1,345 @@
+# What is Relation database
+-> Relation database is used to organize structured data into tables in the form of ROWS and COLUMNS.
+
+# What are the SQL databases
+-> MySql
+-> oracle
+-> SQL server
+-> Postgre SQL
+-> MariaDB
+
+# What is SQL
+-> SQL is a relation database structured query language is used to communicate with database.
+-> Allows the user to access and MANIPULATE data stored in database
+
+# What is Non-Relation Database
+-> Non-Relation database is a collection structured, unstructured and semi structured items which donot store data in tabluer form.
+
+# What is NoSQL
+-> NoSQL is a non-relation database that uses the keyvalue pairs to store and retrive data.
+-> Unlike a relation database, which stores data in rows and columns
+
+# What is the difference between SQL and NOSQL
+       SQL                
+-> SQL is a relational database          -> Nosql is non-relation database
+-> Fixed schema design and structure     -> Dynamic schema design and structure
+-> Handles complex queries               -> Handled large volume of data
+-> Vertical scalable                     -> Horizonal scalable
+
+# Advantages and Disadvantages of NoSql
+-> High performance and scalability          -> Lack of standardization 
+-> Availablity and flexibility               -> Consistency issues
+-> Open source and schema less               -> Limited query capabilities
+
+# What are the NoSQL databases
+-> Dynamo DB
+-> Mongo DB  [Document database]
+-> cassandra [Column Based]
+-> redis     [Key value]
+-> neo4j
+
+# What is Mongo DB
+-> It is NoSQL database called(Document database)
+-> It stores data in flexible JSON-like document
+-> It is highly scalable and flexible database
+
+# What is the comparison between SQL and Mongo DB
+   SQL Server              MongoDB
+-> Database              -> Database    
+-> Table                 -> Collection  
+-> Index                 -> Index
+-> Row                   -> Document
+-> Column                -> Field
+-> Joining               -> Linking & Embedding
+
+# Database structure between between SQL and Mongo DB
+   SQL Server              MongoDB
+-> Database              -> Database     [Database contain one or more collections]
+-> Table                 -> Collection   [collections contain different types of documents]
+-> Row                   -> Document     [keyvalue pair list or array or nested document]
+-> Column                -> Field
+
+
+# How Does Mongo DB Work
+-> Mongo Db stores data objects in collection and documents insted of the tables and rows used in traditional relation databases
+ Host
+ databes
+ collections
+ documents
+
+# Why we use Mongo Db
+-> Open source database
+-> Easy to use
+-> Highly Flexible
+-> Advanced Security
+-> Flexible schema   [Flexible schema design that allows you to meet the ever-changing conditions characteristic of big data application]
+-> High Performance
+
+# Key Features of Mongo DB
+-> Aggregation
+-> GridFS
+-> Sharding
+-> Document oriented
+-> Replication
+-> Schema less Database
+-> indexing
+-> Ad HOC Queries
+-> High performance
+
+
+# Where to use Monogo DB
+-> Big data
+-> Content Management and Delivery
+-> Mobile and Social infrastructure
+-> User DataManagement
+-> Data Hub
+
+
+# Data Types in Mongo DB
+-> Strings  [characters and grouping of characters is called strings]
+-> Boolean  [either true or false]
+-> Integer  [digits  1, -1, 3]
+-> Double   [2.1, 2.2]
+-> Arrays
+-> Objected
+-> Data
+
+
+# You will follow the below video link to create Mongodb Atlas and connect to the noejs application
+   https://youtu.be/pm-2vw8RzC0?si=IAcEGIDHBmXHCrgA
+
+# To Connect with mongodb Atlas in our local you have MongoDb shell in our windows using below video link
+   https://youtu.be/jvaBaxlTqU8?si=Ckct1LqW7O-fYOjU
+-> After the install the Mongodb shell you have to use below command to enter into the database
+  mongosh "mongodb+srv://admin:mypassword@cluster0.mongodb.net/test?retryWrites=true&w=majority"
+
+
+# How to give access to the particular person
+-> Enter into the project, Click on Database access, click add database user,
+   We can give access using below
+https://youtu.be/ioASa1k_H_4?si=27JFRuKf9KBJ7OpY
+ 
+ we can give access using create role in cmd. For that follow below link
+https://youtu.be/VdSFV41Jlx8?si=0nNuhWBLdd_FlDUc
+
+
+# Database Commands
+show dbs   --> To show the databases
+use dbName  --> create and swith to database
+db   --> view the current db
+db.dropDatabase()   --> To delete the database
+
+
+# To create one sample table data in database
+db.employees.insertOne({
+    employee_id: 1,
+    first_name: "Manoj",
+    last_name: "Potturi",
+    email: "manojvarmapotthuri@gmail.com"
+});
+
+show collections   -> To tables data
+db.employees.drop()   -> To delete the table
+
+
+
+
+
+
+
+
+
+
+
+# How to install mongo Db in ec2 server
+-> https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-amazon/
+-> If we follow the above link you will get the below steps to install the mongo DB
+-> cat /etc/os-release    -> To see the version
+-> sudo vi /etc/yum.repos.d/mongodb-org-7.0.repo
+[mongodb-org-7.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/7.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://pgp.mongodb.com/server-7.0.asc
+
+-> sudo yum install -y mongodb-org
+-> sudo systemctl start mongod
+-> sudo systemctl enable mongod  
+-> sudo systemctl status mongod
+
+# To connect mongo Db outside remotly
+-> sudo vi /etc/mongod.conf
+-> To change the ip address in network interface and keep 0.0.0.0 to access the all IPs
+-> sudo systemctl restart mongod
+-> sudo systemctl status mongod
+
+Note: Monogo db is not install in amazon linux. so that you have install in ubuntu using below steps
+-> https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+-> sudo apt-get install gnupg curl
+-> curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+   --dearmor
+-> echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+-> sudo apt-get update
+-> sudo apt-get install -y mongodb-org
+-> sudo systemctl start mongod
+-> sudo systemctl daemon-reload
+-> sudo systemctl status mongod
+-> sudo systemctl enable mongod
+-> sudo vi/etc/mongod.conf   [port number path]
+-> -> To change the ip address in network interface and keep 0.0.0.0 to access the all IPs
+-> sudo systemctl restart mongod
+-> sudo systemctl start mongod
+-> sudo systemctl status mongod
+-> mongosh    --> To enter into the database
+
+# You will install mongodb in windows and connect with ec2 instance
+-> https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
+-> You will install Mongodb compass to see below youtube link
+   https://youtu.be/ZQuQ-wHuPlg?si=nykCs3WItfA5yRH9
+   https://youtu.be/jvaBaxlTqU8?si=KZnQazx0K3_Mt2uS   --> To work in cmd
+-> After complete the install to connet our ec2 server with mongodb compass you will follow the below youtube link
+   https://youtu.be/Gz_7WMjv6sE?si=xr_i6IUP6Ute5_WD
+
+
+
+
+
+# Data base commands
+-> show dbs   --> To show the databases
+-> use dbName  --> create and swith to database
+-> db   --> view the current db
+-> db.dropDatabase()   --> To delete the database 
+
+db.createUser(
+  {
+    user: "kalki",
+    pwd: "varma",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+  }
+)
+
+db.getUsers()
+
+# To keep the collection in database
+use mydatabase
+db.myCollection.insertOne({ name: "John Doe", age: 30 })
+
+db.users.insertOne({ name: "Alice", age: 28, city: "New York" });
+
+db.products.insertMany([
+  { name: "Laptop", price: 1200 },
+  { name: "Smartphone", price: 800 },
+  { name: "Tablet", price: 500 }
+]);
+
+
+show collections   -> To show  the collections
+
+db.createCollection('comments')    --> To create the collection 
+
+
+# CRUD Operations in Mongodb
+-> CRUD means
+   C  -> Create
+   R  -> Read
+   U  -> Update
+   D  -> Delete
+
+-> To insert the row
+  db.<collection name>.insert({
+	'key': 'value',
+	'key': 'value',
+	'key': 'value'
+  })
+
+db.couredetails.insert({
+     'name': 'varun',
+     'lang': 'javascript',
+     'institution': 'AshokIT',
+     'member': '3'
+})
+
+db.couredetails.insert([{
+     'name': 'kiran',
+     'lang': 'javascript',
+     'institution': 'AshokIT'
+     },
+     {'name': 'VARMA',
+     'lang': 'javascript',
+     'institution': 'AshokIT'
+     },
+     {'name': 'VAMSI',
+     'lang': 'javascript',
+     'institution': 'AshokIT'
+}])
+
+db.<collection name>.find()   --> To show the data in collections
+db.couredetails.find()
+db.couredetails.find().pretty()
+db.couredetails.findone({name:'kiran'})
+db.couredetails.find({lang:'javascript'})
+db.couredetails.find().limit(2)
+db.couredetails.find().count()
+
+-> Update the row
+db.couredetails.updateOne(
+   { name: 'kiran' }, // Filter criteria
+   { $set:
+      { name: 'sam', lang: 'javascript', institution: 'AshokIT', member: '2' }
+   },
+   { upsert: true }
+)
+
+db.couredetails.updateOne(
+   { name: 'sam' }, // Filter criteria
+   { $set:
+      { name: 'vamsi', lang: 'javascript', institution: 'AshokIT', member: '2' }
+   },
+   { upsert: true }
+)
+
+-> Increment Operator  [Increase the value]
+-> convert from string to numaric
+db.couredetails.updateMany(
+   { member: { $type: "string" } },
+   [
+      {
+         $set: {
+            member: {
+               $convert: {
+                  input: "$member",
+                  to: "int",
+                  onError: 0 // Default value if conversion fails
+               }
+            }
+         }
+      }
+   ]
+)
+
+
+db.couredetails.updateOne(
+   { name: 'varun' }, // Filter criteria
+   { $inc:{
+	member: 3
+   }}
+)
+
+-> To rename
+db.couredetails.updateOne(
+   { name: 'varun' }, // Filter criteria
+   { $rename:
+      { member: '8'
+}})
+
+
+db.couredetails.updateOne(
+   { name: 'varun' }, // Filter criteria
+   { $rename:
+      { lang: 'python'
+}})
+
+-> To delete the row
+db.couredetails.remove({ name: 'VARMA' })
