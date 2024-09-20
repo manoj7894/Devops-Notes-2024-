@@ -1,0 +1,8 @@
+# How to give user and group permission in Bitbucket
+-> We have four permmission in bitbucket
+   -> Global Permission  [Who can log into the bitbucket server, all access permmission]
+   -> Project Permission  [Read, write and Admin permmission at the project] [In project level group permmission is there]
+   -> Repository Permission  [Read, write and Admin permmission at the Repository level]
+   -> Branch Permission   [Write(push) access on per branch]
+
+-> Click repository, Click repository settings, Click username and group
