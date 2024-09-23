@@ -661,3 +661,40 @@ After uploading the plugin, Jenkins typically requires a restart to activate the
 # What type of agnet are you using in jenkins
 -> Docker agent because it is light weight and dont need do lots of installization like maven and other tools which we require
 
+
+# Explain the CI/CD pipeline implemention method
+-> we used github as a source code and our taget is kuberntes in our CI/CD pipeline
+-> we use jenkins orchestration for CI/CD. The reason we use jenkins is whenever user make commit changes in source code webhooks trigger the declarative pipeline then using declarative pipeline we run mulitple stages
+
+Updated Stages in the Pipeline
+Stage 1: Checkout
+Action: Clone the code from the GitHub repository.
+Details: Jenkins checks out the latest code, including the Dockerfile and Argo CD manifests.
+Stage 2: Build
+Action: Build the application code.
+Details: Utilize Maven (or another build tool) to compile the code and execute unit tests for quality assurance.
+Stage 3: Code Scanning
+Action: Perform static code analysis using SonarQube.
+Details: Identify bugs, code smells, and vulnerabilities to provide feedback for developers.
+Stage 4: Dependency Check
+Action: Run OWASP Dependency-Check.
+Details: Analyze project dependencies for known vulnerabilities. This can be integrated as a Maven plugin or run as a standalone tool. The results will be stored for review.
+Stage 5: Build the Docker Image
+Action: Create a Docker image.
+Details: Use the Dockerfile to build the image that packages the application and its dependencies.
+Stage 6: Scan Docker Image with Trivy
+Action: Scan the Docker image for vulnerabilities using Trivy.
+Details: After building the Docker image, use Trivy to scan it for known vulnerabilities. Store the scan results and fail the pipeline if critical vulnerabilities are found.
+Stage 7: Push the Docker Image
+Action: Push the Docker image to a Docker registry.
+Details: Tag and upload the image to a registry (e.g., Docker Hub) for deployment.
+Stage 8: Update Argo CD
+Action: Update the Argo CD application configuration.
+Details: Trigger Argo CD to apply updated manifests, including updating the image tag in the Kubernetes deployment.
+Stage 9: Deploy to Kubernetes
+Action: Argo CD handles deployment.
+Details: Automatically deploys the application by syncing the Kubernetes cluster with the desired state defined in the manifests.
+Stage 10: Monitoring with Dynatrace
+Action: Integrate Dynatrace for monitoring and observability.
+Details: After deployment, Dynatrace tracks application performance and logs for insights into health and user experience.
+
