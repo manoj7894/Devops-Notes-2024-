@@ -1,0 +1,213 @@
+# We can deploy the application in kuberntes in two ways 
+-> We can deploy the application without using RBAC 
+-> We have install some plugins for kubernets
+   -> Kubernetes
+   -> Kuberntes Client API
+   -> Kubernetes Credentials plugin
+   -> Kubernetes CLI
+   -> Kubernetes Credentials Provider
+   -> Kubernetes plugin
+   -> AWS Steps
+   -> AWS Credentials
+   -> Bitbucket     --> If you are using then you have to install
+-> Create the credentials and choose the AWS and give access and secret key, Id name
+
+
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKER_IMAGE = "manoj3003/k8s:${BUILD_NUMBER}"
+        BIT_REPO_NAME = "validate-repo"
+        BIT_USERNAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml" // Adjust the path if necessary
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        
+        stage('Remove All Previous Docker Images') {
+            steps {
+                // Remove all Docker images
+                sh 'docker rmi -f $(docker images -a -q) || true'
+            }
+        }
+        
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+        
+        stage('Get Code') {
+            steps {
+                git branch: 'main', credentialsId: 'Bitbucket_user', url: 'https://manoj7894@bitbucket.org/manojvarmapotthuri/validate-repo.git'
+            }
+        }
+        
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+        
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+        
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('package.json')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
+                    -Dsonar.projectKey=Validate \
+                    -Dsonar.host.url=http://13.232.115.148:9000'''
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage('Trivy Image Scan') {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+        
+        stage('Check AWS CLI') {
+            steps {
+                sh 'aws --version'
+            }
+        }
+        
+        stage('Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+        
+        stage('Update Docker Image in Manifest') {
+            steps {
+                script {
+                    echo "Updating Docker image in Kubernetes manifest..."
+                    sh "sed -i 's|image: manoj3003/k8s:[^[:space:]]*|image: ${DOCKER_IMAGE}|g' ${DEPLOYMENT_FILE_PATH}"
+                }
+            }
+        }
+        
+        stage('Commit and Push Changes') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'Bitbucket_user', usernameVariable: 'BIT_USERNAME', passwordVariable: 'BIT_PASSWORD')]) {
+                        sh '''
+                            git config user.email "jenkins@example.com"
+                            git config user.name "Jenkins"
+                            git add ${DEPLOYMENT_FILE_PATH}
+                            git commit -m "Update Docker image to ${DOCKER_IMAGE}"
+                            git push -f https://$BIT_USERNAME:$BIT_PASSWORD@bitbucket.org/manojvarmapotthuri/validate-repo.git main
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        // Configure kubectl with EKS credentials
+                        sh 'aws eks --region ap-south-1 update-kubeconfig --name eks-1'
+                        
+                        // Create the webapps namespace
+                        sh 'kubectl create namespace webapps || true'
+                        
+                        // Now apply the deployment and service in the webapps namespace
+                        sh 'kubectl apply -f ${DEPLOYMENT_FILE_PATH} -n webapps'
+                        sh 'kubectl apply -f Kubernetes/service.yml -n webapps'
+                        sleep 20
+                    }
+                }
+            }
+        }
+        
+        stage('Verify the Deployment') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        sh '''
+                            kubectl get pods -n webapps
+                            kubectl get svc -n webapps
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
