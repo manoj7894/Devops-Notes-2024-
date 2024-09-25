@@ -64,7 +64,7 @@ apt install unzip
 adduser sonarqube
 sudo su - sonarqube
 wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.4.0.54424.zip
-sudo unzip sonarqube-9.4.0.54424.zip
+unzip sonarqube-9.4.0.54424.zip
 chmod -R 755 /home/sonarqube/sonarqube-9.4.0.54424
 chown -R sonarqube:sonarqube /home/sonarqube/sonarqube-9.4.0.54424
 cd sonarqube-9.4.0.54424/bin/linux-x86-64/
@@ -98,14 +98,39 @@ sudo chmod +x git.sh
 
 # To install trivy execute below steps one by one
 
-sudo apt-get install wget apt-transport-https gnupg lsb-release
-wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+
+vi trivy.sh
+
+# Install necessary packages
 sudo apt-get update
-sudo apt-get install trivy
+sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+
+# Add Trivy GPG key
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+
+# Add Trivy repository
+echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+
+# Update package list
+sudo apt-get update
+
+# Install Trivy
+sudo apt-get install -y trivy
+
+# Check Trivy version
 trivy --version
 
+
+# Execute the below commands to run the script
+sudo chmod +x trivy.sh
+./trivy.sh
+
+
+
 # To install NPM execute below steps one by one
+
+sudo apt install npm -y   --> Use this command to install npm instead of below 
+
 
 # installs fnm (Fast Node Manager)
 curl -fsSL https://fnm.vercel.app/install | bash
@@ -133,7 +158,7 @@ npm -v # should print `10.8.2`
   Docker and Docker Pipeline
   Sonar-scanner
   Nodjs
-  Dependency check
+  OWASP Dependency-Check
   Email-extension plugin
 
 Note: If you want to install plugins manually from local, Go to the below website and search the plugin
@@ -1081,19 +1106,19 @@ kubectl get nodes
 
 # If we want to deploy the application with ArgoCd through EKS cluster. you have to follow the below steps
 kubectl create namespace argocd   --> To create the namespace
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml    --> To install argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml    --> To install argocd
 kubectl get all -n argocd   --> To check instalitation
 kubectl edit svc argocd-server -n argocd     --> by default it will come with clusterIP. edit and keep load balancer.[After the modify the service it will give load balancer URL then copy that URL and paste in web browser]
 kubectl get secret -n argocd   --> To see the secret
 kubectl edit secret argocd-initial-admin-secret -n argocd   --> To get the password of argocd and username is admin and you will get password in encryption format. you will use command decrypted the passowrd and paste that password in argocd.
 
-echo MWV1QzFNaElVQ2lJVHdKSA== | base64 --decode  --> To decode the data or decrypt
+echo WlNmWC12RWx3S3YwUTNqMQ== | base64 --decode  --> To decode the data or decrypt
 
 # After Loginto the Argocd you will deploy the application into Cluster using below video link
          https://youtu.be/JGQI5pkK82w?si=2D32gqfVuXjetLoM
 
 # To use the docker private image for kubernets deployment. we have to create secret using below command
-kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=webapps
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=validateapps
 
 
 
@@ -1125,8 +1150,10 @@ sudo find /var/log -type f -name "*.log" -delete
 -> You have install the plugins in jenkins
    -> Kubernetes
    -> Kuberntes Client API
-   -> Kubernetes Credentials
+   -> Kubernetes Credentials plugin
    -> Kubernetes CLI
+   -> Kubernetes Credentials Provider
+   -> Kubernetes plugin
 # Restart the jenkins after install the plugins
 
 # To deploy the application with RBAC
@@ -1757,59 +1784,37 @@ pipeline {
 
 
 
-# To deploy the application directly with having any RBAC
+# To deploy the application directly without having any RBAC
 # You have to copy the config file data into normal file and keep file on desktop
 # Create the credentials with secret text, choose the file which you copied on desktop and give id name
 # You will install the two plugins
    -> AWS Steps
    -> AWS Credentials
+   -> Bitbucket     --> If you are using then you have to install 
 # Create the credentials and choose the AWS and give access and secret key, Id name
  
 
 pipeline {
     agent any
-    
+
     tools {
         nodejs 'node22'
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Docker_id')
-        DOCKER_IMAGE = "manoj3003/database:${BUILD_NUMBER}"
-        OLD_IMAGE_TAG_PATTERN = "manoj3003/database:*"  // Pattern to match old images
-        GIT_REPO_NAME = "Manipulating"
-        GIT_USER_NAME = "manoj7894"
-        DEPLOYMENT_FILE_PATH = "Manifests/dss.yml"  // Adjust the path if necessary
+        DOCKER_IMAGE = "manoj3003/k8s:${BUILD_NUMBER}"
+        BIT_REPO_NAME = "validate-repo"
+        BIT_USERNAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml" // Adjust the path if necessary
         SCANNER_HOME = tool 'sonar-scanner'
-        AWS_CREDENTIALS = credentials('aws-credentials-id')
-        KUBECONFIG = credentials('config_token')  // Adjust if necessary
     }
 
     stages {
-        stage('Cleanup Old Docker Images') {
+        
+        stage('Remove All Previous Docker Images') {
             steps {
-                script {
-                    echo "Cleaning up old Docker images..."
-                    
-                    def oldImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${OLD_IMAGE_TAG_PATTERN}'", returnStdout: true).trim()
-                    
-                    if (oldImages) {
-                        oldImages.split('\n').each { image ->
-                            if (image != DOCKER_IMAGE) {
-                                echo "Attempting to remove old image ${image}"
-                                sh """
-                                    if docker images -q ${image} > /dev/null 2>&1; then
-                                        docker rmi -f ${image} || echo 'Failed to remove image ${image} - might be in use or other error.'
-                                    else
-                                        echo 'Image ${image} does not exist.'
-                                    fi
-                                """
-                            }
-                        }
-                    } else {
-                        echo "No old images found matching pattern ${OLD_IMAGE_TAG_PATTERN}"
-                    }
-                }
+                // Remove all Docker images
+                sh 'docker rmi -f $(docker images -a -q) || true'
             }
         }
         
@@ -1825,9 +1830,9 @@ pipeline {
             }
         }
         
-        stage('GetCode') {
+        stage('Get Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/manoj7894/Manipulating.git'
+                git branch: 'main', credentialsId: 'Bitbucket_user', url: 'https://manoj7894@bitbucket.org/manojvarmapotthuri/validate-repo.git'
             }
         }
         
@@ -1846,44 +1851,35 @@ pipeline {
             }
         }
         
-        /*
-        stage('unit test') {
-            when {
-                expression { env.TEST_SCRIPT_EXISTS == 'true' }
-            }
-            steps {
-                script {
-                    try {
-                        sh "npm test"
-                        currentBuild.result = 'SUCCESS'
-                    } catch (Exception e) {
-                        echo "Unit tests failed. Continuing with the pipeline."
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        } */
-        
-        stage('OWASP SCAN') {
-            when {
-                expression {
-                    // Check if pom.xml exists
-                    return fileExists('pom.xml')
-                }
-            }
-            steps {
-                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
-        
-        stage("Trivy filesystem scan") {
+        stage('Trivy Filesystem Scan') {
             steps {
                 script {
                     sh "trivy fs --format table -o fs-report.html ."
                 }
             }
         }
+        
+        // stage('OWASP Scan') {
+        //     when {
+        //         expression {
+        //             fileExists('package.json')
+        //         }
+        //     }
+        //     steps {
+        //         dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+        //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        //     }
+        // }
+        
+        // stage('SonarQube') {
+        //     steps {
+        //         withSonarQubeEnv('Sonar_Install') {
+        //             sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
+        //             -Dsonar.projectKey=Validate \
+        //             -Dsonar.host.url=http://13.232.115.148:9000'''
+        //         }
+        //     }
+        // }
         
         stage('Build') {
             steps {
@@ -1895,7 +1891,7 @@ pipeline {
             }
         }
         
-        stage("Trivy image scan") {
+        stage('Trivy Image Scan') {
             steps {
                 script {
                     sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
@@ -1903,15 +1899,12 @@ pipeline {
             }
         }
         
-        stage("SonarQube") {
+        stage('Check AWS CLI') {
             steps {
-                withSonarQubeEnv('Sonar_Install') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Campground \
-                    -Dsonar.projectKey=Campground '''
-                }
+                sh 'aws --version'
             }
         }
-
+        
         stage('Push') {
             steps {
                 script {
@@ -1921,62 +1914,45 @@ pipeline {
                 }
             }
         }
-
-        stage('Update Deployment File') {
+        
+        stage('Update Docker Image in Manifest') {
             steps {
-                withCredentials([string(credentialsId: 'github_id', variable: 'GITHUB_TOKEN')]) {
-                    script {
+                script {
+                    echo "Updating Docker image in Kubernetes manifest..."
+                    sh "sed -i 's|image: manoj3003/k8s:[^[:space:]]*|image: ${DOCKER_IMAGE}|g' ${DEPLOYMENT_FILE_PATH}"
+                }
+            }
+        }
+        
+        stage('Commit and Push Changes') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'Bitbucket_user', usernameVariable: 'BIT_USERNAME', passwordVariable: 'BIT_PASSWORD')]) {
                         sh '''
-                            git config user.email "manojvarmapotthuri3003@gmail.com"
-                            git config user.name "Manojvarma Potthuri"
-                        '''
-
-                        sh 'git checkout main'
-                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
-
-                        sh '''
-                            sed -i "s|image: manoj3003/database:[^[:space:]]*|image: manoj3003/database:${BUILD_NUMBER}|g" ${DEPLOYMENT_FILE_PATH}
-                        '''
-
-                        sh '''
-                            if git diff --quiet; then
-                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
-                            else
-                                git add ${DEPLOYMENT_FILE_PATH}
-                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                                git push -f https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-                            fi
+                            git config user.email "jenkins@example.com"
+                            git config user.name "Jenkins"
+                            git add ${DEPLOYMENT_FILE_PATH}
+                            git commit -m "Update Docker image to ${DOCKER_IMAGE}"
+                            git push -f https://$BIT_USERNAME:$BIT_PASSWORD@bitbucket.org/manojvarmapotthuri/validate-repo.git main
                         '''
                     }
                 }
             }
         }
         
-        // stage('Create Namespace') {
-        //     steps {
-        //         script {
-        //             withCredentials([file(credentialsId: 'config_token', variable: 'KUBECONFIG_FILE')]) {
-        //                 sh '''
-        //                     export KUBECONFIG=$KUBECONFIG_FILE
-        //                     kubectl get namespace webapps || kubectl create namespace webapps
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
-        
-        stage('Deploy') {
+        stage('Deploy to EKS') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'config_token', variable: 'KUBECONFIG_FILE')]) {
-                        sh '''
-                            export KUBECONFIG=$KUBECONFIG_FILE
-                            kubectl apply -f Manifests/pv.yml
-                            kubectl apply -f Manifests/pvc.yml
-                            kubectl apply -f Manifests/secret.yml
-                            kubectl apply -f Manifests/service.yml
-                            kubectl apply -f Manifests/dss.yml
-                        '''
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        // Configure kubectl with EKS credentials
+                        sh 'aws eks --region ap-south-1 update-kubeconfig --name eks-1'
+                        
+                        // Create the webapps namespace
+                        sh 'kubectl create namespace webapps || true'
+                        
+                        // Now apply the deployment and service in the webapps namespace
+                        sh 'kubectl apply -f ${DEPLOYMENT_FILE_PATH} -n webapps'
+                        sh 'kubectl apply -f Kubernetes/service.yml -n webapps'
                         sleep 20
                     }
                 }
@@ -1986,13 +1962,10 @@ pipeline {
         stage('Verify the Deployment') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'config_token', variable: 'KUBECONFIG_FILE')]) {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
                         sh '''
-                            export KUBECONFIG=$KUBECONFIG_FILE
-                            kubectl get pods
-                            kubectl get svc
-                            kubectl get pv
-                            kubectl get pvc
+                            kubectl get pods -n webapps
+                            kubectl get svc -n webapps
                         '''
                     }
                 }
@@ -2019,7 +1992,6 @@ pipeline {
         }
     }
 }
-
 
 
 
