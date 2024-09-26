@@ -21,3 +21,7 @@
         give push and commit create
 -> To know the more details you will checkout below link
    https://youtu.be/AMviqVG3Ifo?si=OsRdNPYnYJoMBtZn
+
+
+# To Connect with argocd 
+-> Go to settings in argocd, click repo, give git, project default, give url, username, and password token
