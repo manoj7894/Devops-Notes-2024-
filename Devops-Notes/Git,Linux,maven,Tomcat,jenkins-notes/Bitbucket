@@ -5,4 +5,8 @@
    -> Repository Permission  [Read, write and Admin permmission at the Repository level]
    -> Branch Permission   [Write(push) access on per branch]
 
--> Click repository, Click repository settings, Click username and group
+# How to give user permission
+-> Go to any repository then only you will find that option user managnment, click the user managnmet, Click invite user
+-> Enter email id and click invite user
+-> After create the user. Go to the whichever repository do you want to give access to that user. click repository settings, click repository permission,
+    click add user and add the user.
