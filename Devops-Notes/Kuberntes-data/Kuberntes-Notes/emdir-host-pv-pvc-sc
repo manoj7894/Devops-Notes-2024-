@@ -1,0 +1,139 @@
+# What is volumes in Kubernets
+A volume's lifecycle is tied to the pod, not the individual containers. This means if a container crashes and is restarted, the volume will still retain its data.
+
+# Types of Volumes:
+Kubernetes supports various types of volumes, each with its own use cases, including:
+-> emptyDir: A temporary directory that shares storage among containers in a pod.
+-> hostPath: Mounts a file or directory from the host node’s filesystem into a pod.
+-> persistentVolumeClaim (PVC): A request for storage that dynamically provisions a persistent volume (PV) from a storage class.
+-> nfs, awsElasticBlockStore, gcePersistentDisk, etc.: Integrate with external storage systems.
+
+# What emptydir
+-> When we use the emptydir volume type even if we restart and delete the pod we will lose the data assositate with pod.
+-> We cant persistence and share data to multiple nodes    not recommand
+
+# What hostpath
+-> When we use the hostpath volume type even if we restart and delete the pod we will retrive the data assositate with pod. [means data will store in node whereever pod is running]
+-> We cant persistence and share data to multiple nodes [It will save data in single node if that node will delete we will lose the data]  not recommand
+
+Note: So far we dicussed above volume are ephemeral because if pod or nodes gets deleted or restared the data assosiate with pods those volumes gets deleted.
+
+# What Persistene volumes
+-> When we use the PVC volume type even if we restart and delete the pod we will retrive the data assositate with pod. [means data will store in node whereever pod is running]
+-> We can persistence and share data to multiple nodes   [It will save data in multiple node if that node will delete we will retrive the data from another node]  recommand
+
+
+# Kuberbets offers three components to persistence the data
+-> Persistence volumes
+-> Persistence volume claims
+-> Storage class
+
+# What is Persistence volumes(PV)
+-> A PersistentVolume is a piece of storage in the Kubernetes cluster that has been provisioned by an administrator or dynamically provisioned using stoage class
+
+# What is Persistence volume claims
+-> A PersistentVolumeClaim is a request for storage by a user or developer.
+-> It is a resource object in the Kubernetes API that allows a Pod to access a piece of storage from a PersistentVolume (PV).
+
+# In persistence volume claim we have different access modes
+-> ReadWriteMany   -> Which means this volume can be mounted as read write by many nodes  [If you are running in different node this is best option for you]
+-> ReadWriteOnce   -> Which means all your pods are running in single node This is the best option [But you are pods running in different nodes they cant use this volumes
+-> ReadOnlyOnce   ->  when use both ReadOnlyOnc and ReadOnlyMany you cant write the data in persistence volumes [it is just read only mode]
+-> ReadOnlyMany   -> 
+-> ReadWriteOncePod  -> When we use this access mode this volume can be mounted as read write once by single pod [ we will this mode to ensure only one pod accross the whole cluster can read or write]
+
+# What is storage class 
+-> How the pvs should be created dynamically
+
+kubectl api-resources | grep storage    -> To get the api version  [false means storage class not created in any namespace those available to the entire cluster
+kubectl get sc  -> to see storage class
+
+-> Volumebinding mode means it will bind to pv immediatly
+-> reclaimpolicy means whenever pvc delete automatically pv will aslo delete
+-> retain means whenever pvc delete pv will not delete
+
+persistence volume in pending
+
+kubectl get sc  -> to see storage class
+
+-> vi sc.yml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: demo-storage
+provisioner: kubernetes.io/aws-ebs
+volumeBindingMode: Immediate
+reclaimPolicy: Delete
+
+-> pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: yelp-camp-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: "demo-storage"
+
+-> deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validate-app
+  labels:
+    app: validate-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validate-app
+  template:
+    metadata:
+      labels:
+        app: validate-app
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: validate-app
+        image: manoj3003/validate:3
+        imagePullPolicy: "Always"
+        volumeMounts:
+            - name: volume1
+              mountPath: /opt/validate
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: regcred  # Reference to the Docker registry secret
+      volumes:
+        - name: volume1
+          persistentVolumeClaim:
+            claimName: yelp-camp-pvc
+
+
+-> Vi serive.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: validate-app
+  labels:
+    app: validate-app
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: validate-app
+
+
+# Why Use Volumes?
+-> Data Persistence: Store data that needs to persist beyond the lifecycle of a pod.
+-> Shared Storage: Enable multiple containers within a pod to share data.
+-> Decoupling Storage from Pods: Manage storage independently from the pod lifecycle, making it easier to handle data.
+
+
+
+
