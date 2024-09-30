@@ -1118,7 +1118,7 @@ echo WlNmWC12RWx3S3YwUTNqMQ== | base64 --decode  --> To decode the data or decry
          https://youtu.be/JGQI5pkK82w?si=2D32gqfVuXjetLoM
 
 # To use the docker private image for kubernets deployment. we have to create secret using below command
-kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=validateapps
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=manoj3003 --docker-password=Varma_3003 --namespace=webapps
 
 
 
@@ -1187,6 +1187,7 @@ rules:
         - rbac.authorization.k8s.io
     resources:
       - pods
+      - pods/exec  # Allow exec on pods
       - secrets
       - componentstatuses
       - configmaps
