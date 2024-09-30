@@ -1,0 +1,325 @@
+RBAC:- Role based access control
+
+# What is RBAC
+-> RBAC is the way to define the different level of permission or access level for different users based on rules
+-> We have two types of roles
+  1. ROle:- Role is work on specific namespace
+  2. Cluster Role:- Cluster role is work on cluster level means it work on all the namespaces
+
+# To create role on cluster level
+# Service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin
+  namespace: default  # Corrected the spelling from 'defalut' to 'default'
+---
+# Cluster Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: admin-role
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+# Bind the service account and role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin-role
+subjects:
+  - kind: ServiceAccount
+    name: admin
+    namespace: default  # Corrected the formatting here
+
+
+# To create the token for service account
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  annotations:
+    kubernetes.io/service-account.name: admin
+
+
+-> After complete to create the role and token. copy the toke and paste the token in your jenkins credentials on secret text
+
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKER_IMAGE = "manoj3003/validate:${BUILD_NUMBER}"
+        BIT_REPO_NAME = "Validate-login"
+        BIT_USERNAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml" // Adjust the path if necessary
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Remove All Previous Docker Images') {
+            steps {
+                // Remove all Docker images
+                sh 'docker rmi -f $(docker images -a -q) || true'
+            }
+        }
+
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+
+        stage('Get Code') {
+            steps {
+                git branch: 'main', credentialsId: 'Bitbucket_user', url: 'https://manoj7894@bitbucket.org/manojvarmapotthuri/validate-login.git'
+            }
+        }
+
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('package.json')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
+                    -Dsonar.projectKey=Validate \
+                    -Dsonar.host.url=http://65.2.143.149:9000'''
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+
+        stage('Check AWS CLI') {
+            steps {
+                sh 'aws --version'
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+        
+        stage('Update Deployment File') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Bitbucket_user', usernameVariable: 'BIT_USERNAME', passwordVariable: 'BIT_PASSWORD')]) {
+                    script {
+                        sh '''
+                            git config user.email "jenkins@example.com"
+                            git config user.name "Jenkins"
+                        '''
+                        
+                        sh 'git checkout main'
+                        sh 'cat ${DEPLOYMENT_FILE_PATH}'
+                        
+                        sh '''
+                            sed -i "s|image: manoj3003/validate:[^[:space:]]*|image: ${DOCKER_IMAGE}|g" ${DEPLOYMENT_FILE_PATH}
+                        '''
+                        
+                        sh '''
+                            if git diff --quiet; then
+                                echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
+                            else
+                                git add ${DEPLOYMENT_FILE_PATH}  # Only add the deployment file
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                                git push -f https://$BIT_USERNAME:$BIT_PASSWORD@bitbucket.org/manojvarmapotthuri/validate-login.git main
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    withKubeConfig(caCertificate: '', clusterName: ' eks-1', contextName: '', credentialsId: 'k8s_token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://8BE4030C8B4DAB2208A9AA58827505E7.gr7.ap-south-1.eks.amazonaws.com') {
+                        // Now apply the deployment and service in the webapps namespace
+                        sh 'kubectl apply -f Kubernetes/pv.yml -n webapps'
+                        sh 'kubectl apply -f Kubernetes/pvc.yml -n webapps'
+                        sh 'kubectl apply -f ${DEPLOYMENT_FILE_PATH} -n webapps'
+                        sh 'kubectl apply -f Kubernetes/service.yml -n webapps'
+                        sleep 20
+                    }
+                }
+            }
+        }
+
+        stage('Verify the Deployment') {
+            steps {
+                script {
+                    withKubeConfig(caCertificate: '', clusterName: ' eks-1', contextName: '', credentialsId: 'k8s_token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://8BE4030C8B4DAB2208A9AA58827505E7.gr7.ap-south-1.eks.amazonaws.com') {
+                        sh '''
+                            kubectl get pods -n webapps
+                            kubectl get svc -n webapps
+                            kubectl get pv -n webapps
+                            kubectl get pvc -n webapps
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
+
+
+# If you want to create the role based on specic name you have to execute the below stpes
+
+# create service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: webapps
+
+---
+# create role 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: app-role
+  namespace: webapps
+rules:
+  - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+    resources:
+      - pods
+      - pods/exec  # Allow exec on pods
+      - secrets
+      - componentstatuses
+      - configmaps
+      - daemonsets
+      - deployments
+      - events
+      - endpoints
+      - horizontalpodautoscalers
+      - ingress
+      - jobs
+      - limitranges
+      - namespaces
+      - nodes
+      - pods
+      - persistentvolumes
+      - persistentvolumeclaims
+      - resourcequotas
+      - replicasets
+      - replicationcontrollers
+      - serviceaccounts
+      - services
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+# Bine the role and service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-rolebinding
+  namespace: webapps 
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-role 
+subjects:
+- namespace: webapps 
+  kind: ServiceAccount
+  name: jenkins
+
+
+
+
