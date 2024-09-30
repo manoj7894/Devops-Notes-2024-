@@ -98,7 +98,7 @@ Kubernets Architecture
 -> API
 -> ETCD
 -> Scheduler
--> Control manager
+-> Control manager  [It will detect the state changes means if pod is in dead state it will detect the changes and inform to schedular then schedular will schedule the another pod]
 
 # What is API 
 -> API server will act as communicator between develop/Devops and K8s componets
@@ -107,6 +107,7 @@ Kubernets Architecture
 -> It act as database in k8s
 -> ETCD will stores cluster information such it current state, desitred state, configuration resources and runtime data.
 -> Whenever we run k8s application that request goes to the API Server and API server will store the request in ETCD.
+-> It store the imformation in key value pair  [key: value,  name: manoj]
 
 # What Schedular
 -> It will scheduled the pods for execution which are unschedule in ETCD
