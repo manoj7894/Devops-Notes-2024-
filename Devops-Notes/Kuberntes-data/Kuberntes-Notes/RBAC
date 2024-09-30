@@ -321,5 +321,32 @@ subjects:
   name: jenkins
 
 
+# To create the token for service account
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  annotations:
+    kubernetes.io/service-account.name: Jenkins
+
+
+
+# if you want to deploy the persistence volume aslo you have to separately create cluster role for persistence volume because it wont work on namespace level so that create persistence on cluster level and bind to service account
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: persistence-volume-access
+rules:
+  - apiGroups:
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+# Bind 
+
+
+
 
 
