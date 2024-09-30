@@ -345,6 +345,18 @@ rules:
 
 ---
 # Bind 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-persistence-volume-access
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: persistence-volume-access
+subjects:
+- namespace: webapps
+  kind: ServiceAccount
+  name: jenkins
 
 
 
