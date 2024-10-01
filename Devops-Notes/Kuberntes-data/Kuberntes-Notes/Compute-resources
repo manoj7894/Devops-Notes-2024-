@@ -93,6 +93,7 @@ spec:
 
 kubectl get limitrange -n default
 kubectl delete limitrange <name of limit> -n default
+kubectl describe limitrange <limitrange-name> -n <namespace>
 
 # To set the quota
 
@@ -116,6 +117,11 @@ spec:
     services.nodeports: "2"
     # Only two PVCs can claim storage with the ssd StorageClass.
     ssd.storageclass.storage.k8s.io/persistentvolumeclaims: "2"
+
+
+kubectl get resourcequota -n default
+kubectl delete resourcequota resource-quota -n default
+kubectl describe limitrange <quotaname-name> -n <namespace>
 
 # If you want to work on limits and quota
 -> limit range means it validates the each pod in namespcae sometime if you want to restrict at namespace level then we should use quota
