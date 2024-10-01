@@ -1,0 +1,80 @@
+# What is Autoscaling
+> Auto Scalling allow to you to automatically scale up and scale down your application based CPU Utilization and Memory Utilization
+-> We have two types of auto scalling
+  1) Horizontial scalling
+  2) Vertical scalling
+
+-> Horizontial Scalling increase the number of instances based CPU Utilization and Memory Utilization when increase the load on servers
+-> Vertical Scalling increase the capacity of system means increase the CPU and Memory size when increase the load on servers but it need to do restart it will affect somedown time it is stateless nature
+
+
+# Scalling Types
+-> Horizontal Auto Scaling
+-> Vertical Auto Scaling
+
+# Two Types in Horizontal Auto Scaling
+-> HPA [Horizontal Pod autoscaling]  [Workeload Pods]
+-> Cluster Autoscaler [infra (nodes)]
+
+# Two Types in Vertical Auto Scaling
+-> HPA [Horizontal Pod autoscaling]  [Workeload Pods]
+-> Node AutoProvisioning [infra (nodes)]
+
+-> Event based autoscaling  (KEDA is a third party tool)
+-> Cron/Schedule based autoscaling
+
+-> https://github.com/piyushsachdeva/CKA-2024/blob/main/Resources/Day17/readme.md
+-> https://youtu.be/afUL5jGoLx0?si=7SC0Kd4L4IbxByFA
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javawebappdeployment
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: javawebapp
+  template:
+    metadata:
+      name: javawebapppod
+      labels:
+        app: javawebapp
+    spec:
+      containers:
+      - name: my-container
+        image: ashokit/javawebapp
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "250Mi"
+          limits:
+            cpu: "100m"
+            memory: "300Mi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: php-apache
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: javawebappdeployment
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+
+-> Kubectl get hpa
+-> kubectl get hpa --watch
