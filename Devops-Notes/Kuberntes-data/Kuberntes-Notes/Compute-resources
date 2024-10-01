@@ -1,0 +1,59 @@
+# What is compute resource
+-> CPU and memory we called compute resources
+
+# What is CPU and Memory
+# CPU
+-> Measured a fraction of time
+-> Ex=200m(0.2cpu), 1cpu(1000m)
+-> Compressible
+-> Throttles means it wont kill even through we cross the CPU limit because it is Compressible
+-> 1 CPU is equal to
+      1 vCPU in AWS
+      1 core in GCP
+      1 vcore in azure
+      1 Hyperthread on bare-metal
+
+# Memory
+-> Measured on bytes
+-> Ex=1KB (1000 bytes), 1KiB (1024 bytes)
+-> Ex=1MB (1000 kb), 1MiB (1024 kib)
+-> Not compressible
+-> Terminates
+
+
+-> We have two options in resources 
+  1. requersts  [it will schedule the pods in nodes based on how much CPU and memory you have mentioned in requersts if node does not have that CPU and memory it wont schedule the pods]
+  2. limits    [Your container can use only that amount of CPU and memory which you mention in limits]
+
+# What is requests
+-> Allow you to define an amount of resources(CPU,Memory) you expect your container to use.
+-> Next kubernetes schedular will use these resource to aviod scheduling pods on the nodes that does not have enough available resources.
+
+# What is Limits
+-> Provides the way for us to limit the amount of resources a container can use
+
+CPU measures in cores
+  250m -> 250 milliCPus  -> 0.25 core
+
+Memory measures bytes
+  250mi -> 250 mebibytes
+
+resources:
+  requests:
+      cpu: "100m"
+      memory: "64Mi"
+  limits:
+      cpu: "100m"
+      memory: "256Mi"
+
+
+# How to install metrics
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl get pods -n kube-system
+kubectl top nodes   --> To see the node capacity
+kubectl top pods -n default  --> To see the pods capaticy
+
+# If you want to work on limits and quota
+-> limit range means it validates the each pod in namespcae sometime if you want to restrict at namespace level then we should use quota
+https://github.com/pelthepu/Kubernetes/tree/master/resources/resource-management   --> To get limit and quota yaml files
+https://youtu.be/MbgFIQoVh6w?si=Q_MRCWRSDMsh2qxi  --> To get more idea you will watch this video link
