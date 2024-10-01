@@ -558,6 +558,9 @@ wget -q -O- http://my-app-service
 -> Helm manages K8S resources package through charts
 -> A chart is collection of files organized in specific directory structure
 
+# To install helm
+sudo snap install helm --classic
+
 # How to install the HELM
 -> wget https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz
 -> tar -zxvf helm-v3.7.1-linux-amd64.tar.gz
