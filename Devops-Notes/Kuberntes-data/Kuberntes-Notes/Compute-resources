@@ -90,6 +90,10 @@ spec:
       max:
         storage: 10Gi
 
+
+kubectl get limitrange -n default
+kubectl delete limitrange <name of limit> -n default
+
 # To set the quota
 
 apiVersion: v1
