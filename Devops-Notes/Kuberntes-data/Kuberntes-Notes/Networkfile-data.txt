@@ -16,6 +16,9 @@
 Ingress means: you can get the above pod data only by Ingress pod
 Egress means: you can expose only Egress pod data only by above pod 
 
+# TO get proper knowledge on networking you will see the below link once
+https://youtu.be/qvBHvD4oXMc?si=fYjvsjZOvy89KqKd
+
 How to work with Network policy
 -> First you will create one pod
 apiVersion: v1
