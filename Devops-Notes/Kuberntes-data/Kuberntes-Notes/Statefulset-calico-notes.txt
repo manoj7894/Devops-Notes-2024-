@@ -23,6 +23,9 @@ How to work with statefulset
 -> You have to execute the persistence,volume.yml
 -> After execute the all above file later you have to execute the statefulset
 
+# To get more details of statefulset you will check it out below link
+https://youtu.be/kRynOqdpWxc?si=Ma4Ihn0MJ-BLp5IV
+
 
 
 
