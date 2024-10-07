@@ -1,0 +1,218 @@
+# What is ingress
+-> Ingress is an API object that provides external access to service within cluster.
+-> It acts as a layer 7 (application layer) load balancer, allowing external traffic to be routed to different services based on HTTP/HTTPS routes and rules
+
+Note:-
+
+what is layers in load balancer in aws
+ChatGPT said:
+ChatGPT
+In AWS, a load balancer can operate at different layers of the OSI model, primarily focusing on Layer 4 and Layer 7.
+
+Layer 4 Load Balancing (Transport Layer):
+
+Type: Network Load Balancer (NLB).
+Functionality: Distributes incoming traffic based on IP address and TCP/UDP protocol information. It operates at the transport layer, allowing for high performance and low latency.
+Use Cases: Ideal for applications that require extreme performance and can handle millions of requests per second, like real-time gaming and IoT.
+Layer 7 Load Balancing (Application Layer):
+
+Type: Application Load Balancer (ALB).
+Functionality: Distributes traffic based on application-level content, such as HTTP headers, URL paths, or cookies. This allows for more intelligent routing and the ability to handle HTTP/HTTPS traffic.
+Use Cases: Suitable for microservices, HTTP/HTTPS traffic, and applications requiring advanced routing features like host-based or path-based routing.
+Classic Load Balancer (CLB):
+
+Operates at both Layer 4 and Layer 7, but it's generally considered a legacy option. It’s used for applications that were built within the EC2-Classic network.
+Key Features:
+Health Checks: All load balancers support health checks to route traffic only to healthy instances.
+SSL Termination: ALB can manage SSL certificates, offloading the SSL processing from backend servers.
+Sticky Sessions: Ability to bind a user’s session to a specific instance.
+By choosing the appropriate type of load balancer based on your application’s needs, you can optimize performance and scalability in your AWS environment.
+
+
+
+You said:
+what is main difference between layer 4 and layer 7 in load balancer
+ChatGPT said:
+ChatGPT
+The main differences between Layer 4 and Layer 7 load balancers revolve around the layer of the OSI model at which they operate and how they manage traffic:
+
+Layer 4 Load Balancer
+Layer: Operates at the Transport Layer (Layer 4).
+Traffic Handling: Distributes traffic based on IP address, TCP, and UDP protocol information. It does not inspect the content of the packets.
+Performance: Generally offers higher performance and lower latency since it processes fewer data points.
+Use Cases: Best for applications requiring fast and efficient load balancing, such as real-time applications (gaming, IoT) and high-throughput services.
+Examples: AWS Network Load Balancer (NLB).
+Layer 7 Load Balancer
+Layer: Operates at the Application Layer (Layer 7).
+Traffic Handling: Distributes traffic based on application-level content, such as HTTP headers, URL paths, and cookies. It can make routing decisions based on this data.
+Advanced Features: Supports features like SSL termination, content-based routing, and sticky sessions. It can also provide detailed metrics and logging.
+Use Cases: Ideal for web applications, microservices, and services requiring complex routing logic.
+Examples: AWS Application Load Balancer (ALB).
+Summary
+In essence, Layer 4 load balancers focus on basic traffic distribution and performance, while Layer 7 load balancers offer more intelligent routing and advanced application features. Choosing between them depends on the specific needs of your application.
+
+Layer 4 work on single website like google.com
+Layer 7 work on multiple websites like google.com, facebook.com, instagram.com
+
+
+
+
+# Why should we use ingress
+-> Suppose when we create pod using LoadBalancer type then we will get one DNS url to access but can you give that URL to
+any user to access we cant give because that is a Big URL
+-> In real time project we can use mulitple application and multiple services
+-> when create the multiple service can we give multiple urls to the user to access no
+-> can we give our cluster services direct access to user no so that we will use clusterIp type service to create the pods
+-> When we the clusterip then we cant access the pods from outside so that we will use Ingress
+
+
+# We can deploy the ingress application in three ways
+-> path-Based Routing
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: k8s-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /nginx(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port:
+              number: 80
+      - path: /httpd(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: httpd
+            port:
+              number: 80
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port:
+              number: 80
+
+-> Host-Based Routing
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: todo-ingress-host-based
+spec:
+  rules:
+    - host: todo-ui.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: todo-ui-service
+                port:
+                  number: 3001
+    - host: todo-api.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: todo-api-service
+                port:
+                  number: 8080
+
+-> Securing with Https
+-> Suppose when we create pod using LoadBalancer type then we will get one DNS url to access but can you give that URL to
+any user to access we cant give because that is a Big URL
+-> We need to Mapping the URL using Route53. If we want to get any Route53 domain we have to purchase
+-> After purchage click host zone and click on purchased URL and create the record and select alias
+-> after that choose load Balancer and choose the region and select the load balancer and create record
+-> After create the record then we will access the by using route53 domain URL
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-resource-2
+spec:
+  ingressClassName: nginx      
+  rules:
+  - host: ashokit.org    # Route53 domain name
+    http:
+     paths:
+     - PathType: Prefix
+       path: "/java-web-app"
+       backend:
+        service:
+         name: tomcatappsvc   # Tomcat Service name
+         port:
+          number: 80
+     - PathType: Prefix
+       path: "/nginx-web-app"
+       backend:
+        service:
+         name: nginxappsvc   # Nginx Service name
+         port:
+          number: 80
+
+# What are the path types in ingress
+-> Implementation Specific  [Path type is decided by the ingress controller]
+-> Exact  [The URL should match the exact path with case sensitivity]
+-> Prefix [URL should match the path split by the slash 
+
+
+# What is ingress controller
+-> Ingress Controller is a component that manages and operates the ingress resources.
+-> Ingress controller will read the rules in ingress and process them that component is called ingress controller. without ingress control ingress rules dont do anything So that we mush install the ingress controller in our cluster
+
+# What is Ingress resources
+-> Ingress resources is an API object that defines rules for routing external HTTP and HTTPS traffic to services within cluster.
+
+# How to install ingress controller
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/aws/deploy.yaml    --> We will get this Kubernetes official document https://kubernetes.github.io/ingress-nginx/deploy/#aws
+
+Final ingress file
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-world
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "example.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world
+            port:
+              number: 80
+
+-> kubectl get ingress
+-> kubectl get pods -A | grep nginx   --> To search the nginx pods
+-> 
+
+
+
+
+# You will follow the below video to deploy the ingress application
+https://youtu.be/kf3UjITS91M?si=E1Oc7t79g2hvidhB
+https://youtu.be/a4Kq6mX4Hr4?si=f3E7EIq41fEXljsd   --> path based routing
+https://youtu.be/YFnzVaZsKK8?si=1pqGoXfv0u9MlJTF
+
