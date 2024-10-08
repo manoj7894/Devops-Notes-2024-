@@ -1,0 +1,110 @@
+# what is the difference between job and cronjob in kubernetes
+While Jobs are designed for running one-time or on-demand tasks, CronJobs are used for executing tasks at regular intervals
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-backup-job
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 100
+  ttlSecondsAfterFinished: 60 # delete job automatically after 60 seconds when job deleted the pods are assosiated with jobs are deleted
+  template:
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              'mongodump --uri "mongodb://test1:${MONGO_PASSWORD}@mongo-0.mongo.default.svc.cluster.local:27017,mongo-1.mongo.default.svc.cluster.local:27017,mongo-2.mongo.default.svc.cluster.local:27017/?replicaSet=rs0&readPreference=secondaryPreferred&authSource=admin&ssl=false" -o /usr/share/mongodump/$(date +"%d%m%Y-%H%M%S")',
+            ]
+          volumeMounts:
+            - mountPath: "/usr/share/mongodump/"
+              name: mongodump
+          env:
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: mongodb-secret
+      volumes:
+        - name: mongodump
+          persistentVolumeClaim:
+            claimName: mongodump
+      restartPolicy: Never
+
+
+# Using above yaml file we can take backup at one time because we have used job
+
+
+
+backoffLimit: 3      # if keep backofflimit 3 suppose pod will fail, again it will create pod if that one fail again it will create another pod again if it fail it after executed 3 times it showing error backofflimit. [backofflimit default is 6]
+activeDeadlineSeconds: 50   # How long job should be run if job run more than 100. Job will be marked as a incomplete error
+
+Completion:- There is no error in pods job comtroller will check the number of pods completions this we can give job manifeast with this we are asking the job to run our pod at least these many number of times so this completion
+              in the job is kind of similar to the replicas in the deployment. the job tries to spin of new pods until the required completion are met. when specified number of sucessfully completion is reached job will be marked as completed
+              when we give completion is greater than 1 pods are created one by one sequentially but we can create the pods parallely by setting the parallelism for example if the parallelism is set 2 and completion 3 two pods will create at first time
+              one they completed another one pod will created this is the lifecycle of job. These job are executed only once that means when job is created the pod is created and the execution run in the pod and that will be completed 
+              but sometimes we want run job on schedule bases like DB backups like where we want to take database backup everyday at midnight for the kubernets will provide another resource is called cron job
+
+-> kubectl get jobs  --> To see the jobs
+-> kubectl get pods   --> To see pods created by job
+
+
+# Cronjob
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongodb-backup-cronjob
+spec:
+  schedule: "* * * * *"    # This the cron experssion which is the heart of the cron job
+  concurrencyPolicy: Allow
+  successfulJobsHistoryLimit: 2      # How many job should be stored for our reference ib feature
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 60 # delete job after 60 seconds
+      template:
+        spec:
+          containers:
+            - name: mongodb
+              image: mongo
+              command: ["/bin/sh", "-c"]
+              args:
+                [
+                  'mongodump --uri "mongodb://test1:${MONGO_PASSWORD}@mongo-0.mongo.default.svc.cluster.local:27017,mongo-1.mongo.default.svc.cluster.local:27017,mongo-2.mongo.default.svc.cluster.local:27017/?replicaSet=rs0&readPreference=secondaryPreferred&authSource=admin&ssl=false" -o /usr/share/mongodump/$(date +"%d%m%Y-%H%M%S")',
+                ]
+              volumeMounts:
+                - mountPath: "/usr/share/mongodump/"
+                  name: mongodump
+              env:
+                - name: MONGO_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mongodb-secret
+          volumes:
+            - name: mongodump
+              persistentVolumeClaim:
+                claimName: mongodump
+          restartPolicy: Never
+
+
+
+concurrencyPolicy:- This cconcurrencyPolicy refer to the number concurrenct job instances that are allowed to run at any given time by default a cron job will create only one job instance at a time meaning if job is still running when the next scheculed
+                     run comes around the new job instance will be queued until the first one complete however they can set the concurrencyPolicy filed in cron job to control how concurrenct jobs are handled the available options are "Allow" this Allow the
+                     mulitple job instances to run concurrently which can be very useful for handling overlapping tasks or if you want to run multiple instances of the same jobs in parallel and next allowed value is the forbid which prevents any job
+                     instances from starting while an existing one is still running and the next one is the replace which stops the currently running jobs and create new job and default concurrencyPolicy is forbid
+
+
+kubectl get cj   -> to see the cronjobs
+kubectl get jobs  
+kubectl get jobs    -> New job is created you will look at time
+kubectl delete cj <cronjobname>   -> All cronjob and assosiated job will aslo deleted
+
+
+# You will watch below video to get more idea about job and cronjob
+https://youtu.be/cWUbkuzc8dM?si=AZ201Bw3ex-am0E0
+
