@@ -190,7 +190,7 @@ later go to the installed plugins and check wheather is it installed or not
 -> You will restart the jenkins after complete the above steps
 
 -> Click the manage jenkins, click system configuration and go SonarQube installations give name, sonaqube URL and click sonar token. 
--> Later you will configure email by pic in mobile
+-> Later you will configure email by pic in mobile  [give the same password in email whichevet you have created in gamil]
 -> You will configure above details by video in ph
 -> You will restart the jenkins after complete the above steps
 
