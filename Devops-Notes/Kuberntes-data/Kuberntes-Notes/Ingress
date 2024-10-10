@@ -180,6 +180,7 @@ spec:
 -> Ingress resources is an API object that defines rules for routing external HTTP and HTTPS traffic to services within cluster.
 
 # How to install ingress controller
+kubectl create ns ingress-nginx
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/aws/deploy.yaml    --> We will get this Kubernetes official document https://kubernetes.github.io/ingress-nginx/deploy/#aws
 
 Final ingress file
