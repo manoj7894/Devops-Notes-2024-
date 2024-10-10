@@ -182,6 +182,7 @@ spec:
 # How to install ingress controller
 kubectl create ns ingress-nginx
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/aws/deploy.yaml    --> We will get this Kubernetes official document https://kubernetes.github.io/ingress-nginx/deploy/#aws
+kubectl get all -n ingress-nginx
 
 Final ingress file
 
@@ -205,9 +206,9 @@ spec:
             port:
               number: 80
 
--> kubectl get ingress
+-> kubectl get ingress     --> To see the ingress
 -> kubectl get pods -A | grep nginx   --> To search the nginx pods
--> 
+-> kubectl edit pods ingress-nginx-controller-7d4db76476-7krq8 -n ingress-nginx      --> To see the ingress class-name
 
 
 
