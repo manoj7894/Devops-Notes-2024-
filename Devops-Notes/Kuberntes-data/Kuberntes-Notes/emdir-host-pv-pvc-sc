@@ -52,81 +52,210 @@ kubectl get sc  -> to see storage class
 -> reclaimpolicy means whenever pvc delete automatically pv will aslo delete
 -> retain means whenever pvc delete pv will not delete
 
-persistence volume in pending
+# In persistence we can create two ways using EBS and EFS 
+-> EBS will support only ReadWriteOnce   -> Which means all your pods are running in single node This is the best option [But you are pods running in different nodes they cant use this volumes
+-> EFS will support only ReadWriteMany   -> Which means this volume can be mounted as read write by many nodes  [If you are running in different node this is best option for you]
 
-kubectl get sc  -> to see storage class
 
--> vi sc.yml
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
+# Amazon EBS (Elastic Block Store)
+-> Access Mode: EBS volumes support ReadWriteOnce (RWO). This means:
+
+An EBS volume can only be mounted as read-write by a single pod on one node at a time.
+If you try to attach it to another pod (even on the same or a different node), it will fail.
+Use Case: EBS is suitable for scenarios where you need a dedicated, high-performance storage option for a single application or pod. For example, if you have a database that requires persistent storage, EBS is a good fit since it offers fast, block-level storage.
+
+# Amazon EFS (Elastic File System)
+-> Access Mode: EFS supports ReadWriteMany (RWX). This means:
+
+An EFS volume can be mounted by multiple pods across multiple nodes simultaneously.
+This is ideal for applications that need shared access to the same data, such as web servers or applications that need to read/write to a common directory.
+Use Case: EFS is suitable for scenarios where you need to share files between multiple pods or services. For example, if you have a set of microservices that need to access the same files or data, EFS allows them to do so concurrently.
+
+Summary
+EBS is best when you need dedicated storage for a single pod, providing high performance and reliability but not allowing sharing across multiple pods.
+
+EFS is ideal for scenarios where multiple pods need to read and write to the same data simultaneously, enabling collaboration and shared access.
+
+In summary, if your application architecture requires sharing data across multiple pods, you should use Amazon EFS. If you only need storage for a single pod, Amazon EBS is appropriate.
+
+
+# Using EFS
+-> First you create one EFS file in AWS
+-> Click create filesystem, give file name, choose the VPC wherever your cluster is running
+-> After create the files and click that, click network in below and click manage and choose the Security group on whichever SG yourc cluster is running and enable port number 2049
+-> Finally you will use below pv and pvc in deployement
+
+# To Install the EFS CSI Driver 
+-> kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/ecr"
+
+# pv.yml
+
+apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: demo-storage
-provisioner: kubernetes.io/aws-ebs
-volumeBindingMode: Immediate
-reclaimPolicy: Delete
+  name: efs-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany  # Allows multiple pods to access the volume
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-0ba7e1f0d3bb627f3  # Replace with your EFS file system ID
 
--> pvc.yml
+pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: efs-sc
+
+
+
+# Data store with single node without using EBS 
+
+# Install the AWS EBS CSI Driver Manually
+-> helm repo update
+-> kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/ecr"
+-> kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver   --> Verify Installation
+
+vi pv.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: my-storage-class
+  hostPath:
+    path: /mnt/ravi  # Directory path on the host machine # This path automatically created in your workernode
+
+Note: the above files working like as a host path means when delete the node the automatically data will be deleted.
+
+
+vi pvc.yml
+
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: yelp-camp-pvc
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 3Gi
-  storageClassName: "demo-storage"
-
--> deployment.yml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: validate-app
-  labels:
-    app: validate-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: validate-app
-  template:
-    metadata:
-      labels:
-        app: validate-app
-    spec:
-      terminationGracePeriodSeconds: 30
-      containers:
-      - name: validate-app
-        image: manoj3003/validate:3
-        imagePullPolicy: "Always"
-        volumeMounts:
-            - name: volume1
-              mountPath: /opt/validate
-        ports:
-        - containerPort: 80
-      imagePullSecrets:
-      - name: regcred  # Reference to the Docker registry secret
-      volumes:
-        - name: volume1
-          persistentVolumeClaim:
-            claimName: yelp-camp-pvc
+  storageClassName: my-storage-class    # Reference to your StorageClass
 
 
--> Vi serive.yml
+# This way is not working using EBS
+-> Create one EBS volume
+
+pv.yml
+
 apiVersion: v1
-kind: Service
+kind: PersistentVolume
 metadata:
-  name: validate-app
-  labels:
-    app: validate-app
+  name: my-pv
 spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 80
-  selector:
-    app: validate-app
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ebs-sc
+  csi:
+    driver: ebs.csi.aws.com
+    volumeHandle: vol-0e7bc9339916cc688  # Replace with your EBS volume ID or leave empty for dynamic provisioning
+
+
+pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ebs-sc
+
+Note: when i was using the above above data i am getting the below errors
+Events:
+  Type     Reason              Age                From                     Message
+  ----     ------              ----               ----                     -------
+  Normal   Scheduled           32s                default-scheduler        Successfully assigned default/my-app-deployment-74dfcdd97c-frwcq to ip-10-0-1-113.ec2.internal
+  Warning  FailedAttachVolume  13s (x5 over 30s)  attachdetach-controller  AttachVolume.Attach failed for volume "my-pv" : volume attachment is being deleted
+
+# Try with sc
+
+sc.yml
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: kubernetes.io/aws-ebs  # Ensure the correct provisioner
+parameters:
+  type: gp3  # Change to gp3 for better performance
+  fsType: ext4
+
+
+pv.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-new-pv  # Change the name to avoid conflict
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ebs-sc
+  csi:
+    driver: ebs.csi.aws.com
+    volumeHandle: vol-0e7bc9339916cc688  # Replace with your EBS volume ID
+
+pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ebs-sc
+
+Note: When i was using the above the data i am getting the below error
+Events:
+  Type     Reason              Age                     From                     Message
+  ----     ------              ----                    ----                     -------
+  Normal   Scheduled           3m26s                   default-scheduler        Successfully assigned default/my-app-deployment-74dfcdd97c-qr88f to ip-10-0-1-177.ec2.internal
+  Warning  FailedAttachVolume  2m55s (x25 over 3m24s)  attachdetach-controller  AttachVolume.Attach failed for volume "my-new-pv" : rpc error: code = Internal desc = Could not attach volume "vol-0e7bc9339916cc688" to node "i-0253a3ba88e45c405": error listing AWS instances: operation error EC2: DescribeInstances, get identity: get credentials: failed to refresh cached credentials, no EC2 IMDS role found, operation error ec2imds: GetMetadata, failed to get rate limit token, retry quota exceeded, 0 available, 5 requested
+
 
 
 # Why Use Volumes?
@@ -138,7 +267,3 @@ spec:
 
 https://youtu.be/LPy6Q-q1MVQ?si=PTgxiHXa-CimjB2Q
 https://youtu.be/1qFMeAbVc-Y?si=0Vxuoujr8Whg79iN
-
-
-
-
