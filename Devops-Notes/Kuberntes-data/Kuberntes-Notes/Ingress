@@ -184,27 +184,61 @@ kubectl create ns ingress-nginx
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/aws/deploy.yaml    --> We will get this Kubernetes official document https://kubernetes.github.io/ingress-nginx/deploy/#aws
 kubectl get all -n ingress-nginx
 
-Final ingress file
+# Practical ingress files
+-> path based ingress files
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: k8s-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /nginx(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: yelp-camp-service
+            port:
+              number: 3000
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: yelp-camp-service
+            port:
+              number: 3000
+
+
+# Host path based ingress (it is not working)
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: hello-world
+  name: k8s-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
-  - host: "example.com"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: hello-world
-            port:
-              number: 80
+    - host: manojexample.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-app-service
+                port:
+                  number: 80
 
 -> kubectl get ingress     --> To see the ingress
 -> kubectl get pods -A | grep nginx   --> To search the nginx pods
