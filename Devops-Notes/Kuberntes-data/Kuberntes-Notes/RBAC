@@ -358,7 +358,5 @@ subjects:
   kind: ServiceAccount
   name: jenkins
 
-
-
-
-
+# If you want to know more about RBAC you will watch below link
+https://youtu.be/FRKTTTBwl9c?si=AlLc-FxypFRiRqhR
