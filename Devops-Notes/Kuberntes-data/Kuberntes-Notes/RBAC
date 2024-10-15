@@ -6,6 +6,9 @@ RBAC:- Role based access control
   1. ROle:- Role is work on specific namespace
   2. Cluster Role:- Cluster role is work on cluster level means it work on all the namespaces
 
+# If you want to work on RBAC in kubernetes you must install below plugins in K8S
+
+
 # To create role on cluster level
 # Service account
 apiVersion: v1
