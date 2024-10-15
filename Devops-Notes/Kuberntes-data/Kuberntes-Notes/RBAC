@@ -49,6 +49,21 @@ metadata:
     kubernetes.io/service-account.name: admin
 
 
+kubectl get serviceaccount
+kubectl get serviceaccount admin -n default
+kubectl get serviceaccount admin -n default -o yaml
+
+kubectl get clusterrole admin-role
+kubectl get clusterrole admin-role -o yaml
+
+kubectl get clusterrolebinding admin-rolebinding
+kubectl get clusterrolebinding admin-rolebinding -o yaml
+
+kubectl get secret
+kubectl describe secret mysecretname
+
+
+
 -> After complete to create the role and token. copy the toke and paste the token in your jenkins credentials on secret text
 
 pipeline {
