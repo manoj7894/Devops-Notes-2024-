@@ -1,0 +1,77 @@
+# what is deployment 
+-> By using deployment we can rollout and rollback our application deployment
+-> we can achive the auto-scalling by deployment
+-> Deployment is used to tell kubernets how to create and or modify the instaces of pods
+
+# What are Deployment Strategies in Kubernets
+-> Recreate deployment strategy
+-> Rolling deployment strategy
+-> Blue and green apporach [It is not a strategy it is a approach]
+-> Canary Deployment
+-> A/B Testing
+-> Shadow Deployment
+-> Staggered Deployment
+-> Rollback Deployment
+
+# What is Recreate deployment strategy
+When we use recrete deployment strategy existing pods will delete and new will create
+
+# What is Rolling deployment strategy
+When we use the rolling deployment strategy pod will delete one by one while pod will create one by one 
+
+
+# What is blue and green approach
+-> If you want to deploy your application with Zero down time. you will follw blue and green apporach
+-> A blue/green deployment is a deployment strategy in which you create two separate, but identical environments.
+-> One environment (blue) is running the current application version and one environment (green) is running the new application version.
+-> Blue and green deployment is an application release model
+-> It reduces the risk and minimizes the down time
+-> It uses two production env
+  1) Blue Env  -> Blue Env is a Old Version
+  2) Green Env -> Green Env is a New Version
+
+Advantages of Blue and green approach
+1) Rapid releasing
+2) Simple rollbacks
+3) Built-in-disaster-recovery
+4) Seamless cutomer experience
+5) Zero Down time
+
+Running Notes
+-> Live code is running in Blue env 
+-> First we need deploy in green env after code tested in green env then traffic will divert into blue env
+
+Note: what are the difference Prod Env and Preprod or Nonpod Env
+Prod Env means nothing but a live code
+None Prod ENV are used for application testing like Dev,Sit,UAT env
+-> Dev:- Devlopers will use Dev env for integration testing
+-> SIT will use by software testing team to test our application
+-> UAT will use by client to test the code
+-> Pilot env is called pre-prod environment
+-> Prod env will be available for public access or live code
+
+# How to do Blue and Green Deployment
+-> First you will deploy the bluedeployment.yml [old code] [live code]
+-> After that you will deploy the blueservice.yml
+-> later on you will access the application in browser with instance public Ip and service portnumber
+-> later on you will deploy the greendeployment.yml [you will test the code before deploy the live code]
+-> later on you will deploy the greenservice.yml
+-> later on you will access the application in browser with instance public Ip and service portnumber
+-> Green env is woking good after the deployment. 
+-> lateron you go to the blueservice.yml file and change the file selecters with greenservice.yml file selectors
+-> After change you will access the browser blueservice.yml file with port number.
+
+-> kubectl get deployment  --> To see the deployments
+-> kubectl delete deployment <deploymentname>  --> To delete the deployment
+
+Note: When we delete the deployment pod will delete the automatically but service wouldnt delete
+
+# What is Canary Deployment
+-> Introduce a new version of the application to a subset of users or traffic gradually. 
+-> Monitor for issues and progressively increase the rollout if everything goes well, or roll back the changes if issues are detected.
+
+
+Note: Bule, green and canary  wont support the outof box so that we should setup the ingress controller.
+
+# To get more idea about deployment stategies you will checkout below link
+https://youtu.be/0QhUhrWGB9k?si=A_eWQ4j7ubjO7Ezk
