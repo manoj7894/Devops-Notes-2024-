@@ -232,6 +232,7 @@ pipeline {
     stages {
         stage('Remove All Previous Docker Images') {
             steps {
+                // Remove all Docker images
                 sh 'docker rmi -f $(docker images -a -q) || true'
             }
         }
@@ -269,9 +270,19 @@ pipeline {
             }
         }
 
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+
         stage('OWASP Scan') {
             when {
-                expression { fileExists('package.json') }
+                expression {
+                    fileExists('package.json')
+                }
             }
             steps {
                 dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
@@ -282,11 +293,9 @@ pipeline {
         stage('SonarQube') {
             steps {
                 withSonarQubeEnv('Sonar_Install') {
-                    sh '''
-                        $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
-                        -Dsonar.projectKey=Validate \
-                        -Dsonar.host.url=http://54.146.223.183:9000
-                    '''
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
+                    -Dsonar.projectKey=Validate \
+                    -Dsonar.host.url=http://44.204.67.168:9000'''
                 }
             }
         }
@@ -318,7 +327,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Update Deployment File') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Bitbucket_user', usernameVariable: 'BIT_USERNAME', passwordVariable: 'BIT_PASSWORD')]) {
@@ -339,7 +348,7 @@ pipeline {
                             if git diff --quiet; then
                                 echo "No changes detected in ${DEPLOYMENT_FILE_PATH}"
                             else
-                                git add ${DEPLOYMENT_FILE_PATH}
+                                git add ${DEPLOYMENT_FILE_PATH}  # Only add the deployment file
                                 git commit -m "Update deployment image to version ${BUILD_NUMBER}"
                                 git push -f https://$BIT_USERNAME:$BIT_PASSWORD@bitbucket.org/manojvarmapotthuri/frissly-repo1.git frontend
                             fi
@@ -348,7 +357,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to EKS') {
             steps {
                 script {
@@ -383,7 +391,7 @@ pipeline {
                             fi
 
                             # Apply ingress-nginx manifests
-                            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/aws/deploy.yaml -n ingress-nginx
+                            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml -n ingress-nginx
                             
                             # Apply the autoscaling metrics
                             kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml -n kube-system
