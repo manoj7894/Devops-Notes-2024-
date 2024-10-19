@@ -21,22 +21,21 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "manoj3003/k8s:${BUILD_NUMBER}"
-        BIT_REPO_NAME = "validate-repo"
+        DOCKER_IMAGE = "manoj3003/frissly:${BUILD_NUMBER}"
+        BIT_REPO_NAME = "frissly-repo1"
         BIT_USERNAME = "manoj7894"
         DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml" // Adjust the path if necessary
         SCANNER_HOME = tool 'sonar-scanner'
     }
 
     stages {
-        
         stage('Remove All Previous Docker Images') {
             steps {
                 // Remove all Docker images
                 sh 'docker rmi -f $(docker images -a -q) || true'
             }
         }
-        
+
         stage('Cleanup Old Trivy Reports') {
             steps {
                 script {
@@ -48,19 +47,19 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Get Code') {
             steps {
-                git branch: 'main', credentialsId: 'Bitbucket_user', url: 'https://manoj7894@bitbucket.org/manojvarmapotthuri/validate-repo.git'
+                git branch: 'frontend', credentialsId: 'Bitbucket_user', url: 'https://manoj7894@bitbucket.org/manojvarmapotthuri/frissly-repo1.git'
             }
         }
-        
+
         stage('Install Package Dependencies') {
             steps {
                 sh "npm install"
             }
         }
-        
+
         stage('Check for Tests') {
             steps {
                 script {
@@ -69,7 +68,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Trivy Filesystem Scan') {
             steps {
                 script {
@@ -77,7 +76,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('OWASP Scan') {
             when {
                 expression {
@@ -89,17 +88,17 @@ pipeline {
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
-        
+
         stage('SonarQube') {
             steps {
                 withSonarQubeEnv('Sonar_Install') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
                     -Dsonar.projectKey=Validate \
-                    -Dsonar.host.url=http://13.232.115.148:9000'''
+                    -Dsonar.host.url=http://44.204.67.168:9000'''
                 }
             }
         }
-        
+
         stage('Build') {
             steps {
                 script {
@@ -109,7 +108,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Trivy Image Scan') {
             steps {
                 script {
@@ -117,13 +116,7 @@ pipeline {
                 }
             }
         }
-        
-        stage('Check AWS CLI') {
-            steps {
-                sh 'aws --version'
-            }
-        }
-        
+
         stage('Push') {
             steps {
                 script {
@@ -138,46 +131,67 @@ pipeline {
             steps {
                 script {
                     echo "Updating Docker image in Kubernetes manifest..."
-                    sh "sed -i 's|image: manoj3003/k8s:[^[:space:]]*|image: ${DOCKER_IMAGE}|g' ${DEPLOYMENT_FILE_PATH}"
+                    sh "sed -i 's|image: manoj3003/frissly:[^[:space:]]*|image: ${DOCKER_IMAGE}|g' ${DEPLOYMENT_FILE_PATH}"
                 }
             }
         }
-        
-        stage('Commit and Push Changes') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'Bitbucket_user', usernameVariable: 'BIT_USERNAME', passwordVariable: 'BIT_PASSWORD')]) {
-                        sh '''
-                            git config user.email "jenkins@example.com"
-                            git config user.name "Jenkins"
-                            git add ${DEPLOYMENT_FILE_PATH}
-                            git commit -m "Update Docker image to ${DOCKER_IMAGE}"
-                            git push -f https://$BIT_USERNAME:$BIT_PASSWORD@bitbucket.org/manojvarmapotthuri/validate-repo.git main
-                        '''
-                    }
-                }
-            }
-        }
-        
         stage('Deploy to EKS') {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
                         // Configure kubectl with EKS credentials
-                        sh 'aws eks --region ap-south-1 update-kubeconfig --name eks-1'
-                        
-                        // Create the webapps namespace
-                        sh 'kubectl create namespace webapps || true'
-                        
-                        // Now apply the deployment and service in the webapps namespace
-                        sh 'kubectl apply -f ${DEPLOYMENT_FILE_PATH} -n webapps'
-                        sh 'kubectl apply -f Kubernetes/service.yml -n webapps'
+                        sh '''
+                            aws eks --region us-east-1 describe-cluster --name eks-1 --query cluster.status
+                            aws eks --region us-east-1 update-kubeconfig --name eks-1
+                            
+                            # Create necessary namespaces
+                            if ! kubectl get namespace webapps; then
+                                kubectl create namespace webapps
+                            else
+                                echo "Namespace 'webapps' already exists."
+                            fi
+
+                            if ! kubectl get namespace ingress-nginx; then
+                                kubectl create namespace ingress-nginx
+                            else
+                                echo "Namespace 'ingress-nginx' already exists."
+                            fi
+
+                            # Create the Docker registry secret if it doesn't exist
+                            if ! kubectl get secret regcred --namespace=webapps; then
+                                kubectl create secret docker-registry regcred \
+                                    --docker-server=https://index.docker.io/v1/ \
+                                    --docker-username=manoj3003 \
+                                    --docker-password=Varma_3003 \
+                                    --namespace=webapps
+                            else
+                                echo "Secret 'regcred' already exists in 'webapps' namespace."
+                            fi
+
+                            # Apply ingress-nginx manifests
+                            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/aws/deploy.yaml -n ingress-nginx
+                            
+                            # Apply the autoscaling metrics
+                            kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml -n kube-system
+                            
+                            # Download EFS CSI Driver
+                            kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/ecr"
+
+                            # Apply other resources
+                            
+                            kubectl apply -f Kubernetes/pv.yml -n webapps
+                            kubectl apply -f Kubernetes/pvc.yml -n webapps
+                            kubectl apply -f ${DEPLOYMENT_FILE_PATH} -n webapps
+                            kubectl apply -f Kubernetes/service.yml -n webapps
+                            kubectl apply -f Kubernetes/autoscaling.yml -n webapps
+                            kubectl apply -f Kubernetes/ingress.yml -n webapps
+                        '''
                         sleep 20
                     }
                 }
             }
         }
-        
+
         stage('Verify the Deployment') {
             steps {
                 script {
@@ -185,13 +199,17 @@ pipeline {
                         sh '''
                             kubectl get pods -n webapps
                             kubectl get svc -n webapps
+                            kubectl get pvc -n webapps
+                            kubectl get pv -n webapps
+                            kubectl get hpa -n webapps
+                            kubectl get ingress -n webapps
                         '''
                     }
                 }
             }
         }
     }
-    
+
     post {
         always {
             emailext attachLog: true,
@@ -211,7 +229,6 @@ pipeline {
         }
     }
 }
-
 
 # Another way 
 pipeline {
