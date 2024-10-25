@@ -312,7 +312,7 @@ pipeline {
                 withSonarQubeEnv('Sonar_Install') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
                     -Dsonar.projectKey=Validate \
-                    -Dsonar.host.url=http://44.204.67.168:9000'''
+                    -Dsonar.host.url=http://54.173.242.65:9000'''
                 }
             }
         }
@@ -374,6 +374,30 @@ pipeline {
                 }
             }
         }
+        
+        stage('Install Ingress Controller') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        sh '''
+                            # Update kubeconfig to use EKS
+                            aws eks --region us-east-1 update-kubeconfig --name eks-1
+
+                            # Check and create the ingress-nginx namespace if it doesn't exist
+                            if ! kubectl get namespace ingress-nginx; then
+                                kubectl create namespace ingress-nginx
+                            else
+                                echo "Namespace 'ingress-nginx' already exists."
+                            fi
+
+                            # Apply Ingress Nginx Controller in ingress-nginx namespace
+                            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml --namespace ingress-nginx
+                        '''
+                    }
+                }
+            }
+        }
+        
         stage('Deploy to EKS') {
             steps {
                 script {
@@ -390,12 +414,6 @@ pipeline {
                                 echo "Namespace 'webapps' already exists."
                             fi
 
-                            if ! kubectl get namespace ingress-nginx; then
-                                kubectl create namespace ingress-nginx
-                            else
-                                echo "Namespace 'ingress-nginx' already exists."
-                            fi
-
                             # Create the Docker registry secret if it doesn't exist
                             if ! kubectl get secret regcred --namespace=webapps; then
                                 kubectl create secret docker-registry regcred \
@@ -407,8 +425,6 @@ pipeline {
                                 echo "Secret 'regcred' already exists in 'webapps' namespace."
                             fi
 
-                            # Apply ingress-nginx manifests
-                            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml -n ingress-nginx
                             
                             # Apply the autoscaling metrics
                             kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml -n kube-system
