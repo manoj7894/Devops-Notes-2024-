@@ -1,0 +1,26 @@
+# Explain the CI/CD pipeline implemention method
+-> we used github as a source code and our taget is kuberntes in our CI/CD pipeline
+-> we use jenkins orchestration for CI/CD. The reason we use jenkins is whenever user make commit changes in source code webhooks trigger the declarative pipeline then using declarative pipeline we run mulitple stages
+
+Stage-1(Git Checkout) -> Clone the code from git remote repository
+Stage-2(Compile) -> Compile is going to help to find out any syntax error in our errors. For example if we missed any semicolon in our code. By complie we wil able to know
+Stage-3(Test Cases) -> Unit test caes is going to help us to find out the if the application source code is working in the same way it is supposed to work
+                       Example:-If i written the code basically it works like a+b =c. By writting different unit test cases and executing it will be able to know if we providing 4+6 it providing 10. If this is not happen
+                               we have some king bug or issues in our source code. Code is not working same way as it is suppose to work.
+Stage-4(Sonarqube-Code quality check) -> When the developer write the source code it can having issues like bugs, vulnerabilities, code smell ..etc. Those issues if it would be very less then we say code quality is good.
+                                           Those issues if it would be very more then we say code quality is bad.
+
+Stage-4(Sonarqube-Code Coverage) -> We have 100 lines of source code. we have written 10 unit test cases to test the 100 lines of souece code. The task of 10 unit test cases is to test the 100 lines of code. if execute that test cases it will test the 100 lne of code
+                                    code coverage means how much percentage souce code covered to test through written unit test cases. If it would coverd 90 line it shows 90% of code has tested
+Stage-5(Trivy) -> Trivy is most versatile tool from security point of view to scan. Trivy is going to perform multiple tasks. First it going to perform file system scan. File system scan means it would scan the yaml manifeast files, terraform files and find out any vulnerabilities those configuration files, if there any error in these files it will those errors
+                  Suppose if any passwords or tokens are exposed in that files then trivy it would let you know make sure it would not be exposed.
+                  It aslo scan jar and dependencies measn in jave we have pom.xml in nodeja we have package.json those are dependencies files it scan those dependencies files
+                  Trivy can scan file system means configuration files, Artifacts means jar files, Dependencies means pom.xml and package.json, docker images
+Stage-6(Build Docker image) -> Create the docker image based docker file 
+
+Stage-7(Scan the docker image) -> Trivy it will scan the base image and other configurations, let us know and give the file if any vulnerabilities is there
+
+Stage-8(Deploy) Deploy to kubernets
+
+                            
+                                    
