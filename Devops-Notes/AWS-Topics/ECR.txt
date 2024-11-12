@@ -43,4 +43,200 @@ If it is not work once you will exit from instance and again you will login
 
 https://youtu.be/Brm21SWac-I?si=kAv25LRefbuh3iO9
 https://youtu.be/O6wPavc-xuc?si=8jM-kJG9eaMfJ56T
+
+
+# Pipeline Script
+
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKER_IMAGE_BACKEND = "my-backend-image"
+        DOCKER_IMAGE_FRONTEND = "my-frontend-image"
+        BIT_REPO_NAME = "frissly-repo1"
+        BIT_USERNAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH_BACKEND = "Kubernetes/backend/deployment.yml"
+        DEPLOYMENT_FILE_PATH_FRONTEND = "Kubernetes/frontend/deployment.yml"
+        SCANNER_HOME = tool 'sonar-scanner'
+        TRIVY_DB_DIR = "/tmp/trivy"
+        ECR_REGISTRY = "941377114289.dkr.ecr.us-east-1.amazonaws.com"
+        BACKEND_IMAGE_ECR = "${ECR_REGISTRY}/backendapp:latest"
+        FRONTEND_IMAGE_ECR = "${ECR_REGISTRY}/frontendapp:latest"
+        AWS_REGION = "us-east-1"  // Add the AWS region here
+    }
+
+    stages {
+        stage('Create ECR Repository') {
+            steps {
+                script {
+                    // Use withCredentials block to securely access AWS credentials from Jenkins
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        
+                        // Check and create the backend ECR repository if it doesn't exist
+                        def backendRepoExists = sh(script: "aws ecr describe-repositories --repository-names backendapp --region ${AWS_REGION}", returnStatus: true) == 0
+                        if (!backendRepoExists) {
+                            echo "Creating ECR repository: backendapp"
+                            sh "aws ecr create-repository --repository-name backendapp --region ${AWS_REGION}"
+                        } else {
+                            echo "ECR repository backendapp already exists"
+                        }
+
+                        // Check and create the frontend ECR repository if it doesn't exist
+                        def frontendRepoExists = sh(script: "aws ecr describe-repositories --repository-names frontendapp --region ${AWS_REGION}", returnStatus: true) == 0
+                        if (!frontendRepoExists) {
+                            echo "Creating ECR repository: frontendapp"
+                            sh "aws ecr create-repository --repository-name frontendapp --region ${AWS_REGION}"
+                        } else {
+                            echo "ECR repository frontendapp already exists"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Remove All Previous Docker Images') {
+            steps {
+                script {
+                    sh 'docker system prune -af || true'
+                    sh 'docker rmi -f $(docker images -a -q) || true'
+                }
+            }
+        }
+
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt fs-report.html trivy-backend.txt trivy-frontend.txt
+                    '''
+                }
+            }
+        }
+
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Get Code') {
+            steps {
+                git branch: 'fullstack', credentialsId: 'Bitbucket_user', url: 'https://manoj7894@bitbucket.org/manojvarmapotthuri/frissly-repo1.git'
+            }
+        }
+
+        stage('Install Package Dependencies') {
+            steps {
+                dir('backend') {
+                    sh "npm install"
+                }
+            }
+        }
+
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' backend/package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "sudo trivy fs --cache-dir ${TRIVY_DB_DIR} --format table -o fs-report.html ."
+                }
+            }
+        }
+
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('backend/package.json')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Loginpage \
+                    -Dsonar.projectKey=Loginpage \
+                    -Dsonar.host.url=http://107.23.217.201:9000'''
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        sh "docker build -t ${DOCKER_IMAGE_BACKEND} -f backend/Dockerfile backend/"
+                        sh "docker build -t ${DOCKER_IMAGE_FRONTEND} -f frontend/Dockerfile frontend/"
+                    }
+                }
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+                script {
+                    sh "trivy image --cache-dir ${TRIVY_DB_DIR} ${DOCKER_IMAGE_BACKEND} > trivy-backend.txt"
+                    sh "trivy image --cache-dir ${TRIVY_DB_DIR} ${DOCKER_IMAGE_FRONTEND} > trivy-frontend.txt"
+                }
+            }
+        }
+
+         stage('Push Docker Images to ECR') {
+            steps {
+                script {
+                    // Ensure AWS credentials are set for the login command
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+
+                        sh '''
+                            aws ecr batch-delete-image --repository-name backendapp --image-ids $(aws ecr list-images --repository-name backendapp --query 'imageIds[?imageTag!=`latest`]' --output json) || true
+                            aws ecr batch-delete-image --repository-name frontendapp --image-ids $(aws ecr list-images --repository-name frontendapp --query 'imageIds[?imageTag!=`latest`]' --output json) || true
+                        '''
+
+                        sh "docker tag ${DOCKER_IMAGE_BACKEND} ${BACKEND_IMAGE_ECR}"
+                        sh "docker tag ${DOCKER_IMAGE_FRONTEND} ${FRONTEND_IMAGE_ECR}"
+                        sh "docker push ${BACKEND_IMAGE_ECR}"
+                        sh "docker push ${FRONTEND_IMAGE_ECR}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "Pipeline Status: ${BUILD_NUMBER}",
+                body: '''<html>
+                           <body>
+                              <p>Build Status: ${BUILD_STATUS}</p>
+                              <p>Build Number: ${BUILD_NUMBER}</p>
+                              <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                           </body>
+                        </html>''',
+                to: 'manojvarmapotthutri@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                attachmentsPattern: 'trivy.txt',
+                mimeType: 'text/html'
+        }
+    }
+}
+
  
