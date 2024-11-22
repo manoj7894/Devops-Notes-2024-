@@ -80,6 +80,24 @@
 -> One port listener is achieved via classic load balancer
 -> Dynamic port mapping, multiple port, multiple listener is used in application load balancer.
 
+
+Difference between load balancer 
+Application load balancer 
+ALb is a 7 osi model.
+ALb is traffic handling for HTTP and HTTPS . 
+It is equally disturbing request.
+ 
+1 Network lb is a 4 osi model.
+2 It is a check ip and request distribute.
+3 NLB It's not an equally disturbed request 
+4  It is a transport layer TCP and UDP.it can handle millions of requests per sec .
+
+Classic LB 
+1 Clb 4 osi model 
+2 Clb is used to load balancer one port Listeners and clb archive 
+3 it's route traffic between client backend server based IP addresses . 
+It' is mostly used http https SSL TCP this protocol used handle.
+
 # You are enabled sticky session with ELB. what does it do with your instance
 -> Binds the user session with specific instance
 
