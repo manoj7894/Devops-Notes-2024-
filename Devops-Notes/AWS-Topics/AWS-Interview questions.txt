@@ -429,6 +429,15 @@ Note: When we are attach the NAT gateway to the private subnet it will work only
 # What is the difference between VPC and VPN
 The main difference between a Virtual Private Cloud (VPC) and a Virtual Private Network (VPN) in AWS is that a VPC creates a private network within a public cloud, while a VPN provides secure access to those resources remotely:
 
+Difference between VPC and VPN
+1.   vpc is a virtual private cloud within public cloud 
+2.  vpc is created by public cloud with private network environment 
+3.  it' s easy data to securely transfer to a private environment . 
+4 . Vpc is the networking part .
+
+VPN is a virtual private  network.
+VPN is a secure connection over the. internet protect data .
+
 
 
 
