@@ -16,6 +16,10 @@
 -> Only piece of code
 
 # Advantages of Lambda
+-> No server setup
+-> No Start or Stop
+-> No Additional Cost
+-> Serverless
 -> No maintaince
 -> Pay as you use
 -> High availablity
@@ -53,6 +57,7 @@ Note:- 15min executable time code we can execute in lambda. Morethan 15min time 
 
 # What is layers
 -> Depedices in called layers in lambda
+-> if you want to use particular code to all the lambda functions then you will keep that in layers
 -> We can add only 5 layers
 -> Allow the lambda inline editing upto 3MB
 -> All reference keep in layres. we can communicate anything by that reference
@@ -64,6 +69,8 @@ Note:- 15min executable time code we can execute in lambda. Morethan 15min time 
 -> If you want to add Any MB, go to configuration and click general configuration and click edit
 -> You can edit the code to laterst version in lambda but we cant edit lambda old version code
 -> ARN:- Amazon resource name
+
+https://youtu.be/XFGSuj83wdc?si=TeAQ16QRZiZUGgSw
 
 # How to trigger the services to lambda
 -> we will trigger the services to run lambda backend code
