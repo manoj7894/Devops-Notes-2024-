@@ -39,7 +39,7 @@
 -> Accelerated Computing (GPU Based)
 
 # What are the reserved instance
--> Reservers instance are the instance that you can reserve the fixed of ec2 instance. In reserved instance you will have to get the contract of 1 years or 3 years
+-> Reservers instance are the instance that you can reserve the fixed of ec2 instance. In reserved instance you will have to get the contract of 1 years or 3 years  (It will give 70% to 75% discount) 
 
 # When your instance show retired state
 -> Retired state only available in reserved instance. Once reserved instance reserving time (1yr/3yr)ends it shows retied state
@@ -54,6 +54,7 @@
 -> Spot - if u want instance fr 1 hour u cn take nd use if load increase it will terminate
 -> Scheduled - It will schedule the instances
 -> Dedicated - here cpu storage all dedicated to one instance only
+-> saving Paln  (it will give 72% discount)
 
 # What are the types of volumes for ec2 instance
 -> Instance store volume
@@ -117,6 +118,8 @@ It' is mostly used http https SSL TCP this protocol used handle.
 
 # What is S3
 -> S3 stands for Simple storage service. we can use to store the data at anytime in anywhere in the world.
+-> S3 store user related data store
+-> S3 is 11 time durability provides
 
 # What is the minimum and maximum size of individual objects that you can store in s3
 -> The minimum size of individual objects that you can store in s3 is 0 byte the maximum bytes that you can store for individual objets is 5TB
@@ -199,8 +202,34 @@ It' is mostly used http https SSL TCP this protocol used handle.
    -> Throughput-Optimized HDD: Throughput-Optimized HDD volumes are low cost HDD volumes designed for frequent access.    
          EBS Volume Size: 500 GB to 16 TB Maximun IOPS: upto 500 IOPS Maximum throughput: 500 MB
 
-# Is it possible to reduce a EBS volume 
--> no its not possible, we can increase it but not reduece
+# Is it possible to reduce a EBS volume (Just read to get ne idea)
+Yes, it is possible to reduce the size of an EBS volume in AWS, but with some limitations and considerations.
+
+Here’s a breakdown of how it works:
+
+1. For General Purpose SSD (gp3) and other EBS types:
+Directly reducing the size of an EBS volume is not supported directly in AWS.
+However, you can shrink the file system and then create a snapshot and restore the snapshot to a new, smaller volume.
+Steps to reduce the size of an EBS volume:
+Backup: Take a snapshot of the existing volume to prevent data loss.
+Shrink the file system:
+Log into your EC2 instance and reduce the file system size to fit within the desired new volume size.
+For example, if you're using ext4 or xfs, you can resize the file system using commands like resize2fs for ext4.
+Create a new volume: After shrinking the file system, create a new EBS volume with the desired smaller size.
+Copy data: Mount the new volume and copy the data from the old (larger) volume to the new (smaller) one.
+Detach the old volume: Once you’ve confirmed everything is working properly on the new volume, you can detach the old volume.
+2. Elastic Block Store Snapshots:
+AWS allows you to take snapshots of volumes. When reducing the size of a volume, this snapshot is typically useful as a backup or to restore data if necessary.
+Limitations and Considerations:
+Data loss risk: If the volume is not properly resized before transferring data, you risk losing data that exceeds the new smaller volume's capacity.
+Downtime: There may be some downtime during the resizing process since you will need to detach the old volume and attach the new one.
+Volume type: This process is applicable to most volume types, but the exact steps may vary depending on the file system used and the operating system of your EC2 instance.
+Alternative - Elastic File System (EFS):
+If your use case involves frequent resizing and dynamic scaling, consider using Amazon EFS, which automatically scales up and down, eliminating the need to manually adjust volume sizes. However, EFS is not suitable for all workloads, especially those requiring block-level storage.
+
+In summary, while direct reduction of EBS volume size isn’t supported, the process of resizing can be achieved with a workaround involving shrinking the file system, creating a new volume, and transferring the data.
+
+
 
 # I need modify the ebs volume in linux and windows is it possible
 -> yes its possible from console use modify the volumes in section give size u need
