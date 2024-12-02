@@ -1,0 +1,94 @@
+# What is IAM
+-> AWS Identity and Access Management (IAM) is a web service that helps you securely control access to AWS resources. 
+-> With IAM, you can manage users, groups, roles, and policies to ensure that the right permissions are assigned to the right entities.
+
+
+# What is IAM User
+-> An IAM User is an identity within AWS that represents a person or an application that needs to interact with AWS resources.
+
+-> Key Features:
+      Credentials:
+          Access Keys: Used for programmatic access via AWS CLI, SDKs, or APIs.
+          Password: Used for accessing the AWS Management Console.
+
+      Permissions:
+          IAM Users do not have any permissions by default. Permissions must be explicitly assigned via policies.
+
+      Use Cases:
+          Personal Access: Assign to individuals who need access to AWS Management Console or programmatic access.
+          API Access: Create users for applications that need to make API calls to AWS.
+
+    Example:
+        Create a user named JohnDoe for a team member, and assign read-only access to an S3 bucket.
+
+
+# What is IAM User Groups
+-> An IAM User Group is a collection of IAM users. The permissions assigned to the group are inherited by all users within that group.
+
+    Key Features:
+        Simplified Permission Management: Instead of managing individual user permissions, you can manage group-level permissions.
+        Cumulative Permissions: Users can belong to multiple groups, and the permissions are cumulative (i.e., the user gets permissions from all groups they belong to).
+
+    Use Cases:
+        Team-Based Permissions: Assign common permissions to users within the same team or role (e.g., Developers, Admins, Finance).
+        Role-Based Permissions: Manage permissions based on job roles, such as granting all developers EC2 management permissions.
+
+    Example:
+        Create a Developers group and assign the AmazonEC2FullAccess policy to allow developers full access to EC2 management.
+
+
+# What is IAM Roles
+-> An IAM Role is an identity that defines a set of permissions. Unlike IAM Users, roles do not have permanent credentials; 
+-> they rely on temporary security credentials that can be assumed by an entity (user, AWS service, or another account).
+
+    Key Features:
+        No Permanent Credentials: Roles use temporary credentials provided via AWS STS (Security Token Service).
+        Assumable: Roles can be assumed by AWS services, users, or applications.
+        Trust Policies: Trust policies define which entities are allowed to assume the role.
+
+    Use Cases:
+        EC2 Access: Grant an EC2 instance permissions to access other AWS resources (e.g., S3 buckets) without storing access keys in the application code.
+        Cross-Account Access: Allow users from another AWS account to assume the role and access resources in your account.
+
+    Example:
+        Create a role that allows read access to an S3 bucket.
+
+# What is IAM Policies
+-> An IAM Policy is a JSON document that defines the permissions granted to an IAM user, group, or role. 
+-> Policies specify what actions are allowed or denied for specific resources.
+
+    Key Features:
+        Managed Policies: Predefined policies provided by AWS (e.g., AdministratorAccess, AmazonS3ReadOnlyAccess).
+        Inline Policies: Policies that are directly attached to a single IAM user, group, or role.
+        Custom Policies: JSON-based policies created to define specific access requirements.
+
+    Policy Structure:
+        Effect: Defines whether the action is allowed (Allow) or denied (Deny).
+        Action: Specifies what actions are allowed (e.g., s3:ListBucket, ec2:StartInstances).
+        Resource: Defines the AWS resource(s) the policy applies to (e.g., specific S3 buckets, EC2 instances).
+        Conditions (optional): Adds extra restrictions (e.g., limiting access to a certain IP address or time range).
+
+    Example:
+        A policy that allows starting and stopping EC2 instances.
+
+
+# How IAM Components Work Together
+    1. Users:
+        Users represent individuals or applications that need access.
+        Example: JohnDoe is created with no permissions by default.
+    2. Groups:
+        Groups help manage permissions for multiple users.
+        Example: JohnDoe is added to the Developers group, which grants EC2 permissions.
+    3. Roles:
+        Roles are assumed by AWS services or cross-account users for temporary access.
+        Example: An EC2 instance assumes a role to access an S3 bucket without embedding credentials.
+    4. Policies:
+        Policies define the actual permissions for users, groups, and roles.
+        Example: A policy attached to the Developers group allows full EC2 management.
+
+
+# Summary: IAM and Its Core Components
+    IAM Users: Represent individual identities that require access to AWS resources.
+    IAM Groups: Simplify the management of permissions for multiple users.
+    IAM Roles: Used by AWS services or cross-account users for temporary access.
+    IAM Policies: Define the permissions (actions) allowed on specific resources.
