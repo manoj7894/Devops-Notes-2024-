@@ -186,6 +186,12 @@ It' is mostly used http https SSL TCP this protocol used handle.
 
 # What is EBS volume
 -> EBS stands for Elastic Block storage in AWS. It allow you to create and persistence storage volume to your instance
+-> With EBS Volumes your data will be preserved even when you stop your instance.
+   		EBS is Highly Availablity
+		Limited of Size
+		One Ec2 attached by one EBS
+		Minimum Costly
+		High Durability
 
 # What are the types of volumes in EBS
 -> we have two tyeps of volumes in EBS
@@ -246,11 +252,47 @@ In summary, while direct reduction of EBS volume size isn’t supported, the pro
 -> It can take backup on EBS volume. Snaphots are incremental backups
 -> If this is your first snapshot it will take some time to create. snapshot are point in time of copies of volume.
 
+
+# What is EFS
+-> EFS is a elastic file system it is scalable and fully managed file storage service in provided by AWS.
+-> EFS is provides a simple and elastic file system that can be mounted a mulitple Ec2 instances.
+	Scalability: It is automatically scales your file system
+	Performance: Efs provides the low-latency and high throughput file storage.
+		     EFS is unlimited of Size
+		     EFS is Costly
+
+
 # What is the difference between Bloack storage and File storage
 # Block Storage:- 
 -> Block storage operates at lower level, raw storage device level and manage the data as a set of numbered and fixed size block
 # File Storage:-
 -> File Storage operates at higher level, the operating system level and manage the data as a name hierachy of files and folder
+
+# Example:-
+The key difference between block storage and file storage lies in how data is stored, accessed, and managed. Here's a breakdown of their characteristics and differences:
+
+1. Block Storage
+Data Structure: In block storage, data is stored in fixed-size blocks. These blocks are individual chunks of data that are addressed by their unique block addresses.
+Access: Block storage operates at the lowest level of storage, and data is accessed at the block level. This means the storage system is agnostic to the data format and allows any application or operating system to use it.
+Use Cases: Block storage is typically used for applications that require high-performance storage with low latency, such as databases, virtual machines, and operating system drives.
+Examples:
+Amazon Elastic Block Store (EBS)
+AWS EC2 instances' storage
+Hard drives (HDDs) or solid-state drives (SSDs) in computers or servers
+Performance: Block storage is generally faster and offers better performance than file storage because it works at the raw data level.
+2. File Storage
+Data Structure: In file storage, data is organized and stored as files within directories, and it's usually accessed via a file system. It works in a hierarchical manner, where files are organized in folders or directories.
+Access: File storage operates at the file level. It includes both the file and the metadata (like file name, permissions, etc.). You typically access it using protocols like NFS (Network File System), SMB (Server Message Block), or others.
+Use Cases: File storage is used for applications that need shared access to files or require easy management of large amounts of data organized in directories, such as file sharing, media storage, backup systems, and collaborative applications.
+Examples:
+Amazon EFS (Elastic File System)
+Google Cloud Filestore
+Network Attached Storage (NAS)
+Performance: File storage may have slightly higher latency compared to block storage, as it needs to manage the file system overhead and metadata, but it is still well-suited for many shared use cases.
+
+Conclusion:
+Block storage is suitable for applications where performance, speed, and direct access to raw storage are critical, like databases or operating system disks.
+File storage is best for managing and sharing files in a more user-friendly way with an organized file system structure. It's ideal for workloads like shared file systems or file backups.
 
 
 
@@ -467,6 +509,9 @@ Difference between VPC and VPN
 VPN is a virtual private  network.
 VPN is a secure connection over the. internet protect data .
 
+# What is DHCP
+DHCP stands for Dynamic Host Configuration Protocol. It is a network protocol used to automatically assign IP addresses and other network configuration parameters to devices (such as computers, smartphones, printers, etc.) on a network. This eliminates the need for administrators to manually assign IP addresses to each device. Port Number is 67 and 68
+
 
 
 
@@ -606,6 +651,10 @@ and high data transfer speeds.
   [HTTP -> Hyper text transfer protocal(80), HTTPS -> Hyper text transfer protocal secure(443), SSL -> Secure Sockets Layer, TLS -> Transport Layer Security]
 
 
+# What is Host ZOne
+A hosted zone holds the DNS records for a particular domain or subdomain. These records define how DNS queries are resolved (e.g., which IP address corresponds to a domain name).
+
+
 # What are the types of routing policies in route53
 -> Simple Routing
 -> Latency routing
@@ -652,25 +701,6 @@ Note: We will check 11 and 12 linkdin AWS pages before interview
 -> Hybrid cloud
 -> Community cloud 4
 
-# Explain could service model
--> SAAS(Software as a Service) 
--> PAAS(Platform as a Service) 
--> IAAS(Infrastructure as a service) 
-
-# What is SAAS
--> In saas cloud worker host and manage the software application on pay as you go pricing model
-   users: End user
-
-# What is PAAS
--> PAAS run cloud platform and runtime enviornment to develop, test and manage the software
-  users: Software developers
-
-# What is IAAS
--> IAAS is a cloud service that run the service pay for what you use 
--> IAAS worker include AWS, Azure and GCP
-   users: IT Administrators
-
-https://youtu.be/e99QsTsJPJs?si=BfFVIzHepvboc6-t
 
 # What are the advantages of cloud computing
 -> Pay per use
@@ -685,22 +715,6 @@ https://youtu.be/e99QsTsJPJs?si=BfFVIzHepvboc6-t
 # What is Elastic Beanstalk
 -> AWS elastic beanstalk is the simplest way to get an application up and running on AWS. 
 -> Developers can simply upload their code and sevice automatically handle all the details such as resource provisioning, load balancer, auto scaling and monitoring
-
-
-# What is EFS
--> EFS stands for Elastic file system
--> It is serverless
--> It is scalable and fully managed file storage device
-
-# What are the advantages and disadvantages of EFS
--> Fully managed service
--> Multi AZ replication
--> Can support thousands of concurrent connections
-  Disadvantages
--> Not available all region
--> Cross region capability not available	
--> More compicated provision comparate to S3 and EBSs
-
 
 
 Note: We will check 20 and 21 linkdin AWS pages before interview
@@ -718,6 +732,176 @@ Note: We will check 20 and 21 linkdin AWS pages before interview
 -> SES does not allow to configure mail server
 
 Note: We will check 35,36 and 37 linkdin AWS pages before interview
+
+
+
+
+
+
+
+
+
+# What is the Cloud services 
+
+Cloud computing offers a wide variety of services that enable businesses and individuals to leverage computing resources, storage, networking, databases, analytics, machine learning, and more, all over the internet. Below is an overview of the key types of cloud services across different cloud providers (such as AWS, Google Cloud, and Microsoft Azure) and their general functions:
+
+1. Infrastructure as a Service (IaaS)
+IaaS provides virtualized computing resources over the internet, allowing you to rent infrastructure like servers, storage, and networking without needing to maintain physical hardware.
+
+Examples:
+
+Amazon EC2 (Elastic Compute Cloud) – Virtual servers for running applications.
+Google Compute Engine – Virtual machines to run workloads.
+Microsoft Azure Virtual Machines – Scalable cloud computing instances.
+Use Cases:
+
+Hosting websites or applications.
+Running large-scale processing tasks.
+Developing and testing environments.
+2. Platform as a Service (PaaS)
+PaaS provides a platform that allows developers to build, deploy, and manage applications without worrying about underlying infrastructure. It abstracts away the hardware and networking layers, allowing a focus on the application.
+
+Examples:
+
+AWS Elastic Beanstalk – Platform for deploying web applications and services.
+Google App Engine – Platform for building scalable web apps and mobile backends.
+Microsoft Azure App Service – Fully managed platform for web and mobile apps.
+Use Cases:
+
+Application development and hosting.
+Simplifying DevOps workflows.
+Scaling apps with ease.
+3. Software as a Service (SaaS)
+SaaS provides fully managed software applications over the internet, eliminating the need for users to install or maintain the software themselves.
+
+Examples:
+
+Google Workspace (formerly G Suite) – Cloud-based productivity tools like Gmail, Google Docs, and Google Drive.
+Microsoft 365 – Cloud-based suite including Word, Excel, PowerPoint, and Teams.
+Salesforce – Cloud-based customer relationship management (CRM) software.
+Use Cases:
+
+Collaborative work tools (email, documents, etc.).
+CRM and business management.
+Enterprise resource planning (ERP).
+4. Storage Services
+Cloud storage allows you to store and manage data online, ensuring easy access, sharing, and scalability.
+
+Examples:
+
+Amazon S3 (Simple Storage Service) – Scalable object storage for storing data, backups, and archives.
+Google Cloud Storage – Reliable storage for any amount of data.
+Microsoft Azure Blob Storage – Object storage for unstructured data like images, videos, and backups.
+Use Cases:
+
+Data backup and recovery.
+Hosting static websites.
+Media storage (images, videos).
+5. Database Services
+Cloud providers offer managed database services to easily deploy, manage, and scale databases without worrying about infrastructure management.
+
+Examples:
+
+Amazon RDS (Relational Database Service) – Managed relational databases (e.g., MySQL, PostgreSQL, SQL Server).
+Google Cloud SQL – Fully managed SQL databases.
+Azure SQL Database – Managed relational databases in the cloud.
+Use Cases:
+
+Storing and managing transactional data.
+Supporting web applications and enterprise systems.
+Scalable data storage for apps.
+6. Networking Services
+These services enable cloud-based network management, such as load balancing, content delivery, and virtual private networking.
+
+Examples:
+
+Amazon VPC (Virtual Private Cloud) – Allows the creation of isolated networks within AWS.
+Google Cloud VPC – Provides scalable private networking.
+Azure Virtual Network – Private network setup within Azure.
+Use Cases:
+
+Isolating and securing cloud resources.
+Creating a hybrid cloud setup with on-premise and cloud resources.
+Content delivery and traffic management.
+7. Analytics Services
+Cloud-based analytics services allow businesses to process and analyze large datasets with minimal effort, providing valuable insights.
+
+Examples:
+
+Amazon Redshift – Data warehouse for big data analytics.
+Google BigQuery – Fully managed data warehouse for large-scale analytics.
+Azure Synapse Analytics – Integrated analytics service combining big data and data warehousing.
+Use Cases:
+
+Business intelligence (BI) and reporting.
+Big data processing and analytics.
+Real-time analytics and data visualizations.
+8. Machine Learning & AI Services
+These services provide pre-built tools and frameworks for machine learning and AI applications, enabling you to build models without needing in-depth knowledge of machine learning algorithms.
+
+Examples:
+
+AWS SageMaker – Platform for building, training, and deploying machine learning models.
+Google AI Platform – Machine learning services and APIs for developing models.
+Azure Machine Learning – Managed service for developing AI models.
+Use Cases:
+
+Natural language processing (NLP).
+Image recognition and computer vision.
+Predictive analytics and recommendation systems.
+9. Identity and Access Management (IAM) Services
+IAM services enable you to control user access to cloud resources, enhancing security by defining who can access what and under which conditions.
+
+Examples:
+
+AWS IAM – Control access to AWS resources by defining users, groups, and permissions.
+Google Cloud IAM – Manage who can access resources in Google Cloud.
+Azure Active Directory – Identity management and access control in Azure.
+Use Cases:
+
+Controlling and auditing access to cloud resources.
+Managing user authentication and authorization.
+Enforcing security policies.
+10. DevOps and Developer Tools
+These services help developers with continuous integration, continuous delivery (CI/CD), monitoring, and managing the deployment lifecycle of applications.
+
+Examples:
+
+AWS CodePipeline – Continuous delivery service for automating application build and deployment.
+Google Cloud Build – Managed CI/CD for building, testing, and deploying applications.
+Azure DevOps – Suite of DevOps tools for managing development and deployment pipelines.
+Use Cases:
+
+Continuous integration and delivery.
+Automating infrastructure provisioning.
+Monitoring and managing applications in production.
+11. Security Services
+Cloud security services help protect cloud infrastructure, applications, and data from security threats and ensure compliance with regulations.
+
+Examples:
+
+AWS Shield – DDoS protection for AWS resources.
+Google Cloud Security Command Center – Centralized security management for Google Cloud.
+Azure Security Center – Unified security management and threat protection.
+Use Cases:
+
+Protection against cyberattacks (e.g., DDoS).
+Data encryption and compliance management.
+Identity and access control.
+Summary of Major Cloud Service Categories:
+IaaS (Infrastructure as a Service): Virtual machines, storage, and networking (e.g., EC2, Compute Engine).
+PaaS (Platform as a Service): Development platforms and environments (e.g., App Engine, Azure App Service).
+SaaS (Software as a Service): Fully managed software applications (e.g., Google Workspace, Salesforce).
+Storage Services: Scalable cloud storage (e.g., S3, Google Cloud Storage).
+Database Services: Managed database instances (e.g., RDS, Cloud SQL).
+Analytics & AI: Data processing, machine learning, and analytics tools (e.g., BigQuery, SageMaker).
+DevOps Tools: CI/CD, monitoring, and deployment (e.g., CodePipeline, Azure DevOps).
+Networking: Virtual private networks and load balancing (e.g., VPC, Virtual Network).
+Security: Security management, access control, and threat protection (e.g., AWS Shield, Azure Security Center).
+Cloud services are broad, and each major cloud provider (AWS, Google Cloud, Microsoft Azure) offers specific versions of these services, often with unique features tailored to their respective ecosystems.
+
+
+https://youtu.be/e99QsTsJPJs?si=BfFVIzHepvboc6-t
 
 
 
