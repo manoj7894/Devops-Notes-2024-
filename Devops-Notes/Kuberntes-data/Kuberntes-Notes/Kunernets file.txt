@@ -436,11 +436,6 @@ kubectl scale deployment my-deployment --replicas=0 --> To scale down the replic
 -> If we use Set-based Selector you can give only multiple selector
 -> Replication set will supports the Set-based Selector
 
-# What is Daemon Set
--> DaemonSet is a Kubernetes feature that lets you run a Kubernetes pod on all cluster nodes that meet certain criteria
--> We create the daemon set for logs collections,monitoring and storage
--> we cant use daemon set for reqular pod creation
--> Scale up and scale down process not applicable in daemon set
 
 # what is deployment 
 -> By using deployment we can rollout and rollback our application deployment
@@ -513,42 +508,6 @@ Note: When we delete the deployment pod will delete the automatically but servic
 # What is Canary Deployment
 -> Introduce a new version of the application to a subset of users or traffic gradually. 
 -> Monitor for issues and progressively increase the rollout if everything goes well, or roll back the changes if issues are detected.
-
-
-# Auto Scalling [It is the process of increasing and decreasing the instance based on loads]
--> Auto Scalling allow to you to automatically scale up and scale down your application based CPU Utilization and Memory Utilization
--> We have two types of auto scalling
-  1) Horizontial scalling
-  2) Vertical scalling
-
--> Horizontial Scalling increase the number of instances
--> Vertical Scalling increase the capacity of system
--> In Production we will use Horizontal Scalling
--> We call Auto Scalling in Kubernets is 
-  1) HPA -> Horizontal POD Autoscalling
-  2) VPA -> Vertical POD Autoscalling
-
--> If we use autoscalling in our K8S we need to install metric server
--> We will install metric server to see the CPU utilization
-
-# How to install metric server
-sudo apt-get install git -y                 
-git --version
-git clone https://github.com/ashokitschool/k8s_metrics_server
-cd k8s_metrics_server/
-cd deploy/
-cd 1.8+/
-kubectl apply -f .
-kubectl get namespaces
-kubectl get pods -n kube-system
-kubectl top nodes  --> To get CPU memory
-
--> After execute the above steps you will deploy the autoscalling file
-
-Do you want to check wheather autoscalling working or not
-To increase the load on pods you will use below commands in duplicate
-kubectl run -it loadgenerator --image=busybox
-wget -q -O- http://my-app-service
 
 
 
@@ -667,11 +626,6 @@ suppose if you want to install metric beat to see the metric of application then
 -> CRD Stands for Custom resource Definition
 -> CRDs allow users to create new types of resources without adding another API server.
 -> When you create a new CustomResourceDefinition (CRD), the Kubernetes API Server creates a new RESTful resource path for each version you specify. 
-
-# What is RBAC
--> RBAC Stands for Role based access control
--> RBAC is the heart of kubernetes security
--> RBAC is a key security control to ensure that cluster users and workloads have only the access to resources required to execute their roles.
 
 # How to communicate the pod to another pod
 -> Pod-to-Pod Communication within the Same Node
