@@ -2,6 +2,7 @@ RBAC:- Role based access control
 
 # What is RBAC
 -> RBAC is the way to define the different level of permission or access level for different users based on rules
+-> RBAC is the heart of kubernetes security
 -> We have two types of roles
   1. ROle:- Role is work on specific namespace
   2. Cluster Role:- Cluster role is work on cluster level means it work on all the namespaces
