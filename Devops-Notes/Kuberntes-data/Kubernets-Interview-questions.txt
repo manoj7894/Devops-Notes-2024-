@@ -406,8 +406,7 @@ Deployment
 # What is the difference between Docker swaram and kubernetes?
 
 # What is the difference between Docker container and kubernetes pod?
--> pod in kubernetes is a runtime specification of a container in docker
--> Pod provide more declarative way of defing using YAML and you can more than one container in POD.
+a Docker container is an isolated environment for running a single application, while a Kubernetes pod is a higher-level abstraction that allows one or more containers to run together and be managed by Kubernetes.
 
 # What is Namaspece in Kubernets
 -> In kubernetes namespace is logical isolation of resource, Netwrok, policies, rbac and everything.
@@ -418,7 +417,7 @@ Deployment
 # What are the different types of services within kubernetes
 
 # What is the difference between NodePort and Loadbalancer
-NodePort exposes applications to external clients via specific ports on worker nodes, and LoadBalancer provides publicly accessible IP addresses for external traffic distribution
+NodePort exposes a service on a static port on each node's IP, allowing external access to the service, while LoadBalancer automatically provisions an external load balancer to distribute traffic across multiple nodes or pods, providing a more robust and scalable solution for external access.
 
 # What is the role of kubelet
 
