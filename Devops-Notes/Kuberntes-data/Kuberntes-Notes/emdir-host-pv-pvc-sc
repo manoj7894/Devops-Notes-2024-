@@ -79,6 +79,20 @@ EFS is ideal for scenarios where multiple pods need to read and write to the sam
 In summary, if your application architecture requires sharing data across multiple pods, you should use Amazon EFS. If you only need storage for a single pod, Amazon EBS is appropriate.
 
 
+Key Differences:
+Feature	           EBS (Elastic Block Store)	                                                        EFS (Elastic File System)
+Storage               Type	Block storage	                                                                 File storage
+Use Case	            Single-instance, high-performance storage (e.g., databases)	Shared storage,           multi-instance access (e.g., web applications)
+Access	              Single instance (one pod per volume)	                                                Multi-instance (shared access across multiple pods)
+Persistence	          Persistent across node/pod restarts, within the same Availability Zone	              Persistent across pods and Availability Zones
+Performance	          High IOPS, low latency, optimized for single instance	                                Scalable performance, suitable for shared workloads
+AWS Availability	    Limited to a single Availability Zone	                                                Across multiple Availability Zones
+
+When to Use EBS vs. EFS:
+EBS: Use when you need block-level storage for a single instance (e.g., databases, persistent logs, and high-performance workloads that don't require shared access).
+EFS: Use when you need a shared file system that multiple pods or EC2 instances can access simultaneously, such as shared storage for content management systems, user directories, or large-scale data processing.
+
+
 # Using EFS
 -> First you create one EFS file in AWS
 -> Click create filesystem, give file name, choose the VPC wherever your cluster is running
