@@ -41,6 +41,8 @@
 	-> Manual setup of load balancer
 	-> expernice with production deployment 
 
+-> Kubernetes is better suited for large organisations as it offer more scaliability, networking capabilities like policies and huge third party ecosystem support.
+
 # What is the difference between Docker and Kubernetes
   # Docker
    -> Single host
