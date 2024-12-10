@@ -23,6 +23,29 @@
 -> Event based autoscaling  (KEDA is a third party tool)
 -> Cron/Schedule based autoscaling
 
+
+-> If we use autoscalling in our K8S we need to install metric server
+-> We will install metric server to see the CPU utilization
+
+# How to install metric server
+sudo apt-get install git -y                 
+git --version
+git clone https://github.com/ashokitschool/k8s_metrics_server
+cd k8s_metrics_server/
+cd deploy/
+cd 1.8+/
+kubectl apply -f .
+kubectl get namespaces
+kubectl get pods -n kube-system
+kubectl top nodes  --> To get CPU memory
+
+-> After execute the above steps you will deploy the autoscalling file
+
+Do you want to check wheather autoscalling working or not
+To increase the load on pods you will use below commands in duplicate
+kubectl run -it loadgenerator --image=busybox
+wget -q -O- http://my-app-service
+
 -> https://github.com/piyushsachdeva/CKA-2024/blob/main/Resources/Day17/readme.md
 -> https://youtu.be/afUL5jGoLx0?si=7SC0Kd4L4IbxByFA
 
