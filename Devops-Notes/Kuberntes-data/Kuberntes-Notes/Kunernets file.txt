@@ -359,6 +359,9 @@ we have three types of Services
 -> If we use LoadBalancer type in service manifest file. we can access inside and outside of the cluster by using 
  loadbalancer DNS URL
 
+# What is the difference between NodePort and Load Balancer
+NodePort exposes a service on a static port on each node's IP, allowing external access to the service, while LoadBalancer automatically provisions an external load balancer to distribute traffic across multiple nodes or pods, providing a more robust and scalable solution for external access.
+
 # ExternalName Service
 -> This type of service maps a service to an external DNS name. 
 -> It allows you access the Kubernetes pods outside of the cluster using a DNS name.
