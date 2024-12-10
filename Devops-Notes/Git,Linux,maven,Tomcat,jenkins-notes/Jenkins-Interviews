@@ -109,3 +109,15 @@ In Jenkins, JNLP is used to allow agents (also known as "slave nodes") to be lau
 
 16) What type of agnet are you using in jenkins
 -> Docker agent because it is light weight and dont need do lots of installization like maven and other tools which we require.
+
+17) What are some common challenges in CI/CD, and how have you resolved them?
+
+Common challenges include:
+- Ensuring consistent environments across development, testing, and production.
+- Managing dependencies and versioning.
+- Handling failed builds or deployments.
+
+I have resolved these challenges by:
+- Using containerization (e.g., Docker) to ensure consistent environments.
+- Implementing dependency management tools (e.g., Maven, npm).
+- Configuring automated rollbacks and notifications for failed builds or deployments.
