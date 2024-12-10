@@ -20,17 +20,37 @@ container will take every thing which is we required
 It is a old technique to run the application
 we need to install hydervisior software to use
 
+Virtualization is a technology that allows a single physical computer (referred to as the host) to run multiple virtual computers, known as virtual machines (VMs).
+
+
 # What is hypervisior
 -> Hypervisior is a software that install the virtual machine in azure like ec2 in aws in servers
--> We have two types of hypervisior
-  -> Virtual machine
-  -> Xen
+-> A hypervisor is software that sits between the host machine's physical hardware and its virtual machines. 
+-> It manages resource allocation and ensures each VM operates independently.
+
+# What are the types of hypervisors
+-> Type 1 (Bare-Metal): Runs directly on physical hardware, highly efficient for data centers (e.g., VMware ESXi, Microsoft Hyper-V).
+-> Type 2 (Hosted): Operates on top of an existing operating system, suitable for testing (e.g., VirtualBox, VMware Workstation).
+
+# Understanding Virtual Machines (VMs)
+-> A virtual machine (VM) is a software-based computer that uses the physical resources of the host. Each VM operates independently, with its own OS and applications.
 
 # What are the difference between Docker and  virtualization
    Docker                  virtualization           
 1) Size is small         1) Size is big
 2) Startup is very fast  2) Startup is slow
 3) Integration is good   3) Integration is bad
+
+Feature	                    Virtual Machines (VMs)	                    Containers
+Architecture	           Full OS with Hypervisor	                 Shared OS kernel, application only
+Resource Overhead	       High (full OS for each VM)	               Low (no full OS, only app and dependencies)
+Startup Time	           Slower (minutes)	                         Faster (seconds)
+Isolation	               Strong (full OS isolation)	               Weaker (shared OS kernel)
+Portability	             Portable, but large image sizes	         Highly portable (small images)
+Use Cases	               Legacy apps, different OS types	         Cloud-native apps, microservices, CI/CD
+Management	             Hypervisors (e.g., VMware, Hyper-V)	     Orchestration tools (e.g., Kubernetes, Docker Swarm)
+Storage	                 Persistent (virtual disks)	               Ephemeral (unless configured for persistence)
+Security	               Higher security (strong isolation)	        Lower security (shared kernel)
 
 # What is Docker Hub
 Docker is a cloud based repository where we can share and store images. its like a market place for conatainer
