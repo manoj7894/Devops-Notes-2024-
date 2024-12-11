@@ -428,6 +428,31 @@ NodePort exposes a service on a static port on each node's IP, allowing external
 -> Turn on audit logs
 
 
+# How does two conatier can communicate in single node
+-> Two Container can communicate easily inside the pod using local host and port 
+
+# How Does it happen to communicate two container inside the pod
+-> Kubernets will use the pause container for sharing the network within the container in the same pod
+
+# What is Service Mesh [If anyone ask i know how it will work but i don't work on particully 
+-> Service mesh is used for to communicate from one service to another service securaly
+-> Servie mesh is used for running east-west tarffic in cluster
+-> Enabling the mutual TLS
+-> Service mesh provides the some capabilities such as load balance, observability, tarcing, authentication and authorization etc
+
+# What is init container and why do we need it
+-> Init container are the container that should run and complete befor the startup the main container in the pod
+-> It provides the separate lifecycle for the initialization so that it enables the separation of concens in the application
+
+# What Pod Disruption Budget
+-> Pod disruption budget handles the voluntary disruption 
+-> Pod disruption budget specisy the number replicas that an application can tolerate.
+	you have deployment manifeast with 5 replica. you have deployed but PDB allow the only 4 at a time then it eviction API allow the voluntary disruption of one pod at a time.
+
+# What is Pod security policy in kubernetes
+A **Pod Security Policy (PSP)** in Kubernetes is a cluster-level resource that defines security rules to control the behavior and configuration of pods, enforcing security best practices.
+
+
 
 
 
