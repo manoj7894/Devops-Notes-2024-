@@ -628,10 +628,21 @@ suppose if you want to install metric beat to see the metric of application then
 -> When you create a new CustomResourceDefinition (CRD), the Kubernetes API Server creates a new RESTful resource path for each version you specify. 
 
 # How to communicate the pod to another pod
+Each pod in Kubernetes gets its own unique IP address within the cluster, even if it’s running on the same node as another pod. This allows pods to communicate directly with each other using these IP addresses, without any need for port forwarding or special routing.
+
 -> Pod-to-Pod Communication within the Same Node
+If a pod in Node A needs to communicate with another pod (on the same node), it can directly use the IP of the other pod. The Kubernetes network model ensures that pods on the same node can communicate directly via their IP addresses.
+
    When pods are scheduled on the same node, they can communicate with each other using localhost or the loopback interface (127.0.0.1). 
    Pods on the same node can communicate directly via IP addresses or DNS names.
 -> Pod-to-Pod Communication across Nodes
+Each pod in Kubernetes is assigned a unique IP address. This IP is unique within the cluster, regardless of whether the pod is on the same node as another pod or on a different node.
+This unique IP addressing allows pods to communicate with each other using their IPs, even across nodes.
+
+Every pod in Kubernetes is assigned an IP address (unique within the cluster). The networking model ensures that all pods can reach each other using their respective IP addresses.
+When a pod on Node-A wants to communicate with a pod on Node-B, the traffic is routed through the Kubernetes network (using the CNI plugin). The CNI plugin ensures that traffic destined for pods on different nodes reaches the correct destination, often using overlay networks or routing rules.
+
+
    When pods are scheduled on different nodes, they communicate over the cluster network. 
    Kubernetes sets up networking between nodes using a container network interface (CNI) plugin, such as Calico, Flannel, or Cilium.
 
