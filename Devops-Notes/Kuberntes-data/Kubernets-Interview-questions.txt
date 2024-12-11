@@ -421,6 +421,13 @@ NodePort exposes a service on a static port on each node's IP, allowing external
 
 # What is the role of kubelet
 
+# How do you handle the Kubernetes cluster Security
+-> RBAC
+-> By default Pod can communicate with any another pods. we can set up the network policies to limit this communication between pods
+-> Use namespace for multi tenancy
+-> Turn on audit logs
+
+
 
 
 
