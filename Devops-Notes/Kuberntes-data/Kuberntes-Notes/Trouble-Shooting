@@ -1,0 +1,53 @@
+ImagePullbackoff Error:
+  ImagePull:- You will get this error when you keep the invid image name or non-existing image in your manifeast files you will get this kind of imagepull of error.
+  Backoff error:- Due to any network issues kubectl are not able take the image at that you will get this Backoff error
+  You will get both error at a time but we have explore differently eaxh one.
+
+https://youtu.be/vGab4v3RWEw?si=9F5sTjDGBwimK8bI
+
+
+
+CrashLoopBackoff Error:
+  It means our pod is crashing again and again
+  Based on below reasons we will get this error
+  -> Memory limit low [You keep some memory limit to that pod in your manifeast file but it is deployming if it consuming more then you will get this error]
+  -> Liveness probe and readness probe [Livenss probe is used to check if your pod is in healthy state or not][readness probe is used to check if your pod is ready to receive the traffic or not]
+  -> Keeping worng command line arguments [If you keep anything wrong in Dockerfile like filename]
+  -> If you provide incorrect variables for container
+  -> If your persistence volumes not existied
+
+https://youtu.be/aEPIlQBWBGQ?si=LtQ6QpavKrWsYkAK
+
+
+
+FailedScheduling Error:
+  Based on below reasons we will get this error
+  -> Node Selector [It will schedule the pod on particular Node]
+  -> Node Affinity 
+        In Node Affinity we have two options 
+          -> Preffered:- Fisrt you will try to schedule the pod on particular Node if it not available you will schedule at anywhere
+          -> Required:- It will aslo work like Node Selector it will schedule the pod on specific Node
+
+  What is the difference between Node Selector and Node Affinity 
+  Node Selector: It will forcefully schedule the pod on particular node that we called hard match [Less flexible control]
+  Node Affinity: We have two Options one is Preffered and Required that we called hard and soft [More flexible control]
+
+  -> Taint [It would use if you dont want to shedule the pod on specific node at that momemt we have to apply the taint to that Node] [Noscheduling]
+      Mostly use for Upgrade the versions of Cluster and nodes, backup 
+      Exammple:- You have production cluster with 3 workernodes after few days do you want to update your cluster with laterst version.
+                 But Pods are running on all the three worker nodes whereas if you want to update you must face the some downtime, But in procution its not recommand at time
+                 First you will transfer pods from which is running one worker node to second worker node then you will attach the taint to the worker node one then pods will not schedule the workernode one until complete your update.
+      We have three types of taints
+        -> No Schedule  [It is used for the update the cluster and backup]
+        -> No execute   [When use No execute taint all the in workernode it will stop immediatly so that it will little bit risky]
+        -> Preferred Node  [In wrost cases you will use this node means if your work node is not working well then you will use preffered node taint]
+
+  -> Toleration [Basically its given the some exception to certain pods means if you set the toleration to the pod manifest file it will schedule the pod even in taint means noschedule workernode]
+
+https://youtu.be/O61HDmGUBJM?si=l1O7IMkIqMPVFjDA
+
+
+
+
+
+  
