@@ -150,3 +150,14 @@ sudo sh startup.sh
 -> Later you wil check those containers are monitoring in dynatrace or not
 -> You will watch below video link regarding above matter
   https://youtu.be/fZvlNV1iEgw?si=ixiHzNd3kFfbPAKK 
+
+
+
+# Later to monitor our cluster i have used dynatrace monitor tool. To install the dynatrace one agent in our cluster. i have followed the below video.
+       https://youtu.be/GC2JH3DVxwg?si=wvBDIFqUPR6dMbRl
+
+# You have to download dynakube.yml file in dynatrace. If you follow the above video you will get know all the things.
+
+helm install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operator --create-namespace --namespace dynatrace --atomic
+
+kubectl apply -f dynakube.yaml
