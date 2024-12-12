@@ -160,6 +160,7 @@ Note: we can consider namespace as a java package
 	metadata -> It represents the lables
 	spec -> What do you want to use this manifeast file
 	filename default is .yml
+
 # How many service in Kubernetes
 -> Cluster IP 
 -> Nodeport
@@ -172,11 +173,14 @@ Note: we can consider namespace as a java package
     curl serviceip:portnumber
 
 # What is Nodeport
--> If we use Nodeport service we can access the pod inside and outside of the cluster by using Ip address
+-> If we use Nodeport service we can access the pod inside and outside of the cluster by using node Ip address
    [Port number range in K8S is 30000 to 32767]
 
 # What is load balancer
--> If we use Load balancer service we can access the pod inside and outside of the cluster by using load balancer DNS URL
+-> If we use Load balancer service we can access the pod inside and outside of the cluster by using load balancer URL
+
+# What is the difference between NodePort and Load Balancer
+NodePort exposes a service on a static port on each node's IP, allowing external access to the service, while LoadBalancer automatically provisions an external load balancer to distribute traffic across multiple nodes or pods, providing a more robust and scalable solution for external access.
 
 # What is ExternalName Service
 -> If we use ExternalName Service we can access the pod outside of the cluster by using DNS name
@@ -216,9 +220,6 @@ Note: we can consider namespace as a java package
 -> Set-based Selecotr give the mulitple selector
 -> Replication set supports Equality selector
 
-# What is Daemon Set
--> Daemon set in kubernets lets you run pods in all the nodes
--> We will create the daemon set for log collections, monitoring and storage
 
 # What is deployment
 -> By using deployment we can rollout and rollback our application deployment
@@ -256,18 +257,15 @@ Note: we can consider namespace as a java package
 -> Introduce a new version of the application to a subset of users or traffic gradually. 
 -> Monitor for issues and progressively increase the rollout if everything goes well, or roll back the changes if issues are detected.
 
-# What is AutoScaling
--> Auto Scalling allow to you to automatically scale up and scale down your application based CPU Utilization and Memory Utilization
+# What is Autoscaling
+> Auto Scalling allow to you to automatically scale up and scale down your application based CPU Utilization and Memory Utilization
 -> We have two types of auto scalling
   1) Horizontial scalling
   2) Vertical scalling
 
--> Horizontial Scalling increase the number of instances
--> Vertical Scalling increase the capacity of system
--> In Production we will use Horizontal Scalling
--> We call Auto Scalling in Kubernets is 
-  1) HPA -> Horizontal POD Autoscalling
-  2) VPA -> Vertical POD Autoscalling
+-> Horizontial Scalling increase the number of instances based CPU Utilization and Memory Utilization when increase the load on servers
+-> Vertical Scalling increase the capacity of system means increase the CPU and Memory size when increase the load on servers but it need to do restart it will affect somedown time it is stateless nature
+
 
 # What is Helm
 -> Helm is a package manager for K8S application
@@ -305,33 +303,56 @@ Note:Prometheus will collect the data and Prometheus will give the data to grafa
 -> TLS -> It is used to store the TLS certification
 -> Service Account -> Automatically created the secrets that provide the credientials for accessing kubernetes API
 
-# What is volumes in Kubernets
-Kubernets will store the data in directory that should be accessiable across container in pod
+# What is compute resource
+-> CPU and memory we called compute resources
 
-# Type of kubernetes volume types
--> Local nodes types -> emprtdir, hostpath, local node type
--> Special types -> persistence volume, persistence volume claim 
--> File sharing type -> nfs
-  we have lot of volume types presently we are using above types
+# What is CPU and Memory
+# CPU
+-> Measured a fraction of time
+-> Ex=200m(0.2cpu), 1cpu(1000m)
+-> Compressible
+-> Throttles means it wont kill even through we cross the CPU limit because it is Compressible
+-> 1 CPU is equal to
+      1 vCPU in AWS
+      1 core in GCP
+      1 vcore in azure
+      1 Hyperthread on bare-metal
 
-->  emptydir -> It is used to store the data temporialy in the container. Data will available upto you pod would be existing
-->  Hostpath -> It is used to store the data temporialy in the container. Data will available our local terminal.
+# Memory
+-> Measured on bytes
+-> Ex=1KB (1000 bytes), 1KiB (1024 bytes)
+-> Ex=1MB (1000 kb), 1MiB (1024 kib)
+-> Not compressible
+-> Terminates
 
-# What is persistence volume
--> Persistence volume is a piece of storage in the Kubernetes cluster that has been provisioned by an administrator.
 
-# What is persistence volume claim
--> It is a resource object in the Kubernetes API that allows a Pod to access a piece of storage from a PersistentVolume (PV).
+-> We have two options in resources 
+  1. requersts  [it will schedule the pods in nodes based on how much CPU and memory you have mentioned in requersts if node does not have that CPU and memory it wont schedule the pods]
+  2. limits    [Your container can use only that amount of CPU and memory which you mention in limits]
 
--> In persistence volume claim we have different access modes
- 1) RWO -> Read write once for single node
- 2) ROX -> Read only access for multiple nodes
- 3) RWX -> Read write access for mulitple nodes
+# What is CRD
+-> CRD Stands for Custom resource Definition
+-> CRDs allow users to create new types of resources without adding another API server.
+-> When you create a new CustomResourceDefinition (CRD), the Kubernetes API Server creates a new RESTful resource path for each version you specify. 
 
--> In persistence volume claim we have different policies
- 1) Retain -> If we delete the pod volume will not delete
- 2) Delete -> If we delete the pod volume will delete
- 3) Recycle -> Recycle policy is deprecated no longer recommanded for use
+
+# What is Daemon Set
+-> Daemon set in kubernets lets you run pods in all the nodes
+-> We will create the daemon set for log collections, monitoring and storage
+
+# What is the difference betwenn regular deploymnent and Daemonset
+-> Deployment means:- When we deploy the pod in kubernets pods will run the in nodes based on replica. If new node create in cluster pod wont add in that node.
+-> DaemonSet means:- When we deploy the pod in kubernets pods will run in all the nodes. If new node create in cluster pod will add automatically in that new node.
+
+
+# What is ingress
+-> Ingress is an API object that provides external access to service within cluster.
+-> It acts as a layer 7 (application layer) load balancer, allowing external traffic to be routed to different services based on HTTP/HTTPS routes and rules
+
+
+# what is the difference between job and cronjob in kubernetes
+While Jobs are designed for running one-time or on-demand tasks, CronJobs are used for executing tasks at regular intervals
+
 
 # What is network policy in k8s
 -> Network Policies are a feature that allows you to control the traffic flow between different pods and services within your cluster. 
@@ -348,6 +369,79 @@ Kubernets will store the data in directory that should be accessiable across con
 
 # What is Egress network policy  [It works like a outbound rule]
 -> Egress refers to the process of traffic leaving the kubernets cluster and going to an external destination.
+
+
+# What is RBAC
+-> RBAC is the way to define the different level of permission or access level for different users based on rules
+-> RBAC is the heart of kubernetes security
+-> RBAC is a key security control to ensure that cluster users and workloads have only the access to resources required to 
+   execute their roles.
+-> We have two types of roles
+  1. ROle:- Role is work on specific namespace
+  2. Cluster Role:- Cluster role is work on cluster level means it work on all the namespaces
+
+
+
+# What is volumes in Kubernets
+A volume's lifecycle is tied to the pod, not the individual containers. This means if a container crashes and is restarted, the volume will still retain its data.
+
+# Types of Volumes:
+Kubernetes supports various types of volumes, each with its own use cases, including:
+-> emptyDir: A temporary directory that shares storage among containers in a pod.
+-> hostPath: Mounts a file or directory from the host node’s filesystem into a pod.
+-> persistentVolumeClaim (PVC): A request for storage that dynamically provisions a persistent volume (PV) from a storage class.
+-> nfs, awsElasticBlockStore, gcePersistentDisk, etc.: Integrate with external storage systems.
+
+# What emptydir
+-> When we use the emptydir volume type even if we restart and delete the pod we will lose the data assositate with pod.
+-> We cant persistence and share data to multiple nodes    not recommand
+
+# What hostpath
+-> When we use the hostpath volume type even if we restart and delete the pod we will retrive the data assositate with pod. [means data will store in node whereever pod is running]
+-> We cant persistence and share data to multiple nodes [It will save data in single node if that node will delete we will lose the data]  not recommand
+
+Note: So far we dicussed above volume are ephemeral because if pod or nodes gets deleted or restared the data assosiate with pods those volumes gets deleted.
+
+# What Persistene volumes
+-> When we use the PVC volume type even if we restart and delete the pod we will retrive the data assositate with pod. [means data will store in node whereever pod is running]
+-> We can persistence and share data to multiple nodes   [It will save data in multiple node if that node will delete we will retrive the data from another node]  recommand
+
+
+# Kuberbets offers three components to persistence the data
+-> Persistence volumes
+-> Persistence volume claims
+-> Storage class
+
+# What is Persistence volumes(PV)
+-> A PersistentVolume is a piece of storage in the Kubernetes cluster that has been provisioned by an administrator or dynamically provisioned using stoage class
+
+# What is Persistence volume claims
+-> A PersistentVolumeClaim is a request for storage by a user or developer.
+-> It is a resource object in the Kubernetes API that allows a Pod to access a piece of storage from a PersistentVolume (PV).
+
+# In persistence volume claim we have different access modes
+-> ReadWriteMany   -> Which means this volume can be mounted as read write by many nodes  [If you are running in different node this is best option for you]
+-> ReadWriteOnce   -> Which means all your pods are running in single node This is the best option [But you are pods running in different nodes they cant use this volumes
+-> ReadOnlyOnce   ->  when use both ReadOnlyOnc and ReadOnlyMany you cant write the data in persistence volumes [it is just read only mode]
+-> ReadOnlyMany   -> 
+-> ReadWriteOncePod  -> When we use this access mode this volume can be mounted as read write once by single pod [ we will this mode to ensure only one pod accross the whole cluster can read or write]
+
+# What is storage class 
+-> How the pvs should be created dynamically
+
+# Persistence  Volumes we can create two ways 
+-> EBS will support only ReadWriteOnce   
+-> EFS will support only ReadWriteMany 
+
+# What is the difference Between EBS and EFS
+-> EBS will support only ReadWriteOnce means EBS volume can be mounted by single pod on one node at a time 
+-> EFS will support only ReadWriteMany means EFS volume can be mounted by multiple pods across multiple nodes simultaneously
+
+# Why Use Volumes?
+-> Data Persistence: Store data that needs to persist beyond the lifecycle of a pod.
+-> Shared Storage: Enable multiple containers within a pod to share data.
+-> Decoupling Storage from Pods: Manage storage independently from the pod lifecycle, making it easier to handle data.
+
 
 # What is kubernetes Statefulset
 -> StatefulSet is the workload API object used to manage stateful applications.
@@ -367,23 +461,27 @@ Deployment
 # What is Calico network 
 -> Calico implements the Kubernetes Container Network Interface (CNI) as a plug-in and provides agents for Kubernetes to provide networking for containers and pods.
 
-# What is CRD
--> CRD Stands for Custom resource Definition
--> CRDs allow users to create new types of resources without adding another API server.
--> When you create a new CustomResourceDefinition (CRD), the Kubernetes API Server creates a new RESTful resource path for each version you specify. 
+# How does two conatier can communicate in single node
+-> Two Container can communicate easily inside the pod using local host and port 
 
-# What is RBAC
--> RBAC Stands for Role based access control
--> RBAC is the heart of kubernetes security
--> RBAC is a key security control to ensure that cluster users and workloads have only the access to resources required to execute their roles.
+# How Does it happen to communicate two container inside the pod
+-> Kubernets will use the pause container for sharing the network within the container in the same pod
 
-# How to communicate the pod to another pod
--> Pod-to-Pod Communication within the Same Node
-   When pods are scheduled on the same node, they can communicate with each other using localhost or the loopback interface (127.0.0.1). 
-   Pods on the same node can communicate directly via IP addresses or DNS names.
--> Pod-to-Pod Communication across Nodes
-   When pods are scheduled on different nodes, they communicate over the cluster network. 
-   Kubernetes sets up networking between nodes using a container network interface (CNI) plugin, such as Calico, Flannel, or Cilium.
+
+# How Pod-to-Pod Communication within the Same Node
+-> Each pod in Kubernetes gets its own unique IP address within the cluster, even if it’s running on the same node as 
+   another pod. This allows pods to communicate directly with each other using these IP addresses, without any need for port 
+   forwarding or special routing.
+-> If a pod in Node A needs to communicate with another pod (on the same node), it can directly use the IP of the other pod. 
+   The Kubernetes network model ensures that pods on the same node can communicate directly via their IP addresses.
+   Note: Pods on the same node can communicate directly via IP addresses or DNS names.
+
+# How Pod-to-Pod Communication across Nodes
+-> Each pod in Kubernetes is assigned a unique IP address. This IP is unique within the cluster, regardless of whether the 
+   pod is on the same node as another pod or on a different node.
+-> This unique IP addressing allows pods to communicate with each other using their IPs, even across nodes.
+-> When a pod on Node-A wants to communicate with a pod on Node-B, the traffic is routed through the Kubernetes network 
+   (using the CNI plugin) such as Calico, Flannel, or Cilium. 
 
 # How to describe the kubernetes security
 -> Enable Role-Based-Access-Contro;
@@ -409,36 +507,29 @@ Deployment
 a Docker container is an isolated environment for running a single application, while a Kubernetes pod is a higher-level abstraction that allows one or more containers to run together and be managed by Kubernetes.
 
 # What is Namaspece in Kubernets
--> In kubernetes namespace is logical isolation of resource, Netwrok, policies, rbac and everything.
--> For example there are two projects using same k8s cluster. one project can use ns1 and another project can use ns2 without ant overlap and authentication problems.
 
 # What is the role of Kube-proxy
 
 # What are the different types of services within kubernetes
 
 # What is the difference between NodePort and Loadbalancer
-NodePort exposes a service on a static port on each node's IP, allowing external access to the service, while LoadBalancer automatically provisions an external load balancer to distribute traffic across multiple nodes or pods, providing a more robust and scalable solution for external access.
 
 # What is the role of kubelet
 
 # How do you handle the Kubernetes cluster Security
 -> RBAC
--> By default Pod can communicate with any another pods. we can set up the network policies to limit this communication between pods
+-> By default Pod can communicate with any another pods. we can set up the network policies to limit this communication 
+   between pods
 -> Use namespace for multi tenancy
 -> Turn on audit logs
 
-
-# How does two conatier can communicate in single node
--> Two Container can communicate easily inside the pod using local host and port 
-
-# How Does it happen to communicate two container inside the pod
--> Kubernets will use the pause container for sharing the network within the container in the same pod
 
 # What is Service Mesh [If anyone ask i know how it will work but i don't work on particully 
 -> Service mesh is used for to communicate from one service to another service securaly
 -> Servie mesh is used for running east-west tarffic in cluster
 -> Enabling the mutual TLS
--> Service mesh provides the some capabilities such as load balance, observability, tarcing, authentication and authorization etc
+-> Service mesh provides the some capabilities such as load balance, observability, tarcing, authentication and 
+   authorization etc
 
 # What is init container and why do we need it
 -> Init container are the container that should run and complete befor the startup the main container in the pod
