@@ -1,20 +1,20 @@
 1) Can you explain the CICD process in your current project ? or Can you talk about any CICD process that you have implemented ?
-In My current project we are using jenkins tool to implement the CI/CD process. What is the reason to using jenkins is whenever user can mkae any changes in our source code then webhook automatically
-Trigger the declarative pipeline script then declarative pipeline script automatically run mulitple stages in pipeline script.
+In My current project we are using jenkins for implement the CI/CD process.  Jenkins is chosen for its ability to automate and streamline our build, test, and deployment workflows. When a developer makes changes in the source code, a webhook automatically triggers the declarative pipeline script, which then runs multiple stages sequentially.
 
-Now i am going the explain the stages before that we are using Github as source and our target platform is Kubernetes
+We use GitHub as our source code repository and Kubernetes as our deployment platform. 
+Now i am going the explain the stages 
 Coming to the stages
 Stage-1:- (Checkout) It will clone the source code from github repository
-Stage-2:- (Install Package Dependencies)
+Stage-2:- (Install Package Dependencies) Install the required dependencies needed for the application to run
 Stage-3:- (Unit Test) Unit test case will help us to find out our application running the same which ois suppose to work
 Stage-4:- (Trivy file system scan) Trivy it will run the mulitple stages. First one it will scan the files and folders means it will scan the manifeast files, yaml file, terraform fiels and other files to detect the vulnerabilities. AS well as if we keep any password and tokens in that files and folder it will let us know to make sure dont expose
 Stage-5:- (OWASP Scan) It will check the dependencies in our dependencies in files like package.json
-Stage-6:- (Code Scan) we are using sonar qube to scan our source code to detect the bugs and smells
+Stage-6:- (Code Scan) Scan the source code using SonarQube to identify bugs, vulnerabilities, and code smells.
 Stage-7:- (Build) Build the docker image based on docker file
 Stage-8:- (Image Scan) We are using trivy to scan the docker image to decect the vulnerabilities
 Stage-9:- (Push) Push the docker image into dockerhub where we are using our docker images
-Stage-10:- (Update the manifeastfiles) Update the docker image in our manifeastfiles which we keep in our dockerhub
-Stage-11:- (Deploy to EKS) Automatically deploy your application to EKS cluster
+Stage-10:- (Update the manifeastfiles)  Update the Docker image reference in the Kubernetes manifest file stored in the repository.
+Stage-11:- (Deploy to EKS) Deploy the updated manifest file to the Amazon EKS (Elastic Kubernetes Service) cluster, ensuring automated deployment to the Kubernetes platform.
 
 2) What are the different ways to trigger jenkins pipelines ?
 We can trigger the pipeline in differnet ways
