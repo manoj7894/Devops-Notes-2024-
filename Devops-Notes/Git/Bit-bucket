@@ -1,0 +1,27 @@
+# How to give user and group permission in Bitbucket
+-> We have four permmission in bitbucket
+   -> Global Permission  [Who can log into the bitbucket server, all access permmission]
+   -> Project Permission  [Read, write and Admin permmission at the project] [In project level group permmission is there]
+   -> Repository Permission  [Read, write and Admin permmission at the Repository level]
+   -> Branch Permission   [Write(push) access on per branch]
+
+# How to give user permission
+-> Go to any repository then only you will find that option user managnment, click the user managnmet, Click invite user
+-> Enter email id and click invite user
+-> After create the user. Go to the whichever repository do you want to give access to that user. click repository settings, click repository permission,
+    click add user and add the user.
+
+
+# How to configure webhook with jenkins 
+-> You have install bitbukcet plugin in jenkins
+-> later go to the repository, click the repo settings and click webhook, add webhook, give name and jenkins URL like below
+        http://13.235.104.53:8080/bitbucket-hook/
+        click active
+        skip certification
+        give push and commit create
+-> To know the more details you will checkout below link
+   https://youtu.be/AMviqVG3Ifo?si=OsRdNPYnYJoMBtZn
+
+
+# To Connect with argocd 
+-> Go to settings in argocd, click repo, give git, project default, give url, username, and password token
