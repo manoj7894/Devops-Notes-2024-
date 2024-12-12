@@ -1,0 +1,171 @@
+# What is the Version Control
+-> Version control system (VCS) is a software that helps you manage changes to our entire code over time. 
+-> It allows multiple people to collaborate on a project, track changes, and easily revert back to previous versions if needed. 
+-> One popular VCS is Git.
+
+# We have two version control system
+-> Centralized Version Control System [CVS, SVN]
+-> Distributed Version Control System [Git]
+
+# Centralized Version Control System
+-> Database maintained at one site
+-> If centralized system fails entire system is halted
+-> Less reliable
+
+# Distributed Version Control System
+-> Database maintained at number of different sites
+-> If one system fails system continues work with other 
+-> More reliable
+
+# What is fork in github
+-> On GitHub, "fork" refers to creating a personal copy of someone else's repository. This allows you to freely experiment with changes without affecting the original project
+
+# What is git
+-> Git standards for Global Information Tracker
+-> Git is a distribution version control system that allow people collaborate on project
+
+# what is git hub
+-> Git hub is the remote repository hosting service and collaboration platform
+-> It provide the free and paid services
+-> Git-hub having the repository
+-> Git-hub encourages teams to work together build and edit their site content. 
+-> Addressing issues and reviewing PR's and commits.
+
+# what is repository
+-> Repository having the source code data
+
+# Git Commands
+-> git init .   --> It install the empty repository
+-> git status  --> To check the current repository status, including change, untracked and statged files.
+-> git config --global user.name <write some name> --> Config the git settings such as username and email
+-> git config --global user.email <write mail id> 
+-> git add .    --> Take files from untracked and modified staged to stagged stage [Untracked means newly created files][modify means if you do any change in file after commit then file it commes unstagged or modifyes staged]
+-> git commit -m "somename"  (or) git commit -m .   --> Take the staged files into local repo
+-> git remote[Manage the connection to remote repository such adding and remove remote]
+-> git remote add <name>  -->  To add the origin name
+-> git remote add origin <git hub url>  --> To add the git hub url to origin
+-> git remote rename <old-name> <new-name>   --> To Rename the origin name
+-> git remote remove <name>  --> To remove the origin name
+-> git remote -v  --> To see list of remote
+-> git log  --> To see the commit history
+-> git push --> push the data from local repo to remote repo
+-> git push -u origin branch name --> push the particular branch data from local repo to remote repo
+-> git branch  --> To see the git branches [It is used to maintain the spearate code base is called git branch]
+-> git branch <branch name>  --> To create the branch name
+-> git checkout -b <branch name>  --> It create the new branch and checkout that branch
+-> git checkout <branch name>   --> To shift from one branch to another branch
+-> git merge <branch name>      --> [It merge the changes from one branch to another branch][It wont maintain the liner commit history]
+    Merges are two types
+      1) fast forward merge  --> we will merge without commit
+      2) recursive       --> we will merge after commit
+-> git rebase <branch name>    --> [It merge the changes from one branch to another branch][It maintain the liner commit history]
+-> git stash   --> [it save the changes from local repo to tempory location to make working directory clean]
+-> git stash list  --> To see stash list
+-> git stash apply --> It will take lastet file from git stash. that file wont delete in git stash when we do git stash apply
+-> git stash drop  --> It will delete files in git stash 
+-> git stash pop   --> It will take latest file as well as it will delete file automatically in git stash
+-> git stash apply stash@{enter stash number}   --> it will take particular files from git stash
+-> git stash -u    --> It moved the file into untracked stage from git stash
+-> git stash branch <branch name>   --> if you want to create to separate branch with git stash files
+-> git reset   --> To take the stagged file to untracked stage
+-> git reset --soft HEAD~1   --> To take the commit files to untracked stage
+-> git diff           --> View the difference between changes made to file
+-> git clone  --> Download the remote repository on your local machine
+-> git pull  --> It pull the data from remote repository to local repository
+-> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
+-> git clean -f <file>   --> To remove the file from untracked stage
+-> git revert  -> undoing changes to repository commit history.
+-> git restore -> Remove the files from the staging area
+-> IF you want to go to the previous version or to see the previous data in file
+   git reset --hard "give commit id"
+https://youtu.be/fIMySI_gZJU?si=4T8ZmDa9rsBELi11  [28:25]
+
+# To get more details about git revert and git resert. you will watch below link
+  https://youtu.be/mTNWyyMbxmU?si=6uudwsD2FowavO2M
+
+# What are the files and folders would be in .git folder
+.git will track our entire repository
+-> HEAD(file) -->  This file points to the current branch reference, which indicates the branch that is currently checked out.
+-> config(file) --> This file contains repository-specific configuration settings, such as user information, passwords, TLS certificates, and other Git settings.
+-> description(file) --> This file is used by Gitweb and other web interfaces to provide a brief description of the repository. It’s mostly used for informational purposes.
+-> hooks(dir) --> This directory contains sample scripts for Git hooks. Prevent the unconditional commits and API using HOOKS
+-> info(dir) --> This directory contains the exclude file, which can be used to specify files and directories that should be ignored by Git, in addition to the patterns specified in .gitignore.
+-> objects(dir) --> This directory stores all the content of your repository, including commits, trees (directories), and blobs (file contents). Each object is stored as a file with a name based on its hash.
+-> refs(dir) --> This directory contains references to commit objects, including branches and tags.
+
+# What is the difference between FORk and CLONE
+-> FROK will create the copy of repository on remote server
+-> CLONE will download the remote repository in local
+
+# To merge the data from one branch to another branch we have three ways to merge the data.
+-> merge [you would be keep in destination place and use the git merge command] 
+-> rebase
+-> cherry-pick [Cheery-pick easy to merge one or two commits if we want to merge more commit its to difficult to merge all commit manually so that we will use merge and rebase]
+
+# How to use cherry-pick
+-> if you want to merge the data from feature branch to master branch
+-> give git log command and give copy the lastest commit id in feature branch and checkout the master branch and you use below command
+-> git cherry-pick <commit-id>
+-> git log
+
+
+
+
+# When you get below error while doing git push 
+you will use below to command to seems like this master -> master
+-> git push -f origin master  --> If it is not work you will execute below steps
+-> git clone <URL>  -> later you will execute above git push steps even the it is not work you will execute below steps
+-> git fetch origin master:tmp
+-> git rebase tmp
+-> git push --set-upstream origin master
+
+https://youtu.be/Twi3gtYFDqk?si=-MJCWlnKtS53Lemx
+
+# If you want to push the data into Another branch
+First you have to checkout from whichever branch do you want to push the data to git repo
+[when you do the push to another branch master files also will come to that branch along with new files]
+
+# It you want to merger files from one branch to another branch
+you would be keep in destination place and use the git merge command. when you do the merge in terminal it wont apply in git hub
+git log
+if you want to check the files ls -l
+
+# It you want to use the pull command
+when someone changes code in git hub then you will use git pull command 
+Git pull command it will take code from git repo to local repo
+If you want to pull changes to another branch you will use this below command keep in branch
+git pull <repo Url> branch name
+
+# What is git branch strategy
+we have 5 branches
+master  --> It is a Production means live env and it having existing code  [Upto date]
+feature  --> If we want to update any existing app then we will create the feature branch after complete the code update we will merge the code into master branch
+release  --> Ready to delivered to the customres
+Hot fix  --> If customer raise the any problem then we will create hotfix branch and we will reslove that problem. we will merge the code into master branch after reslove the problem
+
+# What are the difference difference between new repo and new project
+New repo  --> It is the part of git and git hub
+New project --> It is the part of only git hub
+
+# What is pull request
+Akowledge and review the changes
+It merge the changes from one branch from another branch
+We can create pull request in two types
+1) Pull request to repository
+2) Pull request to branch within repository
+
+# If you want to change the default branch name
+-> Go to settings, click repository, chnage the branch name
+
+# What is GubHub Project
+If you want to assign any repositories project to particular person and daily get the status of the repository then you will use Project
+
+# How to clone the repository using SSH
+-> create the SSh in your terminal
+-> ssh-keygen
+-> cd .ssh/
+-> Copy the pubilc key and go the github and go to setting and click SSh and GPG keys and click new SSh key and give some title name and paste the public ssh-key in key
+
+
+
+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
