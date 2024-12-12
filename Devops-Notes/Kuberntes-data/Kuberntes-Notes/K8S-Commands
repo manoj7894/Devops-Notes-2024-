@@ -1,0 +1,127 @@
+# Namespace Commands
+-> kubectl create namespace <namespacename>      --> To create the namespace
+-> kubectl delete namespace <namespacename>      --> To delete the namespace
+-> Kubectl get namespaces or kubectl get ns      --> To see the namespaces
+-> kubectl get pods -n <namespacename>          --> To get pods on particular namespace
+-> kubectl get pods --all-namespaces  --> To get all pods on all namespaces
+-> kubectl get pods -n kube-system  --> To get Control panal Components
+-> kubectl run --name conatinername --images=ashokit/javawebapplication  --> To create the pod in interactive mode
+-> kubectl delete all --all -> To delete all pods,svc,namespaces
+
+# Pod Commands
+-> kubectl apply -f <podfilename> --> To execute the pod manifestfile
+-> kubectl get pods --> To get pods by default namespace
+-> kubectl get pods -w --> To get pods while it is running
+-> kubectl delete pods <podsname> --> To delete the pods
+-> kubectl describe pod <podname> --> To describe the pod
+-> kubectl get pods -o wide -> To see on which node pod is running
+-> curl podip (or) external node ip:portnumber -> To access the pod inside the cluster
+-> kubectl logs <pod-name>  --> To check the logs of pod
+-> kubectl logs <pod-name> -c <containername>  --> To check the logs of pod
+-> kubectl edit pods <podsname> --> To edit the pods
+
+# Service Commands
+-> kubectl get svc --> To get services
+-> kubectl get svc -o wide --> To see on which node service is running
+-> kubectl delete service <servicefilename> --> To delete the service filename
+-> kubectl describe service <servicefilename> --> To describe the service name
+
+# Replication Controller and set Commands
+-> kubectl scale deployment my-deployment --replicas=3 --> To scale up the replicas
+-> kubectl scale deployment my-deployment --replicas=0 --> To scale down the replicas
+-> kubectl get replicasets  --> To see the replicas
+-> kubectl get rc   -> To get the replicas data
+
+# Deployment Commands
+-> kubectl get deployment  --> To see the deployments 
+-> kubectl get deployment <deployment name>  --> To see the particular deployment
+-> kubectl delete deployment <deploymentname>  --> To delete the deployment
+-> kubectl describe deployment <deployment name>  --> To see the particular deployment details
+
+# Autoscalling and Metricserver Commands
+-> kubectl get nodes  --> To see the nodes
+-> kubectl top nodes  --> To get CPU memory
+-> kubectl run -it loadgenerator --image=busybox  --> To increase the loads on nodes
+-> wget -q -O- http://my-app-service  --> You have to execute this after execute the above command
+-> Kubectl get hpa
+-> kubectl get hpa --watch
+
+# Helm
+-> helm list --> To see paclages
+-> kubectl edit svc stable-kube-prometheus-sta-prometheus  --> To edit the prometheus data
+-> kubectl edit svc stable-grafana  --> To edit the Grafana data
+-> helm repo ls  --> To see repository list
+-> helm ls -n efk  --> To see the packages in particular namespaces
+
+# Configmap and Secret Commands
+-> kubectl get cm  --> To see the configuremap data
+    kubectl get configmap
+-> kubectl delete cm <configfilename>  --> To delete the configuremap data
+-> kubectl describe cm my-configmap  --> To describe the configmap file
+-> kubectl exec -it <podname> -- /bin/bash  -> To enter into that pod
+-> kubectl get secret  --> To get the secrets
+-> kubectl delete secret <secret name>  --> To delete the secret 
+-> kubectl describe secret <secret name>  --> To describe the secret data
+
+# Volumes
+-> kubectl explain pod.spec.volumes  --> To get different types of volumes
+-> kubectl exec -it <podname> -c <containername> -- /bin/bash  -> To enter the container in K8S
+-> ll /mnt/raja  --> To see that file
+-> kubectl get pv  --> To see the presistence volumes
+-> kubectl get pvc  --> To see the presistence volumes claims
+-> kubectl edit pvc <pvc-name>  --> To change persistentVolumeReclaimPolicy
+-> kubectl api-resources | grep storage    -> To get the api version
+-> kubectl get sc
+
+
+# Netwrok Policy
+-> kubectl get po --show-labels  -> To see the pod labels name
+-> kubectl get all --show-labels  -> To see all the labels name
+-> kubectl get netpol   --> To see the network policies
+-> kubectl label namespace/<namespacename> team=operation  -> To create the label name to the namespace
+    [team=operation is the labelname to namespace]
+-> kubectl get ns --show-labels --> To see the namespace labels
+-> kubectl get all  --> To see all the data
+-> kubectl get all -n <namespace>  --> To get all data on namespaces
+-> kubectl get events  --> To check the events
+-> export = 
+
+# Custom Resources
+-> kubectl top pods -n default
+-> kubectl get limitrange -n default
+-> kubectl delete limitrange <name of limit> -n default
+-> kubectl describe limitrange <limitrange-name> -n <namespace>
+-> kubectl get resourcequota -n default
+-> kubectl delete resourcequota resource-quota -n default
+-> kubectl describe limitrange <quotaname-name> -n <namespace>
+
+# Daemon Set
+-> kubectl get ds   -> To see the daemon sets
+-> kubectl get ds -A  --> To the daemonset in all namespaces
+-> kubectl get pods -n kubesystem  --> To see the pods in kubesystem
+-> kubectl delete ds <name of daemonset>   --> To delete the daemon set
+-> kubectl delete ds <name of daemonset> --cascade=false  --> To delete the pods managed by daemonset
+
+# Ingress
+-> kubectl get ingress     --> To see the ingress
+-> kubectl get pods -A | grep nginx   --> To search the nginx pods
+-> kubectl edit pods ingress-nginx-controller-7d4db76476-7krq8 -n ingress-nginx      --> To see the ingress class-name
+
+# Jobs and Cronjobs
+-> kubectl get jobs  --> To see the jobs
+-> kubectl get pods   --> To see pods created by job
+-> kubectl get cj   -> to see the cronjobs
+-> kubectl get jobs  
+-> kubectl get jobs    -> New job is created you will look at time
+-> kubectl delete cj <cronjobname>   -> All cronjob and assosiated job will aslo deleted
+
+# RBAC [Role back access control]
+-> kubectl get serviceaccount
+-> kubectl get serviceaccount <Service account name> -n default
+-> kubectl get serviceaccount <Service account name> -n default -o yaml
+-> kubectl get clusterrole <Cluster-role-name>
+-> kubectl get clusterrole <Cluster-role-name> -o yaml
+-> kubectl get clusterrolebinding <Cluster-rolebinding-name>
+-> kubectl get clusterrolebinding <Cluster-rolebinding-name> -o yaml
+-> kubectl get secret
+-> kubectl describe secret <secret-name>
