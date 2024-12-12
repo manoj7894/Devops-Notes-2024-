@@ -1,0 +1,57 @@
+# To create only service
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort    # you could change whichever service you want
+
+
+# To create service with particularport
+apiVersion: v1
+kind: Service
+metadata:
+  name: javawebapp-service
+spec:
+  selector:
+    app: javawebapp
+    version: v1
+    color: blue
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 32654
+
+
+# To create service along with pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod1
+  labels:
+    app: my-nginx
+spec:
+  containers:
+  - name: my-container
+    image: manoj3003/nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort    # you could change whichever service you want [LoadBalancer]
