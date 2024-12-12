@@ -18,6 +18,7 @@
 -> curl podip (or) external node ip:portnumber -> To access the pod inside the cluster
 -> kubectl logs <pod-name>  --> To check the logs of pod
 -> kubectl logs <pod-name> -c <containername>  --> To check the logs of pod
+-> kubectl edit pods <podsname> --> To edit the pods
 
 # Service Commands
 -> kubectl get svc --> To get services
@@ -42,6 +43,8 @@
 -> kubectl top nodes  --> To get CPU memory
 -> kubectl run -it loadgenerator --image=busybox  --> To increase the loads on nodes
 -> wget -q -O- http://my-app-service  --> You have to execute this after execute the above command
+-> Kubectl get hpa
+-> kubectl get hpa --watch
 
 # Helm
 -> helm list --> To see paclages
@@ -82,4 +85,46 @@
 -> kubectl get all -n <namespace>  --> To get all data on namespaces
 -> kubectl get events  --> To check the events
 -> export = 
+
+# Custom Resources
+-> kubectl top pods -n default
+-> kubectl get limitrange -n default
+-> kubectl delete limitrange <name of limit> -n default
+-> kubectl describe limitrange <limitrange-name> -n <namespace>
+-> kubectl get resourcequota -n default
+-> kubectl delete resourcequota resource-quota -n default
+-> kubectl describe limitrange <quotaname-name> -n <namespace>
+
+# Daemon Set
+-> kubectl get ds   -> To see the daemon sets
+-> kubectl get ds -A  --> To the daemonset in all namespaces
+-> kubectl get pods -n kubesystem  --> To see the pods in kubesystem
+-> kubectl delete ds <name of daemonset>   --> To delete the daemon set
+-> kubectl delete ds <name of daemonset> --cascade=false  --> To delete the pods managed by daemonset
+
+# Ingress
+-> kubectl get ingress     --> To see the ingress
+-> kubectl get pods -A | grep nginx   --> To search the nginx pods
+-> kubectl edit pods ingress-nginx-controller-7d4db76476-7krq8 -n ingress-nginx      --> To see the ingress class-name
+
+# Jobs and Cronjobs
+-> kubectl get jobs  --> To see the jobs
+-> kubectl get pods   --> To see pods created by job
+-> kubectl get cj   -> to see the cronjobs
+-> kubectl get jobs  
+-> kubectl get jobs    -> New job is created you will look at time
+-> kubectl delete cj <cronjobname>   -> All cronjob and assosiated job will aslo deleted
+
+# RBAC [Role back access control]
+-> kubectl get serviceaccount
+-> kubectl get serviceaccount <Service account name> -n default
+-> kubectl get serviceaccount <Service account name> -n default -o yaml
+-> kubectl get clusterrole <Cluster-role-name>
+-> kubectl get clusterrole <Cluster-role-name> -o yaml
+-> kubectl get clusterrolebinding <Cluster-rolebinding-name>
+-> kubectl get clusterrolebinding <Cluster-rolebinding-name> -o yaml
+-> kubectl get secret
+-> kubectl describe secret <secret-name>
+
+
 
