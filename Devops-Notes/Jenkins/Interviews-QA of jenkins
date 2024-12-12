@@ -1,0 +1,123 @@
+1) Can you explain the CICD process in your current project ? or Can you talk about any CICD process that you have implemented ?
+In My current project we are using jenkins tool to implement the CI/CD process. What is the reason to using jenkins is whenever user can mkae any changes in our source code then webhook automatically
+Trigger the declarative pipeline script then declarative pipeline script automatically run mulitple stages in pipeline script.
+
+Now i am going the explain the stages before that we are using Github as source and our target platform is Kubernetes
+Coming to the stages
+Stage-1:- (Checkout) It will clone the source code from github repository
+Stage-2:- (Install Package Dependencies)
+Stage-3:- (Unit Test) Unit test case will help us to find out our application running the same which ois suppose to work
+Stage-4:- (Trivy file system scan) Trivy it will run the mulitple stages. First one it will scan the files and folders means it will scan the manifeast files, yaml file, terraform fiels and other files to detect the vulnerabilities. AS well as if we keep any password and tokens in that files and folder it will let us know to make sure dont expose
+Stage-5:- (OWASP Scan) It will check the dependencies in our dependencies in files like package.json
+Stage-6:- (Code Scan) we are using sonar qube to scan our source code to detect the bugs and smells
+Stage-7:- (Build) Build the docker image based on docker file
+Stage-8:- (Image Scan) We are using trivy to scan the docker image to decect the vulnerabilities
+Stage-9:- (Push) Push the docker image into dockerhub where we are using our docker images
+Stage-10:- (Update the manifeastfiles) Update the docker image in our manifeastfiles which we keep in our dockerhub
+Stage-11:- (Deploy to EKS) Automatically deploy your application to EKS cluster
+
+2) What are the different ways to trigger jenkins pipelines ?
+We can trigger the pipeline in differnet ways
+
+  - Poll SCM: Jenkins can periodically check the repository for changes and automatically build if changes are detected. 
+              This can be configured in the "Build Triggers" section of a job.
+              
+  - Build Triggers: Jenkins can be configured to use the Git plugin, which allows you to specify a Git repository and branch to build. 
+              The plugin can be configured to automatically build when changes are pushed to the repository.
+              
+  - Webhooks: A webhook can be created in GitHub to notify Jenkins when changes are pushed to the repository. 
+              Jenkins can then automatically build the updated code. This can be set up in the "Build Triggers" section of a job and in the GitHub repository settings.
+
+
+3) How to backup Jenkins ?
+there are multiple default and configured files and folders in Jenkins that you might want to backup.
+We are using rsync tool to take backup
+rsync menas copy the file from one palce and another but i will the copy only updatefiles not being existing files
+  - Configuration: The `~/.jenkins` folder. To backup the entire directory to another location.
+  
+    - Plugins: Backup the plugins installed in Jenkins by copying the plugins directory located in JENKINS_HOME/plugins to another location.
+    
+    - Jobs: Backup the Jenkins jobs by copying the jobs directory located in JENKINS_HOME/jobs to another location.
+    
+    - User Content: If you have added any custom content, such as build artifacts, scripts, or job configurations, to the Jenkins environment, make sure to backup those as well.
+    
+    - Database Backup: If you are using a database to store information such as build results, you will need to backup the database separately. This typically involves using a database backup tool, such as mysqldump for MySQL, to export the data to another location.
+
+4) How do you store/secure/handle secrets in Jenkins
+ There are multiple ways to achieve this, Let me give you a brief explanation of all the posible options.
+   - Credentials Plugin: Jenkins provides a credentials plugin that can be used to store secrets such as passwords, API keys, and certificates. The secrets are encrypted and stored securely within Jenkins, and can be easily retrieved in build scripts or used in other plugins.
+   
+   - Environment Variables: Secrets can be stored as environment variables in Jenkins and referenced in build scripts. However, this method is less secure because environment variables are visible in the build logs.
+   
+   - Hashicorp Vault: Jenkins can be integrated with Hashicorp Vault, which is a secure secrets management tool. Vault can be used to store and manage sensitive information, and Jenkins can retrieve the secrets as needed for builds.
+   
+   - Third-party Secret Management Tools: Jenkins can also be integrated with third-party secret management tools such as AWS Secrets Manager, Google Cloud Key Management Service, and Azure Key Vault.
+
+5) What is latest version of Jenkins or which version of Jenkins are you using 
+
+6) What is shared modules in Jenkins ?
+Shared modules in Jenkins refer to a collection of reusable code and resources that can be shared across multiple Jenkins jobs. This allows for easier maintenance, reduced duplication, and improved consistency across multiple build processes. For example, shared modules can be used in cases like:
+        - Libraries: Custom Java libraries, shell scripts, and other resources that can be reused across multiple jobs.
+        
+        - Jenkinsfile: A shared Jenkinsfile can be used to define the build process for multiple jobs, reducing duplication and making it easier to manage the build process for multiple projects.
+        
+        - Plugins: Common plugins can be installed once as a shared module and reused across multiple jobs, reducing the overhead of managing plugins on individual jobs.
+        
+        - Global Variables: Shared global variables can be defined and used across multiple jobs, making it easier to manage common build parameters such as version numbers, artifact repositories, and environment variables.
+
+7) can you use Jenkins to build applications with multiple programming languages using different agents in different stages ?
+Yes, Jenkins can be used to build applications with multiple programming languages by using different build agents in different stages of the build process.
+
+Jenkins supports multiple build agents, which can be used to run build jobs on different platforms and with different configurations. By using different agents in different stages of the build process, you can build applications with multiple programming languages and ensure that the appropriate tools and libraries are available for each language.
+
+
+8) How to setup auto-scaling group for Jenkins in AWS 
+
+9) How to add a new worker node in Jenkins ?
+Log into the Jenkins master and navigate to Manage Jenkins > Manage Nodes > New Node. Enter a name for the new node and select Permanent Agent. Configure SSH and click on Launch.
+
+10) How to add a new plugin in Jenkins ?
+Using the CLI, java -jar jenkins-cli.jar install-plugin <PLUGIN_NAME>
+
+Using the UI,
+Download the .hpi or .jpi file for the custom plugin from the source where it's available. This might be a direct download link from a website, a GitHub repository, or another distribution method.
+Upload the Plugin:
+Click on the "Manage Jenkins" link in the left-side menu.
+Click on the "Manage Plugins" link.
+
+11) What is JNLP and why is it used in Jenkins ?
+In Jenkins, JNLP is used to allow agents (also known as "slave nodes") to be launched and managed remotely by the Jenkins master instance. This allows Jenkins to distribute build tasks to multiple agents, providing scalability and improving performance.
+
+12) What are some of the common plugins that you use in Jenkins
+-> JDK Plugins
+-> Docker and Docker pipeline plugins
+-> Sonar-Scanner
+-> Dependency-Check
+-> Email-extension plugin
+-> Kuberntes Plugins
+
+13) Why we are using declarative pipeline script
+-> Scripted pipeline does not have more flexibility compare to declarative pipeline.
+-> Using Declarative pipeline we can easily collaborate with people and everyone can easily understand
+
+14) How do you handle the issues if your worknode is down and not responce
+-> I will log into the worker node and try to understand the problems.
+-> I will try lookinto the worknode the health. In case CPU and RAM going out of limit or CPU and RAM full you will write python or shell script to send alert then you will take the immediate action and implement the autoscaling to that ec2 instances.
+
+15) There is developer who has commit the change in git repo how deos your jenkins notify ?
+-> Using webhooks
+
+16) What type of agnet are you using in jenkins
+-> Docker agent because it is light weight and dont need do lots of installization like maven and other tools which we require.
+
+17) What are some common challenges in CI/CD, and how have you resolved them?
+
+Common challenges include:
+- Ensuring consistent environments across development, testing, and production.
+- Managing dependencies and versioning.
+- Handling failed builds or deployments.
+
+I have resolved these challenges by:
+- Using containerization (e.g., Docker) to ensure consistent environments.
+- Implementing dependency management tools (e.g., Maven, npm).
+- Configuring automated rollbacks and notifications for failed builds or deployments.
