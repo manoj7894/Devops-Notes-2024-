@@ -1,0 +1,461 @@
+# How to install gitlab
+ https://youtu.be/Qz_RowKsU50?si=Plu2hIcXHZnQ9W1r
+
+# What is gitlab
+
+GitLab is a web-based DevOps lifecycle tool that provides a Git repository manager, CI/CD pipeline features, and other DevOps functionalities to support the full software development lifecycle.
+It enables teams to collaborate on code, manage repositories, track issues, and automate software delivery pipelines. 
+
+# What is SSH
+-> SSH is aslo known as secure shell
+-> SSH is a network communication protocal that enables two computer communicate
+-> SSH is a secure way to access a computer
+-> SSH portnumber is 22
+-> vi /etc/ssh/ssh_config   -> SSH configuration file
+-> vi /etc/sshd  -> To change the SSH port number
+-> systemctl start sshd.service
+-> ssh-copy-id username@privateIp   [to connect with other user]
+
+# How to setup SSH key in git lab
+-> Click on profile
+-> click preference
+-> click SSH
+-> click add ssh
+-> before add the ssh you will create the ssh-key
+-> you will use below commands to create the ssh-key
+-> ssh-keygen   -> To create the ssh-key
+-> After the key if you go .ssh you will get private key[id_rsa] and public key[id_rsa.pub] 
+-> copy the public key
+-> paste the public key in gitlab ssh
+-> create the ssh
+
+# How to create the new project
+-> click on group
+-> click create new blank project
+-> give the repository name
+-> create the project
+-> later on you will push the some code in git repo 
+
+# Gitlab runner [Gitlab runner is a place where we run the jobs]
+-> Git runner is an application that pick up and execute the CI/CD pipeline for gitlab
+-> Git runner is open source
+-> can install gitlab runner on serverl different supported operating systems and aslo can run inside docker container
+-> In gitlab you have two runner
+   -> specific runner  [These runner are specific to this project]
+   -> shared runner [These runner are shared across this gitlab instances]
+
+# Install gitlab runner in windows
+-> To follow the below link to install gitlab runner
+-> https://docs.gitlab.com/runner/install/  
+-> click on windows
+-> download 64 bit binary file
+-> create one folder and past the binary file in that folder
+-> go to CMD and open CMD with run as adminstor
+-> go to the gitlab and click on project
+-> go to seetings and go to runner
+-> click on new project 
+-> give tag, time 1800
+-> create runner
+-> After create the runner you will get weblink and token in step1
+-> go to cmd and give below steps
+-> gitlab-runner.exe register
+-> https://gitlab.com/
+-> give token which you copied in gitlab
+-> give some name
+-> give shell
+-> gitlab-runner.exe install
+-> gitlab-runner.exe start
+-> later on you will go to gitlab and refersh the page
+-> if you want to stop and uninstall the runner you will use below command
+-> gitlab-runner.exe stop
+-> gitlab-runner.exe uninstall
+
+# Install gitlab runner in linux
+-> https://docs.gitlab.com/runner/install/linux-manually.html  -> Go to this link
+-> sudo curl -L --output /usr/local/bin/gitlab-runner "https://s3.dualstack.us-east-1.amazonaws.com/gitlab-runner-downloads/latest/binaries/gitlab-runner-linux-amd64"
+-> sudo chmod +x /usr/local/bin/gitlab-runner
+-> sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+-> sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+-> sudo gitlab-runner register
+-> https://gitlab.com
+-> give token which you copied in gitlab
+-> give some name
+-> give shell
+-> later on you will go to gitlab and refersh the page
+
+# How to uninstall the gitlab runner
+-> sudo gitlab-runner list
+-> sudo gitlab-runner unregister --name "runner-name"
+-> sudo gitlab-runner status
+-> sudo gitlab-runner stop
+
+
+
+
+# How to create the CI/CD pipeline in gitlab
+-> you will create the sample project in gitlab
+-> you will create the one file in that project
+-> give file name like .gitlab-ci.yml and past below script in that file
+  job1:
+    script:
+        - echo "This is the first sample job"
+-> click commit
+-> later click on build and click job and pipeline to check it out the pipeline and stage
+
+Note:- If you dont defined the stages the pipeline will run on default test stage.
+
+# If you want to execute the pipeline with stage you will use below script
+stages:
+    - build
+    - test
+    - deploy
+
+Build job:
+    stage: build
+    script:
+        - echo "This is the first sample build-job"
+
+
+Test job:
+    stage: test
+    script:
+        - echo "This is the first sample test-job"
+
+Deploy job:
+    stage: deploy
+    script:
+        - echo "This is the first sample deploy-job"
+
+# Gitlab CI/CD with maven project
+-> You will create the one instance
+-> You will give ssh key to gitlab like above
+-> you will setup gitlab runner in linux to follow the above steps
+-> You will install java using below commands
+-> sudo yum update
+-> sudo wget https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz
+-> sudo tar -xvf openjdk-13.0.1_linux-x64_bin.tar.gz
+-> sudo mv jdk-13.0.1 /opt/
+-> cd /etc/profile.d/
+-> ll
+-> sudo vim java.sh
+	JAVA_HOME='/opt/jdk-13.0.1'
+	PATH="$JAVA_HOME/bin:$PATH"
+	export PATH
+-> sh java.sh
+-> cd ~
+-> source /etc/profile
+-> java --version
+or
+-> sudo yum update
+-> sudo amazon-linux-extras install java-openjdk11 -y
+-> sudo dnf install java-11-amazon-corretto -y
+-> java --version
+-> which java
+-> whereis java
+-> yum list installed | grep java
+-> ls -al /usr/bin/java
+-> ls -al /etc/alternatives/java  --> To see the java path
+-> you will install git using below commands
+-> sudo yum install git -y
+-> git --version
+-> you will install maven using below commands
+-> sudo yum update
+-> sudo wget https://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+-> sudo tar -xvf apache-maven-3.6.3-bin.tar.gz
+-> sudo mv apache-maven-3.6.3 /opt/
+-> cd /etc/profile.d/                                
+-> ll                                                  
+-> sudo vim maven.sh                                   
+ 	M2_HOME='/opt/apache-maven-3.6.3'            
+	PATH="$M2_HOME/bin:$PATH"                    
+	export PATH                                  
+-> sh maven.sh                                          
+-> cd ~
+-> source /etc/profile
+-> mvn --version
+-> you will create the demo maven project
+-> mvn archetype:generate -DgroupId=com.example -DartifactId=myproject -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+-> later on you will create one prject in gitlab
+-> click on group
+-> click create new blank project
+-> give the repository name
+-> create the project
+-> git clone <gitlab url>
+-> give gitlab username
+-> give gitlab token
+-> later go to maven and copy the files to gitlab repo
+-> cp -R . /home/ec2-user/maven-project
+-> go to that repo check it out wheather files would came or not
+-> git status
+-> git add .
+-> git commit -m "somename"
+-> git log
+-> git push origin main
+glpat-vfrCFFsdEHZs-7zsFtcE  -> Token password
+
+-> You will follow the below link to CI/CD with maven project
+https://youtu.be/5vLD42BPWNA?si=wQMU-LLYmK6YRSDg
+
+# maven quickstart archtype
+mvn archetype:generate -DgroupId=com.example -DartifactId=myproject -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+# Without tags
+image: maven:latest
+
+stages:
+    - build
+
+Build job:
+    stage: build
+    script:
+        mvn package
+
+   or
+
+image: maven:latest
+
+stages:
+    - test
+    - build
+    - package
+
+Test job:
+    stage: test
+    script:
+        - "mvn clean test"
+
+Build job:
+    stage: build
+    script:
+        - "mvn compile"
+
+Package job:
+    stage: package
+    script:
+        - "mvn package"
+
+jobs is runnig witout tags but jobs is not running when we keep tags in pipeline i need to look into once.
+artifacts is pending
+
+
+# What is gitlab Container Registry
+-> How to make use of gitlab container registry
+-> Login to gitlab container registry using docker commands
+-> Build and push images to container registry
+-> Configure container registry images housekeeping settings
+
+# how to push the docker images into gitlab container registry
+-> Suppose you will not findout container registory in gitlab you will follow the below steps
+-> Go to gitlab, click on settings, click on general, click expend on visibility option
+-> go bottom enable the container registry option
+-> you will create one instance
+-> you install docker in that instance using below commands
+1.sudo yum update -y
+2.sudo yum install docker -y
+3.sudo service docker start
+4.sudo chkconfig docker on
+5.sudo usermod -aG docker $USER
+6.docker --version
+7.sudo service docker start
+8.sudo service docker status
+9.docker info
+If it is not work once you will exit from instance and again you will login
+-> later on go to the gitlab and click on container registry and go bottom
+-> it showing some  commands
+-> later on go terminal and create the docker file using below 
+# Use an official Nginx image as the base image
+FROM nginx:latest
+
+# Expose the HTTP port (default is 80)
+EXPOSE 80
+
+# Define the command to start Nginx when the container starts
+CMD ["nginx", "-g", "daemon off;"]
+-> docker build -t imagename .
+-> if you wanto to push that image into gitlab registry or container registry you have to tag the image using below command
+-> docker tag imagename <dockerhub username> or <gitlabcontainer registry>/somename
+-> docker tag imagename registry.gitlab.com/group17644518/maven134/nginx
+-> docker images
+-> docker login registry.gitlab.com
+-> manoj3003  -> username
+-> glpat-vfrCFFsdEHZs-7zsFtcE   -> gitlab access token
+-> docker push registry.gitlab.com/group17644518/maven134/nginx
+-> If you want to clean up your container registry to save the container space
+-> go to gitlab, click on settings, click on packages and registries and enable the cleanup policies
+
+# How to push the docker image to container regidtry using gitlab CI/CD pipeline  [specific project]
+-> You will keep docker file in gitlab repository   
+
+image: docker:latest
+
+# Define stages for the pipeline
+stages:
+  - build
+
+# Define job to build and push Docker image
+build_and_push_image:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t tomcat .
+    - docker tag tomcat registry.gitlab.com/group17644518/maven20/tomcat
+    - docker push registry.gitlab.com/group17644518/maven20/tomcat
+    - docker run -d --name con1 -p 8082:80 tomcat
+
+# We will push one docker image into gitlab container registry with unable the spefic ruuner [shared runner]
+-> You have to run in gitlab runner and unable the shared runner
+-> you will setup gitlab runner using above gitlab linux runner commands
+-> give docker,shell tags while you are creating the gitlab runner
+-> later on you will make sure once docker would be in running status or not using below command
+-> systemctl status docker
+-> you will add the gitlab runner user to docker group using below command
+-> sudo usermod -aG docker gitlab-runner
+stages:
+  - login
+  - build
+  - push
+  - logout
+
+login_job:
+  stage: login
+  tags:
+    - docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build_job:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker build -t tagimage1 .
+
+push_job:
+  stage: push
+  tags:
+    - docker
+  script:
+    - echo "This is push the image"
+
+logout_job:
+  stage: logout
+  tags:
+    - docker
+  script:
+    - docker logout $CI_REGISTRY 
+
+-> later run the above you will go to linux terminal once you will check it out wheather image is created or not
+
+
+stages:
+  - build
+
+# Define job to build and push Docker image
+build_and_push_image:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t tomcat .
+    - docker tag tomcat registry.gitlab.com/group17644518/maven20/tomcat
+    - docker push registry.gitlab.com/group17644518/maven20/tomcat
+    - docker run -d --name con1 -p 8082:80 tomcat
+
+-> You will access the browser using pubilc ip and port number
+
+
+stages:
+  - build
+  - deploy
+  - push 
+
+variables:
+  CI_REGISTRY: registry.gitlab.com
+  CI_REGISTRY_IMAGE: $CI_REGISTRY/group17644518/maven20/tomcat1
+
+
+before_script:
+  - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+build_job:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker build -t tomcat1 .
+    - docker tag tomcat1 $CI_REGISTRY_IMAGE
+
+deploy_job:
+  stage: deploy
+  tags:
+    - docker
+  script:
+    - docker run -d --name con2 -p 8084:80 tomcat1
+
+push_job:
+  stage: push
+  tags:
+    - docker
+  script:
+    - docker push $CI_REGISTRY_IMAGE
+
+
+-> Specific project [The below code is not working means when we run the code in specific project it is not working]
+
+
+image: docker:latest
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+  - push 
+
+variables:
+  CI_REGISTRY: registry.gitlab.com
+  CI_REGISTRY_IMAGE: $CI_REGISTRY/group17644518/maven20/tomcat12
+
+
+before_script:
+  - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+build_job:
+  stage: build
+  script:
+    - docker build -t tomcat12 .
+    - docker tag tomcat12 $CI_REGISTRY_IMAGE
+
+deploy_job:
+  stage: deploy
+  script:
+    - docker run -d --name con4 -p 8086:80 tomcat12
+
+push_job:
+  stage: push
+  script:
+    - docker push $CI_REGISTRY_IMAGE
+
+
+# What is the difference between git, github and gitlab
+# Git [Version control system]
+-> Git is didtribution version control system that allow the mulitple people collaborate on one project
+
+# Github [repository hosting service and collaboration platform]
+-> Github is a repository hosting service. github offers both free services and paid services. we can collaborate with other
+    github users for different projects in developing new features.
+
+# Gitlab [repository hosting service with CI/CD] 
+-> gitlab is also a repository hosting service similar to github. gitlab aslo CI/CD features to automate how you build,test and deploy your projects.
+
+
+Note: most of developers were simultaneously on different parts of code and modification in the code might confilt with each other
+       this is where repository managers like github, and gitlab
+
+Note: How many people work on same project without conflict
+suppose the three developers work on same project. first they will clone the repository from github and when clone the repository from github then workdirectory and local repository will form in terminal
+later they will write the code in workdirectory and commit to the local repo then you will push code to the github[we can findout who will push code the code to see versions]
