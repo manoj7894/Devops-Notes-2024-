@@ -1,0 +1,241 @@
+# What is IP
+-> IP stands for internet protocal
+->  It allows devices to communicate with each other over a network.
+-> In IP we have two types of IP address
+    -> Ipv4
+    -> Ipv6
+
+# What is Ipv4 [Internet protocal version 4]
+-> it having 32 bits
+-> Ipv4 having public and private Ip
+
+# What is Ipv6 [Internet protocal version 6]
+-> it having 128 bits
+-> Ipv4 having only public Ip
+
+Note: one IP having 4 octet
+      one octet having 8 bites
+      one bytes having 8 bites
+
+2^7  2^6 2^5 2^4 2^3 2^2 2^1 2^0   -> You will get 255 when you sum all the bites
+128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = 255    
+-> The Ipv4 is written it can be divied into class
+    class-A -> 0 - 127    (2^7 = 128)
+    class-B -> 128 - 191  (2^7 + 2^6 = 192)
+    class-c->  192 - 223   (2^7 + 2^6 + 2^5 = 224)
+    class-D->  224 - 239   (2^7 + 2^6 + 2^5 + 2^4 = 240)  (Multicast)
+    class-E->  240 - 255   (2^7 + 2^6 + 2^5 + 2^4 + 2^3 + 2^2 + 2^1 + 2^0 = 255)  (Reserved)
+
+# Understanding IP Address Classes
+  Class A (1.0.0.0 to 127.255.255.255)
+  First octet range: 1 - 127
+  Subnet mask: 255.0.0.0 (or /8 CIDR)
+  Network portion: First 8 bits
+  Host portion: Remaining 24 bits
+  Example: 10.0.0.1 is a Class A address.
+
+  Class B (128.0.0.0 to 191.255.255.255)
+  First octet range: 128 - 191
+  Subnet mask: 255.255.0.0 (or /16 CIDR)
+  Network portion: First 16 bits
+  Host portion: Remaining 16 bits
+  Example: 172.16.0.1 is a Class B address.
+
+  Class C (192.0.0.0 to 223.255.255.255)
+  First octet range: 192 - 223
+  Subnet mask: 255.255.255.0 (or /24 CIDR)
+  Network portion: First 24 bits
+  Host portion: Remaining 8 bits
+  Example: 192.168.1.1 is a Class C address.
+
+2. How to Calculate the IP Based on the Class
+To determine the class of an IP address, look at the first octet:
+
+If the first octet is between 1 and 127, it’s Class A.
+If the first octet is between 128 and 191, it’s Class B.
+If the first octet is between 192 and 223, it’s Class C.
+If the first octet is between 224 and 239, it’s Class D (multicast).
+If the first octet is between 240 and 255, it’s Class E (reserved for future use).
+
+# What is subnetmask
+-> A subnet mask is a 32-bit number that divides an IP address into two parts: the network portion and the host portion
+
+# Eaample-1
+-> 192.168.1.0/16
+-> 16 bits are fixed we won't change 
+-> In we have one network address and broadcast address
+-> 192.168.1.0 -> Network type address 
+-> 192.168.1.255 -> Broadcast address
+-> The network type address and broadcast type address are acuqied. we have remaing is 192.168.1.1 to 192.168.1.254-> between these two Ips we can able to use for host
+
+# Example-2
+-> Suppose 192.162.1.0/26
+-> Subnetmask is 255.255.255.0
+-> 11111111.11111111.11111111.11000000
+->  We have total 32 bits but our subnet mask is 26 (32-26 = 6)
+-> 2^6 = 64
+-> Network Address: 192.162.1.0
+-> Usable Addresses: 192.162.1.1 to 192.162.1.62
+-> Broadcast Address: 192.162.1.63
+
+# Example-3
+-> Suppose 192.162.1.0/28
+-> Subnetmask is 255.255.255.0
+-> 11111111.11111111.11111111.11110000
+->  We have total 32 bits but our subnet mask is 28 (32-28 = 4)
+-> 2^4 = 16
+-> Network Address: 192.162.1.0
+-> Usable Addresses: 192.162.1.1 to 192.162.1.14
+-> Broadcast Address: 192.162.1.15
+
+-> like that we have to assign the Ip address
+
+
+-> Highest range is 16 in VPC
+-> Lowest range is 28 in VPC
+   10.0.0.0/16  = 65536
+                    32-32
+   10.0.0.0/32  = 2        = 0
+                    32-31         1
+   10.0.0.0/32  = 2        = 1 = 2  = 2
+                    32-30         2
+   10.0.0.0/32  = 2        = 2 = 2  = 4
+                    32-29         3
+   10.0.0.0/32  = 2        = 3 = 2  = 8
+                    32-28         4
+   10.0.0.0/32  = 2        = 2 = 2  = 16
+-> If you have 8 even VPC dont allow that range
+-> Mostly 16 and 24 ranges will be use in VPC.
+
+Note:- (For understaning the purpose
+-> A /32 CIDR block refers to a network where all 32 bits of the IP address are used for the network portion, meaning there is no room left for hosts. Essentially, a /32 block represents a single IP address.
+-> You won't typically use /14 or /12 CIDR blocks for VPCs or smaller networks because they:
+      Provide too many IP addresses, resulting in wasted IP space.
+      Increase routing complexity and network overhead.
+      Are inefficient for most use cases, as large address blocks are rarely needed.
+      Instead, using /16 (65,536 IPs) or /24 (256 IPs) CIDR blocks offers a good balance of simplicity, flexibility, and efficiency. These smaller, more manageable blocks make it easier to divide networks, allocate IPs to devices, and scale your infrastructure.
+
+CIDR Blocks and Number of IP Addresses:
+10.0.0.0/16:
+This is a large network block that includes 65,536 IP addresses.
+Usable IP addresses: 65,534 (excluding network and broadcast addresses).
+This is commonly used for large VPCs.
+10.0.0.0/32:
+This block represents just one IP address (10.0.0.0), which is not usable for any devices other than the network itself.
+Usable IPs: 0, because there is only one address, and it's reserved as the network address.
+Progression of Subnet Sizes (From /32 to /28):
+10.0.0.0/31:
+
+Provides 2 addresses. One address will be used as the network address, and the other as the usable address.
+Usable IP: 1 IP address.
+10.0.0.0/30:
+
+Provides 4 addresses.
+Usable IPs: 2 IP addresses (one for the network, one for broadcast, leaving 2 for hosts).
+10.0.0.0/29:
+
+Provides 8 addresses.
+Usable IPs: 6 IP addresses (one for network, one for broadcast).
+10.0.0.0/28:
+
+Provides 16 addresses.
+Usable IPs: 14 IP addresses (network and broadcast reserved).
+
+/16 is the largest common subnet used in cloud VPCs and provides a very large number of IPs (65,536 addresses).
+/24 is the most common subnet size in cloud VPCs, providing 256 IP addresses, ideal for smaller segments within the larger network.
+/8 and /32 CIDR blocks are typically not allowed or useful in cloud environments:
+/8 blocks are too large and inefficient for typical cloud use.
+/32 blocks represent a single IP address, which isn’t practical for VPC subnetting or hosting multiple devices.
+These subnet sizes help ensure that VPCs are both scalable and manageable, without over-allocating or wasting IP address space.
+
+
+
+
+# What is AWS Networking?
+-> AWS Networking involves the creation and management of network components in the AWS Cloud. It includes services like Virtual Private Cloud (VPC), Subnets, Internet Gateways, NAT Gateways, Security Groups, Route Tables, and other networking tools to build private, secure, and scalable environments.
+
+# Benefits of AWS Networking
+-> Isolation: AWS provides logically isolated virtual networks with VPC.
+-> Scalability: Easily expand or modify network components as your needs grow.
+-> Security: Use Security Groups and Network ACLs to control traffic in and out of resources.
+-> Flexibility: Create custom network topologies to meet application needs.
+-> Cost Efficiency: Only pay for resources used, such as NAT Gateways and Elastic IPs.
+
+# What is VPC
+-> A private, isolated virtual network within AWS.
+-> Allows you to define IP ranges, subnets, and routing rules.
+-> Acts as a container for other networking components.
+
+# What is Subnets
+-> Logical subdivisions within a VPC.
+-> Enable segregation of resources into public or private zones.
+
+# What is Route Tables
+-> Define how network traffic is directed between subnets, gateways, and external resources.
+-> Each subnet in a VPC is associated with a route table that guides traffic to its destination.
+
+# Types of Routes
+-> Local Routes:
+    Automatically created for all VPCs.
+    Enable communication between resources within the VPC.
+    Example: Destination: 10.0.0.0/16 → Target: Local.
+
+-> Custom Routes:
+    Defined by you to direct traffic to specific targets.
+    Examples:
+    Route to the internet via an Internet Gateway (IGW).
+    Route to external networks via a NAT Gateway.
+    Route to other VPCs via VPC Peering.
+
+# Internet Gateway
+-> Enables internet access for resources in public subnets.
+
+# What is NAT Gateway
+-> Allows private subnet resources to access the internet for outbound traffic while blocking inbound internet access.
+
+# What is Security Groups (SGs)
+-> Act as virtual firewalls to control inbound and outbound traffic for individual resources.
+
+# What is Network ACLs (NACLs)
+-> Provide an additional layer of security by controlling traffic at the subnet level.
+
+# What is Elastic IPs (EIPs)
+-> Static, public IP addresses that can be reassigned across AWS resources.
+
+# Types of IP Addresses in AWS
+-> Public IP Address:
+    Assigned to resources in public subnets.
+    Enables direct communication with the internet.
+    Automatically assigned or can be replaced with an Elastic IP (static).
+    Example: 54.233.129.45.
+
+-> Private IP Address:
+    Used for internal communication within a VPC or between resources in private subnets.
+    Cannot access the internet directly.
+    Example: 10.0.2.15.
+
+-> Elastic IP Address (EIP):
+    A static, public IPv4 address you can allocate and attach to a resource.
+    Ideal for instances that need persistent public access.
+
+-> IPv6 Address:
+    Optional, globally unique addresses with a larger address space than IPv4.
+    Example: 2600:1f18:1234:abcd::1.
+
+
+# What is the difference between NAT Gateway and NAT Instance
+    Feature	           NAT Gateway	             NAT Instance
+    Management	        Fully managed by AWS	    Requires manual setup
+    Scalability	        Auto-scales	              Fixed instance capacity
+    High Availability	  Built-in	                Requires manual setup
+    Performance	        High	                    Limited by instance type
+    Cost	              Higher	                  Lower
+
+
+# What is the difference between SG and NACL
+Feature	          Security Groups (SG)	            Network ACLs (NACLs)
+Scope	              Instance-Level	                  Subnet-Level
+Statefulness	      Stateful	                        Stateless
+Inbound Rules	      Automatically match outbound	    Must be explicitly defined
+Use Case	          Resource-level traffic control	  Broad subnet-level control
+
