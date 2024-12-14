@@ -377,7 +377,7 @@ Note: one IP having 4 octet
 -> Public subnets typically have a route to an Internet Gateway (IGW) to allow internet access for resources within the subnet, while private subnets route traffic through NAT gateways.
 
 # What is VPC
--> VPC stands for virtual provide cloud in aws. 
+-> VPC stands for virtual private cloud in aws. 
 -> It is virtual network in AWS
 -> It allow you to control your vitual network environment.
 
