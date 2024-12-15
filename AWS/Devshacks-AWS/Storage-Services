@@ -18,5 +18,15 @@ EBS: Amazon EBS is a high-performance block storage service designed for use wit
 -> AWS hybrid storage solutions enable seamless integration between on-premises environments and the AWS cloud.
 
 
+# Comparison of AWS Storage Types
+
+Feature	          Object Storage (S3)       	     Block Storage (EBS)	        File Storage (EFS, FSx)	           Hybrid Storage
+Data Type	          Unstructured (objects)	         Structured (blocks)	        Semi-structured (files)	           All types
+Use Case	          Backup, content delivery	       Databases, app servers	      Shared files, HPC workloads	       On-prem to cloud backup
+Performance	        High throughput	                 Low latency, high IOPS	      Scalable throughput and IOPS	     Depends on service
+Scalability	        Unlimited	                       Scales with volume size	    Scales with file system size	     Depends on configuration
+Cost Optimization	  Intelligent-Tiering,             Glacier	Snapshots	          Lifecycle policies	               Mix of on-prem and cloud
+
+
 
 
