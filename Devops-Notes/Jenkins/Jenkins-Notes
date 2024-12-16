@@ -77,8 +77,8 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 -> After Install the Java plugins again you go to manage jenkins and go to tools and install java JDK8 and JDK11 and maven.         
 -> later on you create one job
 -> In Build Triggers we have two main options 
-  -> Build perdically [It will build the job whichever time you want]
-  -> POLL SCM [It will build the job whenever developer change code in github]
+  -> Build perdically [It will build the job based on the crontab eventhough there are no changes in the github repository]
+  -> POLL SCM [It will build the job whenever changes detect in our ghithub repo ]
        * minute[0-59] 
        * hour[1-23]             
        * day of month [1-31]
