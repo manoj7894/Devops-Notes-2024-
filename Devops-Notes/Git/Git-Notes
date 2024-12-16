@@ -137,11 +137,16 @@ If you want to pull changes to another branch you will use this below command ke
 git pull <repo Url> branch name
 
 # What is git branch strategy
-we have 5 branches
-master  --> It is a Production means live env and it having existing code  [Upto date]
-feature  --> If we want to update any existing app then we will create the feature branch after complete the code update we will merge the code into master branch
-release  --> Ready to delivered to the customres
-Hot fix  --> If customer raise the any problem then we will create hotfix branch and we will reslove that problem. we will merge the code into master branch after reslove the problem
+-> We are using these branches in our brnaching Strategy
+-> Main/Master  --> This is the primary branch that holds the stable, production-ready code.
+-> Feature  --> Feature branches are created from main. Feature branches are used to develop new features or make changes to the application.
+                Once a feature is complete, it is merged back into main
+-> Release  --> Release branches are created from the main branch once the development work (usually in feature branches) is completed
+            --> If you get any bugs while you are doing deployment from feature branch we will reslove in that branch.
+            --> Once the release is ready, it's merged into both main
+-> Hot fix  --> Hotfix branches are created from the main.
+            --> Hotfix branches are used to address critical bugs or issues in the production code. These issues need to be fixed immediately, without waiting for the next release cycle.
+            --> One fix the error you will merge the code to both main and release or feature to avoid the bug reappearing in future.
 
 # What are the difference difference between new repo and new project
 New repo  --> It is the part of git and git hub
