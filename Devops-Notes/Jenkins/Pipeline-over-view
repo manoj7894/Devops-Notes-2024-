@@ -21,3 +21,10 @@ Stage-6(Build Docker image) -> Create the docker image based docker file
 Stage-7(Scan the docker image) -> Trivy it will scan the base image and other configurations, let us know and give the file if any vulnerabilities is there
 
 Stage-8(Deploy) Deploy to kubernets
+
+
+# Explanation of pipeline stages
+Stage(Build) :- It convert the source code into product or an artifact which can be consumed
+Stage(Unit-Test) :- Basically Developer aslo do the unit test and push the code to github. Again why we do the unit test.
+                    Developer will do unit test for one or two files. We will do unit test to all the code to stored in repository.
+Stage(Code-coverage):- 
