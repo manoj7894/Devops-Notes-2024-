@@ -121,3 +121,8 @@ I have resolved these challenges by:
 - Using containerization (e.g., Docker) to ensure consistent environments.
 - Implementing dependency management tools (e.g., Maven, npm).
 - Configuring automated rollbacks and notifications for failed builds or deployments.
+
+# What is the difference between Quality Profile and Quality Gate
+-> A Quality Profile in SonarQube defines the set of rules for analyzing code quality, 
+-> while a Quality Gate defines the criteria that a project must meet to pass a quality check.
+
