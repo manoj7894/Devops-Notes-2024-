@@ -1,0 +1,224 @@
+-> First You will create one role with Ec2 trusted enity attach these two policies AmazonEC2ContainerRegistryFullAccess, AWSLambda_FullAccess and create the role
+-> After creating the role you will attach the role to Ec2 instance where your jenkins is running
+-> Again you will create one role with lambda trusted entity and attach this AWSLambda_FullAccess, and creat the role
+-> After create the role, copy that role arn and paste that role arn in pipeline script
+-> Finally you will execute the below script in jenkins
+
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKER_IMAGE = "swigy"
+        GIT_REPO_NAME = "frissly-repo1"
+        GIT_USERNAME = "manoj7894"
+        DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml"
+        SCANNER_HOME = tool 'sonar-scanner'
+        AWS_REGION = 'us-east-1'  // Update your AWS region
+        AWS_ACCOUNT_ID = '869935101375'
+        ECR_REPOSITORY = 'frissly'
+        LAMBDA_FUNCTION_NAME = 'myLambdaFunction'  // Set your Lambda function name here
+        LAMBDA_ROLE_ARN = 'arn:aws:iam::869935101375:role/Lambda-Creation'  // Set your Lambda execution role ARN
+    }
+
+    stages {
+        stage('Remove All Previous Docker Images') {
+            steps {
+                sh 'docker rmi -f $(docker images -a -q) || true'
+            }
+        }
+
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+
+        stage('Get Code') {
+            steps {
+                git branch: 'main', credentialsId: 'Github_id', url: 'https://github.com/manoj7894/swiggy-nodejs-devops-project.git'
+            }
+        }
+
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        // Ensure image is tagged with the ECR URL and build number
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+
+        stage('Create ECR Repository if Not Exists') {
+            steps {
+                script {
+                    sh '''
+                        # Check if the repository exists, if not, create it
+                        aws ecr describe-repositories --repository-names ${ECR_REPOSITORY} --region ${AWS_REGION} || \
+                        aws ecr create-repository --repository-name ${ECR_REPOSITORY} --region ${AWS_REGION}
+                    '''
+                }
+            }
+        }
+
+        stage('Push Into ECR') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        sh '''
+                            # Login to AWS ECR
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                            
+                            # Check if the image exists locally
+                            docker images | grep ${DOCKER_IMAGE}
+                            
+                            # Tag the Docker image with the correct ECR repository
+                            docker tag ${DOCKER_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${BUILD_NUMBER}
+                            
+                            # Push the Docker image to ECR
+                            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${BUILD_NUMBER}
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Create Lambda Function if Not Exists') {
+            steps {
+                script {
+                    // Check if the Lambda function exists
+                    def functionExists = sh(script: "aws lambda get-function --function-name ${LAMBDA_FUNCTION_NAME} --region ${AWS_REGION}", returnStatus: true) == 0
+                    if (!functionExists) {
+                        echo "Lambda function does not exist. Creating new Lambda function..."
+
+                        // Create Lambda function if it doesn't exist
+                        sh '''
+                            aws lambda create-function \
+                                --function-name ${LAMBDA_FUNCTION_NAME} \
+                                --package-type Image \
+                                --code ImageUri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${BUILD_NUMBER} \
+                                --role ${LAMBDA_ROLE_ARN} \
+                                --region ${AWS_REGION}
+                        '''
+                    } else {
+                        echo "Lambda function already exists. Proceeding with update."
+                    }
+                }
+            }
+        }
+
+        stage('Wait for Lambda to Become Active') {
+            steps {
+                script {
+                    echo "Waiting for Lambda function to become active..."
+
+                    def isActive = false
+                    def attempts = 0
+                    while (!isActive && attempts < 15) { // Increased number of attempts
+                        def status = sh(script: "aws lambda get-function --function-name ${LAMBDA_FUNCTION_NAME} --region ${AWS_REGION} --query 'Configuration.State'", returnStdout: true).trim()
+                        echo "Current status: ${status}"
+
+                        if (status == 'Active') {
+                            isActive = true
+                        } else if (status == 'Pending') {
+                            echo "Lambda function is still in pending state, waiting..."
+                        } else {
+                            echo "Lambda function is in an unexpected state: ${status}. Retrying..."
+                        }
+
+                        // Retry logic with a longer sleep duration
+                        sleep(60)  // Sleep for 60 seconds before checking again
+                        attempts++
+                    }
+
+                    if (!isActive) {
+                        error "Lambda function did not become active in time after ${attempts} attempts."
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Docker Image to Lambda') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        sh '''
+                            # Update Lambda function with the new ECR image
+                            aws lambda update-function-code \
+                                --function-name ${LAMBDA_FUNCTION_NAME} \
+                                --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${BUILD_NUMBER} \
+                                --region ${AWS_REGION}
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                def jobName = 'Frissly'
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+
+                def body = """<html>
+                                <body>
+                                    <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                                        <h2>${jobName} - Build ${buildNumber}</h2>
+                                        <div style="background-color: ${bannerColor}; padding: 10px;">
+                                            <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                                        </div>
+                                        <p>Check the <a href="${BUILD_URL}">console output</a>.</p> 
+                                    </div>
+                                </body>
+                            </html>"""
+
+                emailext(
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                    body: body,
+                    to: 'manojvarmapotthutri@gmail.com',
+                    from: 'jenkins@example.com',
+                    replyTo: 'jenkins@example.com',
+                    attachmentsPattern: '**/fs-report.html,**/trivy.txt',
+                    mimeType: 'text/html'
+                )
+            }
+        }
+    }
+}
