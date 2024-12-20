@@ -72,6 +72,42 @@ pipeline {
             }
         }
 
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('package.json')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
+                    -Dsonar.projectKey=Validate \
+                    -Dsonar.host.url=http://54.173.242.65:9000'''
+                }
+            }
+        }
+
+        stage('Stage V: QualityGates') {
+            steps {
+                echo "Running Quality Gates to verify the code quality"
+                script {
+                    timeout(time: 2, unit: 'MINUTES') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -79,6 +115,14 @@ pipeline {
                         // Ensure image is tagged with the ECR URL and build number
                         sh "docker build -t ${DOCKER_IMAGE} ."
                     }
+                }
+            }
+        }
+        
+        stage('Trivy Image Scan') {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
                 }
             }
         }
@@ -136,37 +180,6 @@ pipeline {
                         '''
                     } else {
                         echo "Lambda function already exists. Proceeding with update."
-                    }
-                }
-            }
-        }
-
-        stage('Wait for Lambda to Become Active') {
-            steps {
-                script {
-                    echo "Waiting for Lambda function to become active..."
-
-                    def isActive = false
-                    def attempts = 0
-                    while (!isActive && attempts < 15) { // Increased number of attempts
-                        def status = sh(script: "aws lambda get-function --function-name ${LAMBDA_FUNCTION_NAME} --region ${AWS_REGION} --query 'Configuration.State'", returnStdout: true).trim()
-                        echo "Current status: ${status}"
-
-                        if (status == 'Active') {
-                            isActive = true
-                        } else if (status == 'Pending') {
-                            echo "Lambda function is still in pending state, waiting..."
-                        } else {
-                            echo "Lambda function is in an unexpected state: ${status}. Retrying..."
-                        }
-
-                        // Retry logic with a longer sleep duration
-                        sleep(60)  // Sleep for 60 seconds before checking again
-                        attempts++
-                    }
-
-                    if (!isActive) {
-                        error "Lambda function did not become active in time after ${attempts} attempts."
                     }
                 }
             }
