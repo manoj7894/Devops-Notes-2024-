@@ -1,0 +1,53 @@
+# What is an API
+-> API stands application programming interface which helps us to establish communication between two diffenent applications
+
+# What are the Methods of API
+-> We have so many methods but mostly we will use only four methos
+   -> GET
+        Purpose: Retrieve data from the server without making any changes.
+        Example: Fetch a list of users or get details about a specific item.
+        Idempotent: Yes, meaning multiple calls with the same parameters should return the same result without side effects.
+        Example Request: GET /users/123
+   -> PUT
+        Purpose: Update an existing resource, typically by replacing it with new data. It can also be used to create a resource if it doesn't already exist.
+        Example: Update user information.
+        Idempotent: Yes, meaning calling the same PUT request multiple times will result in the same resource state.
+        Example Request: PUT /users/123 (with a body containing updated user data)
+   -> POST
+        Purpose: Send data to the server to create a new resource or trigger an action. The server often responds with the created resource or a status message.
+        Example: Create a new user or submit a form.
+        Idempotent: No, meaning calling the same POST request multiple times may result in different outcomes (e.g., multiple records created).
+        Example Request: POST /users (with a body containing user data)
+   -> DELETE
+        Purpose: Remove a resource from the server.
+        Example: Delete a user or remove a product from the system.
+        Idempotent: Yes, calling DELETE multiple times will have the same result (the resource will already be deleted).
+        Example Request: DELETE /users/123
+
+
+# What is API-Gateway
+-> The API-Gateway is a service provided by AWS which is used to create, publish, maintain and secure veriour APIs Such as REST, HTTP, and Web socket
+
+REST API: AWS API Gateway can create RESTful APIs that follow the REST architectural principles, supporting CRUD operations over HTTP.
+HTTP API: HTTP APIs provide a lightweight version of the REST API that focuses on low-latency, cost-effective communication, suitable for simpler use cases.
+WebSocket API: AWS API Gateway also supports WebSocket APIs, enabling real-time, full-duplex communication between clients and servers.
+
+CRUD stands for Create, Read, Update, Delete. 
+
+# Features of API-Gateway
+-> Support Stateful(Websocket) and Stateless(HTTP and REST) APIs.
+-> Highly Secured authentication mechanisam
+-> Cloud watch logging support which helps to monitor the API performance
+-> Supports Custom domain names
+-> Interaction with AWS X-ray (To interact with other services in AWS like lambda)
+
+
+# How to create API-Gateway
+-> Go to API-Gateway in AWS console
+-> Click Build on Rest API
+-> Click NEW API, Give name and Select regional in API endpoint type
+-> Click create
+-> AFter create API, You have to create Resource, Click create resource, give resource name and create resource name
+-> After create resource you have to create method in method you have select method type like (get, put, post, delete), click lambda and ARN. To trigger with lambda
+-> After complete to create method, click deploy API and write the stage whichever stage do you want use the API and create
+-> Go to stages and copy API and paste over the internet.
