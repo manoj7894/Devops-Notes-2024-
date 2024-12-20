@@ -27,4 +27,20 @@ Stage-8(Deploy) Deploy to kubernets
 Stage(Build) :- It convert the source code into product or an artifact which can be consumed
 Stage(Unit-Test) :- Basically Developer aslo do the unit test and push the code to github. Again why we do the unit test.
                     Developer will do unit test for one or two files. We will do unit test to all the code to stored in repository.
-Stage(Code-coverage):- 
+Stage(Code-coverage):- How many lines of code you should test. It will check the how much percentage of code is unit test case has covered.
+                       Code-coverage will help us to find out the whether we should run any more test case or not
+   Ex:- If you get 60% of code coverage it means when your Unit test case has tested only 600 lines of code out of 1000 lines.
+        Then Code Coverage let us know you have to run some more test cases to cover the remaining lines. As well as it will let us know The code which we tested really it is needed or unless or junk code
+
+Stage(SCA:- Software Composition Analysis) (OWSAP Dependency Check)
+   -> Identify the vulnerabilities Introduce by Open source or 3rd party Libraried used in code.
+   -> If it means mostaly developer they won't write the code from basic usually they write the code take from internet or another resources.
+        This tool will check developer has taken any license any code with registered with others because after relase the producet it may cause so many probelems
+    -> It will check that code vulnerabilities
+    
+Stage(SAST:- Static Application Security Test)
+    -> It identify the vulnerabilities In proprietary Code menas it will check the vulnerabilities in our actual source code.
+    -> We will check the code after build by the using SAST
+
+Stage(Quality Gate)
+    -> Chekc if the application meets the quality Standards based on Company standards
