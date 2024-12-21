@@ -1,4 +1,5 @@
--> You will se
+-> You will set up the jenkins as like before. You will execute the below script after setup the jenkins.
+
 pipeline {
     agent any
 
@@ -141,10 +142,10 @@ pipeline {
                             docker images | grep ${DOCKER_IMAGE}
                             
                             # Tag the Docker image with the correct ECR repository
-                            docker tag ${DOCKER_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:1
+                            docker tag ${DOCKER_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
                             
                             # Push the Docker image to ECR
-                            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:1
+                            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
                         '''
                     }
                 }
@@ -185,3 +186,8 @@ pipeline {
         }
     }
 }
+
+
+-> After execute the above script you will keep that image URL in your apprunner terraform Code.
+-> Later you will execute the your terraform code.
+-> Apprunner automatically whenever you upload the new image in our ECR.
