@@ -1,0 +1,187 @@
+-> You will se
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node22'
+    }
+
+    environment {
+        DOCKER_IMAGE = "swigy"
+        SCANNER_HOME = tool 'sonar-scanner'
+        AWS_REGION = 'us-east-1'  // Update your AWS region
+        AWS_ACCOUNT_ID = '869935101375'
+        ECR_REPOSITORY = 'frissly'
+    }
+
+    stages {
+        stage('Remove All Previous Docker Images') {
+            steps {
+                sh 'docker rmi -f $(docker images -a -q) || true'
+            }
+        }
+
+        stage('Cleanup Old Trivy Reports') {
+            steps {
+                script {
+                    echo "Cleaning up old Trivy reports..."
+                    sh '''
+                        rm -f trivy.txt
+                        rm -f fs-report.html
+                    '''
+                }
+            }
+        }
+
+        stage('Get Code') {
+            steps {
+                git branch: 'main', credentialsId: 'Github_id', url: 'https://github.com/manoj7894/swiggy-nodejs-devops-project.git'
+            }
+        }
+
+        stage('Install Package Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+
+        stage('Check for Tests') {
+            steps {
+                script {
+                    def testScriptExists = sh(script: "grep -q '\"test\":' package.json", returnStatus: true) == 0
+                    env.TEST_SCRIPT_EXISTS = testScriptExists ? 'true' : 'false'
+                }
+            }
+        }
+
+        stage('Trivy Filesystem Scan') {
+            steps {
+                script {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
+        }
+
+        stage('OWASP Scan') {
+            when {
+                expression {
+                    fileExists('package.json')
+                }
+            }
+            steps {
+                dependencyCheck additionalArguments: '', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar_Install') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Validate \
+                    -Dsonar.projectKey=Validate \
+                    -Dsonar.host.url=http://54.173.242.65:9000'''
+                }
+            }
+        }
+
+        stage('Stage V: QualityGates') {
+            steps {
+                echo "Running Quality Gates to verify the code quality"
+                script {
+                    timeout(time: 2, unit: 'MINUTES') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_id', toolName: 'Docker') {
+                        // Ensure image is tagged with the ECR URL and build number
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    }
+                }
+            }
+        }
+        
+        stage('Trivy Image Scan') {
+            steps {
+                script {
+                    sh "trivy image ${DOCKER_IMAGE} > trivy.txt"
+                }
+            }
+        }
+
+        stage('Create ECR Repository if Not Exists') {
+            steps {
+                script {
+                    sh '''
+                        # Check if the repository exists, if not, create it
+                        aws ecr describe-repositories --repository-names ${ECR_REPOSITORY} --region ${AWS_REGION} || \
+                        aws ecr create-repository --repository-name ${ECR_REPOSITORY} --region ${AWS_REGION}
+                    '''
+                }
+            }
+        }
+
+        stage('Push Into ECR') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_Credetilas_id']]) {
+                        sh '''
+                            # Login to AWS ECR
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                            
+                            # Check if the image exists locally
+                            docker images | grep ${DOCKER_IMAGE}
+                            
+                            # Tag the Docker image with the correct ECR repository
+                            docker tag ${DOCKER_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:1
+                            
+                            # Push the Docker image to ECR
+                            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:1
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                def jobName = 'Frissly'
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+
+                def body = """<html>
+                                <body>
+                                    <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                                        <h2>${jobName} - Build ${buildNumber}</h2>
+                                        <div style="background-color: ${bannerColor}; padding: 10px;">
+                                            <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                                        </div>
+                                        <p>Check the <a href="${BUILD_URL}">console output</a>.</p> 
+                                    </div>
+                                </body>
+                            </html>"""
+
+                emailext(
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                    body: body,
+                    to: 'manojvarmapotthutri@gmail.com',
+                    from: 'jenkins@example.com',
+                    replyTo: 'jenkins@example.com',
+                    attachmentsPattern: '**/fs-report.html,**/trivy.txt',
+                    mimeType: 'text/html'
+                )
+            }
+        }
+    }
+}
