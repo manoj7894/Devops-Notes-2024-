@@ -13,9 +13,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "swigy"
-        GIT_REPO_NAME = "frissly-repo1"
-        GIT_USERNAME = "manoj7894"
-        DEPLOYMENT_FILE_PATH = "Kubernetes/deployment.yml"
         SCANNER_HOME = tool 'sonar-scanner'
         AWS_REGION = 'us-east-1'  // Update your AWS region
         AWS_ACCOUNT_ID = '869935101375'
